@@ -45,3 +45,7 @@ Panel: `https://muallaf-management.test/central` dan `https://muallaf-management
 | Migrasi ulang + seed | `php artisan migrate:fresh --database=migrator --seed` |
 
 Semua perintah di atas tersedia sebagai run configuration PhpStorm di folder `.run/`.
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) berjalan pada setiap pull request dan push ke `main`: Pint, Larastan, `composer audit`, lalu Pest (termasuk grup `tenant-isolation`) di MySQL 8.4.
