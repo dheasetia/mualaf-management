@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\Login;
+use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,7 +31,12 @@ class CentralPanelProvider extends PanelProvider
             ->default()
             ->id('central')
             ->path('central')
-            ->login()
+            ->login(Login::class)
+            ->passwordReset()
+            ->profile()
+            ->multiFactorAuthentication([
+                AppAuthentication::make()->recoverable(),
+            ], isRequired: true)
             ->colors([
                 'primary' => Color::Emerald,
             ])
@@ -54,6 +62,7 @@ class CentralPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnforceAbsoluteSessionLifetime::class,
             ]);
     }
 }

@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | 1 | Project foundation (selesai 21-11-2026) | 1 | Laravel + Filament, Pint, Larastan, Pest, CI, `.run/` PhpStorm, README |
 | 2 | Tenancy (selesai 21-11-2026) | 1 | `tenants`, `tenant_settings`, `user_tenant_memberships`, `TenantContext`, `BelongsToTenant`, `SetTenantContext`, test isolasi dasar |
-| 3 | Authentication | 1 | Login dua panel, MFA, lockout, session policy |
+| 3 | Authentication (selesai 22-11-2026) | 1 | Login dua panel, MFA (wajib di Central; di Center menunggu role pada langkah 4), lockout per akun, session idle 30 menit + absolut 12 jam, tanpa remember-me |
 | 4 | RBAC | 1 | Tabel RBAC, seeder role/permission, resolver, policies dasar, matriks disetujui |
 | 5 | Audit | 1 | `audit_logs`, `AuditRedactor`, append-only grant + trigger |
 | 6 | Master data | 1 | Region, kota, negara, bahasa, agama, kategori, jenis aktivitas + Filament Central |

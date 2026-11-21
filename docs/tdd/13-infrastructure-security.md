@@ -72,8 +72,8 @@ Aturan:
 | HTTPS | Wajib, HSTS 1 tahun, cookie `Secure`, `HttpOnly`, `SameSite=Lax` |
 | Autentikasi | Filament login; password minimal 12 karakter, cek kebocoran (`Password::uncompromised()`) |
 | MFA | Wajib untuk role platform dan role kantor yang punya approve/verify/reveal |
-| Session | Redis, idle timeout 30 menit, absolute 12 jam, regenerasi saat login, logout semua sesi saat password/role berubah |
-| Lockout | 5 gagal → lock 15 menit, notifikasi pemilik akun |
+| Session | Redis, idle timeout 30 menit (`SESSION_LIFETIME`), absolute 12 jam (`SESSION_ABSOLUTE_LIFETIME`, middleware `EnforceAbsoluteSessionLifetime`), regenerasi saat login, sesi lain berakhir saat password berubah (`AuthenticateSession`); opsi "remember me" dihapus karena akan melewati idle timeout |
+| Lockout | 5 gagal → lock 15 menit per email (`AccountLockout`), berlaku juga untuk email yang tidak terdaftar agar tidak membuka keberadaan akun; notifikasi email ke pemilik akun sekali saat terkunci |
 | CSRF | Bawaan Laravel/Livewire |
 | XSS | Blade escaping; rich text disanitasi (HTML Purifier) sebelum simpan |
 | SQL injection | Query builder/Eloquent saja; raw query wajib binding dan review |
