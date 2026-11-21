@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Identity\Models\UserRoleAssignment;
+use App\Domain\Identity\Rbac\Authorizer;
 use App\Domain\Tenancy\Enums\MembershipStatus;
 use App\Domain\Tenancy\Enums\TenantStatus;
 use App\Domain\Tenancy\Models\Tenant;
@@ -64,7 +66,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 
         return match ($panel->getId()) {
             'center' => $this->accessibleTenants()->exists(),
-            // Central access comes from platform roles, added with RBAC (implementation step 4).
+            'central' => app(Authorizer::class)->hasAnyPlatformRole($this),
             default => false,
         };
     }
@@ -93,6 +95,21 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             ->whereHas('memberships', fn (Builder $query) => $query
                 ->where('user_id', $this->id)
                 ->where('status', MembershipStatus::Active));
+    }
+
+    /**
+     * Permission check in the current scope: office roles of the tenant in context,
+     * or platform roles when there is no tenant context.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return app(Authorizer::class)->check($this, $permission);
+    }
+
+    /** @return HasMany<UserRoleAssignment, $this> */
+    public function roleAssignments(): HasMany
+    {
+        return $this->hasMany(UserRoleAssignment::class);
     }
 
     /** @return HasMany<UserTenantMembership, $this> */

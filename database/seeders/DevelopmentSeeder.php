@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Identity\Actions\AssignRole;
+use App\Domain\Identity\Enums\RoleScope;
+use App\Domain\Identity\Models\Role;
 use App\Domain\Platform\Models\City;
 use App\Domain\Tenancy\Actions\ChangeTenantStatus;
 use App\Domain\Tenancy\Actions\CreateTenant;
@@ -26,15 +29,19 @@ final class DevelopmentSeeder extends Seeder
         'JED' => ['المركز الإسلامي بجدة', 'Islamic Center Jeddah'],
     ];
 
-    public function run(CreateTenant $createTenant, ChangeTenantStatus $changeStatus, GrantTenantMembership $grant): void
-    {
+    public function run(
+        CreateTenant $createTenant,
+        ChangeTenantStatus $changeStatus,
+        GrantTenantMembership $grant,
+        AssignRole $assignRole,
+    ): void {
         $password = config('app.dev_seed_password');
 
         if (! is_string($password) || strlen($password) < 12) {
             throw new RuntimeException('Set DEV_SEED_PASSWORD (12+ characters) in .env before seeding development data.');
         }
 
-        $this->call(PlatformMasterSeeder::class);
+        $this->call([PlatformMasterSeeder::class, RbacSeeder::class]);
 
         $user = User::query()->firstOrCreate(
             ['email' => 'dev.admin@muallaf.test'],
@@ -58,6 +65,22 @@ final class DevelopmentSeeder extends Seeder
 
             $changeStatus->handle($tenant, TenantStatus::Active);
             $grant->handle($user, $tenant);
+            $assignRole->handle($user, Role::query()->where('code', 'center_admin')->sole(), $tenant, null);
+
+            // One synthetic user per office role, e.g. dai.dmm@muallaf.test.
+            foreach (Role::query()->where('scope_type', RoleScope::Tenant)->where('code', '!=', 'center_admin')->get() as $role) {
+                $staff = User::query()->create([
+                    'name' => $role->name_en.' '.$code,
+                    'email' => sprintf('%s.%s@muallaf.test', str_replace('_', '-', $role->code), strtolower($code)),
+                    'password' => $password,
+                ]);
+                $grant->handle($staff, $tenant);
+                $assignRole->handle($staff, $role, $tenant, null);
+            }
+        }
+
+        if (! $user->roleAssignments()->whereNull('tenant_id')->exists()) {
+            $assignRole->handle($user, Role::query()->where('code', 'super_admin')->sole(), null, null);
         }
     }
 }

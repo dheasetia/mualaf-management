@@ -88,7 +88,7 @@ Tabel `consent_records` (lihat [10-data-model-administration.md](10-data-model-a
 Akses administrator pusat ke data individual hanya melalui `privileged_access_requests`:
 
 1. Pemohon (role platform) mengajukan: resource, alasan, scope field, durasi (maks 24 jam).
-2. Disetujui oleh pemegang `privileged.approve` yang berbeda (four-eyes). Untuk keadaan darurat, Super Admin dapat self-approve dengan alasan wajib dan notifikasi ke Central Auditor.
+2. Disetujui oleh pemegang `privileged.approve` (Super Admin atau Central Auditor) yang bukan pemohon (four-eyes). Tidak ada self-approval, termasuk dalam keadaan darurat; karena itu dua role memegang hak persetujuan.
 3. Grant aktif disimpan di `TenantContext::privilegedGrantId`; policy memeriksa grant, scope, dan `expires_at`.
 4. Setiap baca selama grant dicatat di audit dengan `privileged_grant_id`.
 5. Scheduler mengakhiri grant kedaluwarsa setiap 5 menit.
