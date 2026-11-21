@@ -1,0 +1,165 @@
+# 07. Data Model — Registrasi, Syahadat, Transfer, Assignment
+
+Notasi sama dengan [06-data-model-core.md](06-data-model-core.md).
+
+## 7.1 Registrasi dan syahadat
+
+```
+convert_registrations
+  id pk · tenant_id fk → tenants · convert_id fk → converts uq
+  registration_no varchar(30)          -- dari number_sequences, format {TENANT}-REG-{YYYY}-{000001}
+  registration_date date
+  status enum(draft, pending_verification, verified, rejected, voided)
+  registered_by fk → users · verified_by? fk → users · verified_at?
+  rejection_reason? · notes?
+  uq(tenant_id, registration_no)
+
+shahadah_records
+  id pk · uuid uq · tenant_id fk → tenants · convert_id fk → converts
+  convert_registration_id fk → convert_registrations
+  record_type enum(first, renewal_ceremony) default 'first'
+  shahadah_date date · shahadah_time? time · location
+  city_id? fk → cities · latitude? · longitude?
+  preacher_dai_id? fk → dais · recorded_by fk → users
+  verified_by? fk → users · verified_at?
+  status enum(recorded, verified, voided) · void_reason?
+  notes?
+  active_first_key gen uq       -- IF(record_type='first' AND status<>'voided', convert_id, NULL)
+
+shahadah_witnesses              -- opsional, menunggu keputusan open question
+  id pk · shahadah_record_id fk · name · phone_encrypted? enc · identity_last4? · relationship?
+
+convert_status_histories        -- append-only
+  id pk · convert_id fk · tenant_id fk · from_status? · to_status · reason? · changed_by fk → users · created_at
+```
+
+Aturan:
+
+- `shahadah_records.tenant_id` = kantor asal (sama dengan `converts.origin_tenant_id` untuk syahadat pertama).
+- `verified_by` harus berbeda dari `recorded_by` (segregation of duties, ditegakkan service).
+- Record `voided` hanya melalui Head of Dawah + Central approval (koreksi data), tercatat di audit; tidak pernah dihapus.
+
+## 7.2 Duplicate review
+
+```
+duplicate_review_cases
+  id pk · uuid uq · tenant_id fk → tenants (kantor yang memicu)
+  candidate_type enum(prospect, registration_draft, import_row) · candidate_id
+  possible_convert_id fk → converts
+  match_reason enum(exact_identity, fuzzy_name_dob, phone_match, manual_report)
+  match_score? decimal(4,3) · match_details json
+  status enum(open, in_review, resolved)
+  decision? enum(same_person, different_person, inconclusive)
+  reviewed_by? fk → users · notes? · resolved_at?
+  idx(status, created_at)
+```
+
+Keputusan `same_person` menghentikan registrasi dan mengarahkan ke transfer. `different_person` membuka blokir registrasi dan menyimpan pasangan sebagai *known non-duplicate* agar tidak memicu lagi.
+
+## 7.3 Koreksi kantor asal
+
+```
+origin_correction_requests
+  id pk · uuid uq · convert_id fk
+  current_origin_tenant_id fk → tenants · requested_origin_tenant_id fk → tenants
+  requested_by fk → users · reason · evidence_document_id? fk → documents
+  status enum(pending, approved, rejected)
+  approved_by? fk → users (role Central Admin) · decision_note? · decided_at?
+```
+
+Persetujuan hanya oleh Central Admin, mengubah `origin_tenant_id` dalam transaksi, menulis audit dengan nilai lama/baru, dan memicu rekalkulasi statistik.
+
+## 7.4 Transfer convert
+
+```
+convert_transfer_requests
+  id pk · uuid uq · convert_id fk → converts
+  from_tenant_id fk → tenants · to_tenant_id fk → tenants
+  requested_by fk → users · reason · requested_at
+  status enum(pending, under_review, approved, accepted, completed, rejected, cancelled, escalated)
+  reviewed_by? fk → users · reviewed_at? · review_note?
+  accepted_by? fk → users · accepted_at? · new_primary_dai_id? fk → dais
+  escalated_by? · escalated_at? · escalation_note?
+  completed_at?
+  active_convert_key gen uq
+  idx(convert_id, status) · idx(to_tenant_id, status) · idx(from_tenant_id, status)
+
+convert_transfer_events          -- append-only
+  id pk · transfer_request_id fk · actor_id fk → users · tenant_id fk
+  event_type varchar(40) · from_status? · to_status? · metadata json · created_at
+
+convert_transfer_histories       -- append-only
+  id pk · convert_id fk · transfer_request_id fk uq
+  from_tenant_id fk · to_tenant_id fk · approved_by fk · accepted_by fk
+  previous_primary_dai_id fk → dais · new_primary_dai_id fk → dais
+  transferred_at · reason · created_at
+```
+
+Perubahan dari v1.0: status `accepted` dan kolom `accepted_by`, `new_primary_dai_id`. Kantor tujuan mengajukan, kantor lama menyetujui, kantor tujuan menerima dengan menunjuk da'i, lalu sistem menyelesaikan transfer dalam satu transaksi (lihat [12-transactions-state-machines.md](12-transactions-state-machines.md)).
+
+## 7.5 Transfer prospect (baru)
+
+```
+prospect_transfer_requests
+  id pk · uuid uq · prospect_id fk
+  from_tenant_id fk · to_tenant_id fk · requested_by fk · reason
+  status enum(pending, approved, rejected, cancelled, completed)
+  reviewed_by? · reviewed_at? · new_primary_dai_id? fk → dais · completed_at?
+  active_prospect_key gen uq
+```
+
+Prospect transfer diajukan oleh kantor *lama* (misal prospect pindah kota) dan diterima kantor baru. Prospect lama berstatus `transferred`; record dipindahkan dengan mengubah `tenant_id` (prospect tidak punya konsep kantor asal), histori status tetap.
+
+## 7.6 Assignment da'i
+
+```
+dai_assignments                  -- pengganti dai_assignments_to_people
+  id pk · tenant_id fk → tenants · dai_id fk → dais
+  subject_type enum(prospect, convert) · subject_id
+  assignment_type enum(primary, secondary, teacher_support, temporary)
+  is_primary bool · assigned_at · ended_at? · end_reason?
+  assigned_by fk → users
+  active_primary_key gen uq     -- IF(is_primary AND ended_at IS NULL, CONCAT(subject_type,':',subject_id), NULL)
+  idx(dai_id, ended_at) · idx(subject_type, subject_id)
+```
+
+`DaiAssignmentService::assignPrimary(subject, dai, reason)`:
+
+1. Lock subjek.
+2. Akhiri assignment primary aktif (`ended_at = now`).
+3. Insert assignment baru.
+4. Update `primary_dai_id` pada subjek.
+5. Audit `dai.primary_assigned`.
+
+Da'i harus berasal dari tenant yang sama dengan subjek (prospect `tenant_id`, convert `current_tenant_id`) dan berstatus `active`.
+
+## 7.7 Follow-up da'i
+
+```
+dai_follow_ups
+  id pk · tenant_id fk · dai_id fk → dais
+  subject_type enum(prospect, convert) · subject_id
+  follow_up_type enum(visit, call, message, discussion, dialogue, class, meeting, other)
+  contact_method enum(in_person, phone, whatsapp, video, email, other)
+  occurred_at · duration_minutes? · location?
+  summary text · questions_raised? text
+  material_id? fk → dawah_materials · outcome?
+  next_action? · next_follow_up_at?
+  confidentiality_level enum(normal, confidential) default 'normal'
+  created_by fk → users
+  idx(dai_id, next_follow_up_at) · idx(subject_type, subject_id, occurred_at)
+```
+
+Setelah insert, service memperbarui `last_contact_at`/`next_follow_up_at` pada subjek. Follow-up `confidential` hanya terbaca oleh penulis, Primary Da'i, dan pemegang `followups.view_confidential`.
+
+## 7.8 Follow-up tasks
+
+```
+follow_up_tasks
+  id pk · tenant_id fk · related_type · related_id
+  title · description? · assigned_to fk → users
+  priority enum(low, normal, high, urgent) · due_at
+  status enum(open, in_progress, done, cancelled) · completed_at?
+  created_by fk → users
+  idx(assigned_to, status, due_at)
+```
