@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Dai\Exceptions;
 
-use RuntimeException;
+use App\Support\Exceptions\RuleViolation;
 
-/**
- * A da'i business rule was broken. Carries the form field it concerns so the
- * panel can show it next to that field; the message is already translated.
- */
-final class DaiRuleViolation extends RuntimeException
+final class DaiRuleViolation extends RuleViolation
 {
-    private function __construct(string $message, public readonly string $field)
-    {
-        parent::__construct($message);
-    }
-
     public static function duplicateEmployeeNumber(): self
     {
         return new self(__('dai.errors.duplicate_employee_number'), 'employee_number');
@@ -45,6 +36,16 @@ final class DaiRuleViolation extends RuntimeException
     public static function supervisorUnavailable(): self
     {
         return new self(__('dai.errors.supervisor_unavailable'), 'supervisor_dai_id');
+    }
+
+    public static function assigneeUnavailable(): self
+    {
+        return new self(__('dai.errors.assignee_unavailable'), 'dai_id');
+    }
+
+    public static function notADai(): self
+    {
+        return new self(__('dai.errors.not_a_dai'), 'dai_id');
     }
 
     public static function invalidTransition(string $from, string $to): self

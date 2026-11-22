@@ -123,7 +123,7 @@ dai_assignments                  -- pengganti dai_assignments_to_people
   idx(dai_id, ended_at) · idx(subject_type, subject_id)
 ```
 
-Tabel dan model `DaiAssignment` dibuat pada langkah 7 (dibaca oleh workload view); `DaiAssignmentService` yang menulisnya dibuat pada langkah 8 bersama prospect.
+Tabel dan model `DaiAssignment` dibuat pada langkah 7; `DaiAssignmentService` (langkah 8) adalah satu-satunya penulisnya. Subjek (prospect, nanti convert) mengimplementasikan `App\Domain\Dai\Contracts\AssignableSubject`, sehingga modul Da'i tidak meng-import model subjek; modul lain memanggil service dengan id da'i, bukan model `Dai`. Menugaskan ulang da'i yang sama tidak mengubah apa pun.
 
 `DaiAssignmentService::assignPrimary(subject, dai, reason)`:
 
@@ -151,6 +151,8 @@ dai_follow_ups
   created_by fk → users
   idx(dai_id, next_follow_up_at) · idx(subject_type, subject_id, occurred_at)
 ```
+
+Aturan follow-up (langkah 8): dicatat oleh record da'i milik pengguna (pengguna tanpa record da'i tidak dapat mencatat); pemegang `*_own` hanya untuk subjek yang ditugaskan kepadanya. Untuk prospect, `RecordProspectFollowUp` memperbarui `first_contact_at` (paling awal), `last_contact_at` dan `next_follow_up_at` (dari follow-up terbaru), dan memindahkan prospect `new` ke `contacted`. Follow-up `confidential` hanya terlihat oleh penulisnya dan pemegang `followups.view_confidential`. `material_id` tanpa FK sampai `dawah_materials` ada (langkah 20).
 
 Setelah insert, service memperbarui `last_contact_at`/`next_follow_up_at` pada subjek. Follow-up `confidential` hanya terbaca oleh penulis, Primary Da'i, dan pemegang `followups.view_confidential`.
 

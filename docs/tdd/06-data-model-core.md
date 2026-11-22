@@ -165,6 +165,16 @@ prospect_status_histories            -- append-only
 
 Perubahan dari v1.0: kontak dienkripsi; `phone_fingerprint` untuk deteksi prospect ganda di kantor yang sama; histori status ditambahkan.
 
+Aturan (langkah 8, `app/Domain/Prospects`):
+
+- `company_id` dan `convert_id` dibuat tanpa FK; FK ditambahkan bersama tabel `companies` (langkah 14) dan `converts` (langkah 10). Index tambahan `(tenant_id, name_search_key)`.
+- `name_search_key` (`App\Support\Text\NameSearchKey`: huruf kecil, tanpa aksen Latin, harakat, dan tatweel; varian alif/ya/ta marbuta disatukan) dan `phone_fingerprint` (`PhoneNumber::fingerprint`: nomor dinormalisasi ke digit internasional, nomor lokal dianggap Saudi, lalu HMAC `IDENTITY_HMAC_KEY` dengan purpose `phone`) dihitung model pada setiap save.
+- Telepon yang sama dengan prospect lain di kantor yang sama menghentikan penyimpanan sampai pengguna mengonfirmasi ("mungkin orang yang sama"); kantor lain tidak diperiksa.
+- Pemegang `prospects.assign_dai` memilih Primary Da'i saat registrasi; pengguna lain (da'i yang mendaftarkan kontaknya sendiri) otomatis menjadi Primary Da'i dan wajib punya record da'i.
+- Pemegang `prospects.view_own` hanya melihat dan menindaklanjuti prospect yang punya assignment aktif dengan record da'i miliknya (`ProspectVisibility`); record lain tidak ditemukan (404).
+- `ChangeProspectStatus` mengikuti state machine 12.5 tetapi tidak pernah ke `converted` (RecordShahadah) atau `transferred` (transfer prospect); `not_interested`, `lost_contact`, `closed` wajib alasan. Prospect berstatus terminal hanya bisa dibaca.
+- Audit: `prospects.created`, `prospects.updated`, `prospects.status_changed`, `dai.primary_assigned`; histori di `prospect_status_histories` (append-only).
+
 ## 6.8 Converts
 
 ```

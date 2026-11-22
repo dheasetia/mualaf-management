@@ -66,7 +66,20 @@ return [
         'other_assignments' => 'تكليفات أخرى',
         'supervisees' => 'الدعاة تحت الإشراف',
     ],
+    'follow_up_types' => [
+        'visit' => 'زيارة', 'call' => 'اتصال', 'message' => 'رسالة', 'discussion' => 'نقاش',
+        'dialogue' => 'حوار', 'class' => 'درس', 'meeting' => 'لقاء', 'other' => 'أخرى',
+    ],
+    'contact_methods' => [
+        'in_person' => 'حضوريًا', 'phone' => 'هاتف', 'whatsapp' => 'واتساب', 'video' => 'مكالمة مرئية',
+        'email' => 'بريد إلكتروني', 'other' => 'أخرى',
+    ],
+    'confidentiality' => [
+        'normal' => 'عادي', 'confidential' => 'سري',
+    ],
     'errors' => [
+        'assignee_unavailable' => 'يجب أن يكون الداعية نشطًا في المركز المسؤول عن هذا الشخص.',
+        'not_a_dai' => 'يسجل المتابعات فقط المستخدمون الذين لديهم سجل داعية في هذا المركز.',
         'duplicate_employee_number' => 'يوجد داعية آخر في هذا المركز بنفس الرقم الوظيفي.',
         'user_already_linked' => 'حساب المستخدم هذا مرتبط بداعية آخر في هذا المركز.',
         'user_not_member' => 'يجب أن يكون حساب المستخدم عضوًا نشطًا في هذا المركز.',

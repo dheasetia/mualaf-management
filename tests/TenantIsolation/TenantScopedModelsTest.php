@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiAssignment;
+use App\Domain\Dai\Models\DaiFollowUp;
+use App\Domain\Prospects\Models\Prospect;
+use App\Domain\Prospects\Models\ProspectStatusHistory;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Support\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\Finder\Finder;
 
@@ -14,6 +18,9 @@ use Symfony\Component\Finder\Finder;
 const TENANT_SCOPED_MODELS = [
     'dai' => Dai::class,
     'dai assignment' => DaiAssignment::class,
+    'dai follow-up' => DaiFollowUp::class,
+    'prospect' => Prospect::class,
+    'prospect status history' => ProspectStatusHistory::class,
 ];
 
 dataset('tenant_scoped_models', array_map(
@@ -28,7 +35,7 @@ it('hides, and refuses to change, records of another tenant', function (string $
     inTenant($tenantA, function () use ($model, $recordOfB): void {
         expect($model::query()->find($recordOfB->getKey()))->toBeNull()
             ->and($model::query()->count())->toBe(0)
-            ->and($model::query()->whereKey($recordOfB->getKey())->update(['updated_at' => now()]))->toBe(0)
+            ->and($model::query()->whereKey($recordOfB->getKey())->toBase()->update(['id' => DB::raw('id')]))->toBe(0)
             ->and($model::query()->whereKey($recordOfB->getKey())->delete())->toBe(0);
     });
 

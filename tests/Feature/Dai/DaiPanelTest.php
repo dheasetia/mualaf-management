@@ -10,9 +10,6 @@ use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Center\Pages\DaiWorkload;
 use App\Filament\Center\Resources\Dais\Pages\CreateDai;
 use App\Filament\Center\Resources\Dais\Pages\EditDai;
-use App\Models\User;
-use App\Support\Tenancy\TenantContext;
-use Filament\Facades\Filament;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -20,17 +17,6 @@ beforeEach(function (): void {
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
     $this->staff = fn (string $role) => withAuthenticator(grantRole(memberOf($this->dammam), $role, $this->dammam));
 });
-
-/** Livewire tests skip panel middleware: sign in and set what SetTenantContext would. */
-function inCenterPanel(Tenant $tenant, User $user): User
-{
-    test()->actingAs($user);
-    Filament::setCurrentPanel(Filament::getPanel('center'));
-    Filament::setTenant($tenant);
-    app(TenantContext::class)->set($tenant);
-
-    return $user;
-}
 
 it('gives each office role the da\'i screens the matrix allows', function (string $role, int $list, int $create, int $workload): void {
     $user = ($this->staff)($role);

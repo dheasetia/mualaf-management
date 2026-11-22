@@ -6,7 +6,10 @@ namespace Database\Seeders;
 
 use App\Domain\Dai\Actions\CreateDai;
 use App\Domain\Dai\Data\DaiData;
+use App\Domain\Dai\Data\FollowUpData;
+use App\Domain\Dai\Enums\ContactMethod;
 use App\Domain\Dai\Enums\EmploymentStatus;
+use App\Domain\Dai\Enums\FollowUpType;
 use App\Domain\Dai\Enums\LanguageProficiency;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Identity\Actions\AssignRole;
@@ -15,6 +18,13 @@ use App\Domain\Identity\Models\Role;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\City;
 use App\Domain\Platform\Models\Language;
+use App\Domain\Prospects\Actions\ChangeProspectStatus;
+use App\Domain\Prospects\Actions\CreateProspect;
+use App\Domain\Prospects\Actions\RecordProspectFollowUp;
+use App\Domain\Prospects\Data\ProspectData;
+use App\Domain\Prospects\Enums\ProspectSource;
+use App\Domain\Prospects\Enums\ProspectStatus;
+use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Tenancy\Actions\ChangeTenantStatus;
 use App\Domain\Tenancy\Actions\CreateTenant;
 use App\Domain\Tenancy\Actions\GrantTenantMembership;
@@ -22,6 +32,7 @@ use App\Domain\Tenancy\Enums\TenantStatus;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Tenancy\TenantContext;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -106,6 +117,10 @@ final class DevelopmentSeeder extends Seeder
             if (! Dai::query()->exists()) {
                 $this->seedDais($createDai, $tenant->code, $actor);
             }
+
+            if (! Prospect::query()->exists()) {
+                $this->seedProspects($tenant->code);
+            }
         });
     }
 
@@ -147,6 +162,53 @@ final class DevelopmentSeeder extends Seeder
                 userId: $linkedUser,
                 languages: collect($languages)->mapWithKeys(fn (LanguageProficiency $level, string $languageCode): array => [$language($languageCode) => $level])->all(),
             ), $actor);
+        }
+    }
+
+    /**
+     * Prospects of the synthetic Da'i user (registered by them) at different
+     * stages, plus two held by other da'i of the office.
+     */
+    private function seedProspects(string $code): void
+    {
+        $user = fn (string $role): User => User::query()
+            ->where('email', sprintf('%s.%s@muallaf.test', $role, strtolower($code)))->firstOrFail();
+        $daiUser = $user('dai');
+        $head = $user('head-of-dawah');
+        $daiId = fn (string $number): int => (int) Dai::query()->where('employee_number', $code.'-'.$number)->value('id');
+
+        $people = [
+            ['Mark Villanueva', Gender::Male, ProspectSource::DaiContact, '0551000001', null, ProspectStatus::LearningIslam],
+            ['Grace Lim', Gender::Female, ProspectSource::ReferralConvert, '0551000002', null, ProspectStatus::Contacted],
+            ['Ravi Kumar', Gender::Male, ProspectSource::WalkIn, '0551000003', null, ProspectStatus::New],
+            ['Arjun Nair', Gender::Male, ProspectSource::Event, null, 'D003', ProspectStatus::New],
+            ['Siti Rahayu', Gender::Female, ProspectSource::ReferralCompany, null, 'D004', ProspectStatus::New],
+        ];
+
+        foreach ($people as [$name, $gender, $source, $phone, $daiNumber, $target]) {
+            $prospect = $daiNumber === null
+                ? app(CreateProspect::class)->handle(new ProspectData($name, $gender, $source, phone: $phone), $daiUser)
+                : app(CreateProspect::class)->handle(new ProspectData($name, $gender, $source, primaryDaiId: $daiId($daiNumber)), $head);
+
+            if ($target === ProspectStatus::New) {
+                continue;
+            }
+
+            app(RecordProspectFollowUp::class)->handle($prospect, new FollowUpData(
+                FollowUpType::Discussion,
+                ContactMethod::InPerson,
+                CarbonImmutable::now()->subDays(3),
+                'Introduced the basics of Islam and answered questions about prayer.',
+                nextFollowUpAt: CarbonImmutable::now()->addDays(4)->setTime(18, 0),
+            ), $daiUser);
+
+            foreach ([ProspectStatus::ActiveFollowUp, ProspectStatus::LearningIslam] as $step) {
+                if ($prospect->refresh()->status === $target) {
+                    break;
+                }
+
+                app(ChangeProspectStatus::class)->handle($prospect, $step, $daiUser);
+            }
         }
     }
 }

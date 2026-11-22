@@ -66,7 +66,20 @@ return [
         'other_assignments' => 'Other assignments',
         'supervisees' => "Supervised da'i",
     ],
+    'follow_up_types' => [
+        'visit' => 'Visit', 'call' => 'Call', 'message' => 'Message', 'discussion' => 'Discussion',
+        'dialogue' => 'Dialogue', 'class' => 'Class', 'meeting' => 'Meeting', 'other' => 'Other',
+    ],
+    'contact_methods' => [
+        'in_person' => 'In person', 'phone' => 'Phone', 'whatsapp' => 'WhatsApp', 'video' => 'Video call',
+        'email' => 'Email', 'other' => 'Other',
+    ],
+    'confidentiality' => [
+        'normal' => 'Normal', 'confidential' => 'Confidential',
+    ],
     'errors' => [
+        'assignee_unavailable' => "The da'i must be an active da'i of the office responsible for this person.",
+        'not_a_dai' => "Only users with a da'i record in this center can record follow-ups.",
         'duplicate_employee_number' => "Another da'i in this center already has this employee number.",
         'user_already_linked' => "This user account is already linked to another da'i in this center.",
         'user_not_member' => 'The user account must be an active member of this center.',

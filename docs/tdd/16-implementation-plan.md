@@ -11,7 +11,7 @@
 | 5 | Audit (selesai 22-11-2026) | 1 | `audit_logs`, `AuditLogger` + `AuditRedactor`, request id, append-only grant per tabel (`db:sync-app-grants`) + trigger; audit login, login gagal, MFA gagal, assign/revoke role; viewer read-only di Central (`audit.view_national`) dan Center (`audit.view_office`, hanya kantor sendiri) |
 | 6 | Master data (selesai 22-11-2026) | 1 | Region, kota, negara, bahasa, agama, kategori, jenis aktivitas + Filament Central (`master.manage` menulis, user platform membaca) |
 | 7 | Da'i (selesai 22-11-2026) | 2 | `dais`, `dai_languages`, `dai_assignments` (skema), supervisor, status, workload view; dataset isolasi tenant + test kelengkapan |
-| 8 | Prospect | 2 | `prospects`, status machine, follow-up da'i, assignment |
+| 8 | Prospect (selesai 22-11-2026) | 2 | `prospects` + histori append-only, status machine, `dai_follow_ups`, `DaiAssignmentService`, visibilitas `view_own`, deteksi telepon ganda |
 | 9 | Identity registry | 2 | `convert_identifiers`, fingerprint, national search terbatas |
 | 10 | Convert | 2 | `converts`, kontak, disclosure level |
 | 11 | Shahadah | 2 | Registrasi + syahadat + verifikasi |

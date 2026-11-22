@@ -20,6 +20,8 @@ use App\Domain\Platform\Models\Language;
 use App\Domain\Platform\Models\Region;
 use App\Domain\Platform\Models\Religion;
 use App\Domain\Platform\Policies\MasterDataPolicy;
+use App\Domain\Prospects\Models\Prospect;
+use App\Domain\Prospects\Policies\ProspectPolicy;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Tenancy\TenantContext;
@@ -50,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'tenant' => Tenant::class,
             'dai' => Dai::class,
+            'prospect' => Prospect::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -72,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(AuditLog::class, AuditLogPolicy::class);
         Gate::policy(Dai::class, DaiPolicy::class);
+        Gate::policy(Prospect::class, ProspectPolicy::class);
 
         foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);

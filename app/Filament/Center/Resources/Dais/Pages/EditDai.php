@@ -8,11 +8,11 @@ use App\Domain\Dai\Actions\ChangeDaiStatus;
 use App\Domain\Dai\Actions\UpdateDai;
 use App\Domain\Dai\Data\DaiData;
 use App\Domain\Dai\Enums\DaiStatus;
-use App\Domain\Dai\Exceptions\DaiRuleViolation;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiLanguage;
 use App\Filament\Center\Resources\Dais\DaiResource;
 use App\Filament\Concerns\ResolvesActor;
+use App\Support\Exceptions\RuleViolation;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -47,7 +47,7 @@ final class EditDai extends EditRecord
                     try {
                         $this->record = app(ChangeDaiStatus::class)
                             ->handle($this->record, DaiStatus::from((string) $data['status']), $this->actor(), $data['reason'] ?? null);
-                    } catch (DaiRuleViolation $violation) {
+                    } catch (RuleViolation $violation) {
                         Notification::make()->danger()->title($violation->getMessage())->send();
 
                         return;
@@ -77,7 +77,7 @@ final class EditDai extends EditRecord
     {
         try {
             return app(UpdateDai::class)->handle($this->record, DaiData::fromForm($data), $this->actor());
-        } catch (DaiRuleViolation $violation) {
+        } catch (RuleViolation $violation) {
             throw ValidationException::withMessages(['data.'.$violation->field => $violation->getMessage()]);
         }
     }
