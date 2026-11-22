@@ -56,6 +56,11 @@ final readonly class ProspectPolicy
         return $this->openAndVisible($user, $prospect) && $user->hasPermission('followups.create');
     }
 
+    public function transfer(User $user, Prospect $prospect): bool
+    {
+        return $this->openAndVisible($user, $prospect) && $user->hasPermission('prospects.transfer');
+    }
+
     public function viewFollowUps(User $user, Prospect $prospect): bool
     {
         return $this->view($user, $prospect) && $user->hasPermission('followups.view');

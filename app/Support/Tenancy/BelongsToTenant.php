@@ -15,7 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * - every query is scoped to the current tenant;
  * - tenant_id is filled from TenantContext on create, and a different value is rejected;
- * - tenant_id cannot change on update.
+ * - tenant_id cannot change on update, unless the model allows a sanctioned
+ *   move through tenantMoveAllowed() (prospect transfer).
  *
  * @mixin Model
  */
@@ -37,7 +38,7 @@ trait BelongsToTenant
         });
 
         static::updating(function (Model $model): void {
-            if ($model->isDirty('tenant_id')) {
+            if ($model->isDirty('tenant_id') && ! (method_exists($model, 'tenantMoveAllowed') && $model->tenantMoveAllowed())) {
                 throw TenantMismatch::onUpdate($model::class);
             }
         });

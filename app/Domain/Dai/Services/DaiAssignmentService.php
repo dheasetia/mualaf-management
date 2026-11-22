@@ -12,6 +12,7 @@ use App\Domain\Dai\Exceptions\DaiRuleViolation;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiAssignment;
 use App\Models\User;
+use App\Support\Tenancy\TenantScope;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -87,11 +88,13 @@ final readonly class DaiAssignmentService
     }
 
     /**
-     * Ends the active assignments of one subject, identified by type and id.
+     * Ends the active assignments of one subject, identified by type and id,
+     * in every office: on a transfer they belong to the office the person is
+     * leaving, while the caller works in the new office's context.
      */
     public function endAllFor(string $subjectType, int $subjectId, string $reason): int
     {
-        return DaiAssignment::query()->active()
+        return DaiAssignment::query()->withoutGlobalScope(TenantScope::class)->active()
             ->where('subject_type', $subjectType)
             ->where('subject_id', $subjectId)
             ->update(['ended_at' => CarbonImmutable::now(), 'end_reason' => $reason, 'updated_at' => CarbonImmutable::now()]);

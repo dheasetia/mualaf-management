@@ -18,6 +18,8 @@ final class AppendOnlyTables
         'audit_logs',
         'prospect_status_histories',
         'convert_status_histories',
+        'convert_transfer_events',
+        'convert_transfer_histories',
     ];
 
     public static function contains(string $table): bool

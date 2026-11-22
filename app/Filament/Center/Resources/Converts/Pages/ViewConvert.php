@@ -8,6 +8,7 @@ use App\Domain\Converts\Actions\AddConvertContact;
 use App\Domain\Converts\Actions\AssignConvertDai;
 use App\Domain\Converts\Actions\ChangeConvertStatus;
 use App\Domain\Converts\Actions\ChangeDisclosureLevel;
+use App\Domain\Converts\Actions\RecordConvertFollowUp;
 use App\Domain\Converts\Actions\RemoveConvertContact;
 use App\Domain\Converts\Enums\ContactType;
 use App\Domain\Converts\Enums\ConvertStatus;
@@ -16,6 +17,10 @@ use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Models\ConvertContact;
 use App\Domain\Converts\Models\ConvertIdentifier;
 use App\Domain\Converts\Services\IdentityRegistry;
+use App\Domain\Dai\Data\FollowUpData;
+use App\Domain\Dai\Enums\Confidentiality;
+use App\Domain\Dai\Enums\ContactMethod;
+use App\Domain\Dai\Enums\FollowUpType;
 use App\Domain\Dai\Services\DaiDirectory;
 use App\Filament\Center\Resources\Converts\ConvertResource;
 use App\Filament\Concerns\ResolvesActor;
@@ -24,6 +29,7 @@ use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -46,6 +52,25 @@ final class ViewConvert extends ViewRecord
 
         return [
             EditAction::make(),
+            Action::make('recordFollowUp')->label(__('prospects.actions.record_follow_up'))->icon('heroicon-o-chat-bubble-left-right')
+                ->authorize($can('recordFollowUp'))
+                ->schema([
+                    Select::make('follow_up_type')->label(__('prospects.fields.follow_up_type'))->required()
+                        ->options(collect(FollowUpType::cases())->mapWithKeys(fn (FollowUpType $type): array => [$type->value => $type->label()])->all()),
+                    Select::make('contact_method')->label(__('prospects.fields.contact_method'))->required()
+                        ->options(collect(ContactMethod::cases())->mapWithKeys(fn (ContactMethod $method): array => [$method->value => $method->label()])->all()),
+                    DateTimePicker::make('occurred_at')->label(__('prospects.fields.occurred_at'))->required()
+                        ->timezone((string) config('app.display_timezone'))->default(now())->maxDate(now()->addMinutes(5)),
+                    Textarea::make('summary')->label(__('prospects.fields.summary'))->required()->maxLength(5000),
+                    TextInput::make('next_action')->label(__('prospects.fields.next_action'))->maxLength(255),
+                    DateTimePicker::make('next_follow_up_at')->label(__('prospects.fields.next_follow_up_at'))
+                        ->timezone((string) config('app.display_timezone'))->after('occurred_at'),
+                    Select::make('confidentiality_level')->label(__('prospects.fields.confidentiality_level'))->required()
+                        ->options(collect(Confidentiality::cases())->mapWithKeys(fn (Confidentiality $level): array => [$level->value => $level->label()])->all())
+                        ->default(Confidentiality::Normal->value),
+                ])
+                ->action($this->run(fn (array $data) => app(RecordConvertFollowUp::class)
+                    ->handle($this->record, FollowUpData::fromForm($data), $this->actor()))),
             ActionGroup::make([
                 Action::make('assignDai')->label(__('converts.actions.assign_dai'))->authorize($can('assignDai'))
                     ->schema([

@@ -8,14 +8,17 @@ use App\Domain\Converts\Data\IdentifierData;
 use App\Domain\Converts\Enums\IdentityType;
 use App\Domain\Converts\Services\NationalSearch;
 use App\Domain\Platform\Models\Country;
+use App\Domain\Transfers\Actions\RequestConvertTransfer;
 use App\Filament\Concerns\ResolvesActor;
 use App\Support\Exceptions\RuleViolation;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Callout;
@@ -24,6 +27,7 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -46,6 +50,9 @@ final class NationalIdentitySearch extends Page implements HasForms
 
     /** @var array{found: bool, inOwnOffice: bool, officeCode: ?string, officeName: ?string, displayName: ?string, withheld: bool}|null */
     public ?array $result = null;
+
+    /** The last searched identity, encrypted, so a transfer can be requested without showing the number again. */
+    public ?string $lastIdentity = null;
 
     public static function canAccess(): bool
     {
@@ -100,7 +107,14 @@ final class NationalIdentitySearch extends Page implements HasForms
                 ]),
             Callout::make(fn (): string => $this->resultMessage())
                 ->color(fn (): string => ($this->result['found'] ?? false) ? 'warning' : 'success')
-                ->visible(fn (): bool => $this->result !== null),
+                ->visible(fn (): bool => $this->result !== null)
+                ->actions([
+                    Action::make('requestTransfer')->label(__('transfers.actions.request'))
+                        ->visible(fn (): bool => $this->result !== null && $this->result['found'] && ! $this->result['inOwnOffice']
+                            && (auth()->user()?->hasPermission('converts.transfer') ?? false))
+                        ->schema([Textarea::make('reason')->label(__('transfers.fields.reason'))->required()->maxLength(1000)])
+                        ->action(fn (array $data) => $this->requestTransfer((string) $data['reason'])),
+                ]),
         ]);
     }
 
@@ -116,12 +130,42 @@ final class NationalIdentitySearch extends Page implements HasForms
                 blank($state['issuing_country_id'] ?? null) ? null : (int) $state['issuing_country_id'],
             ));
             $this->result = $result->toArray();
+            $this->lastIdentity = Crypt::encrypt([
+                'type' => (string) $state['identity_type'],
+                'number' => (string) $state['identity_number'],
+                'country' => blank($state['issuing_country_id'] ?? null) ? null : (int) $state['issuing_country_id'],
+            ]);
         } catch (RuleViolation $violation) {
             throw ValidationException::withMessages(['data.'.$violation->field => $violation->getMessage()]);
         }
 
         // The number is not kept on the page after the search.
         $this->data['identity_number'] = null;
+    }
+
+    public function requestTransfer(string $reason): void
+    {
+        if ($this->lastIdentity === null) {
+            return;
+        }
+
+        /** @var array{type: string, number: string, country: int|null} $identity */
+        $identity = Crypt::decrypt($this->lastIdentity);
+
+        try {
+            app(RequestConvertTransfer::class)->handle(
+                new IdentifierData(IdentityType::from($identity['type']), $identity['number'], $identity['country']),
+                $reason,
+                $this->actor(),
+            );
+        } catch (RuleViolation $violation) {
+            Notification::make()->danger()->title($violation->getMessage())->send();
+
+            return;
+        }
+
+        $this->lastIdentity = null;
+        Notification::make()->success()->title(__('transfers.notifications.requested'))->send();
     }
 
     private function resultMessage(): string

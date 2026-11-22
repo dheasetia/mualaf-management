@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Transfers\Enums;
+
+enum ProspectTransferStatus: string
+{
+    case Pending = 'pending';
+    case Approved = 'approved';
+    case Rejected = 'rejected';
+    case Cancelled = 'cancelled';
+    case Completed = 'completed';
+
+    public function label(): string
+    {
+        return __('transfers.statuses.'.$this->value);
+    }
+}

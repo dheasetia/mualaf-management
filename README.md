@@ -45,6 +45,7 @@ Panel: `https://muallaf-management.test/central` dan `https://muallaf-management
 | Format | `vendor/bin/pint` |
 | Static analysis | `vendor/bin/phpstan analyse --memory-limit=1G` |
 | Migrasi ulang + seed | `php artisan migrate:fresh --database=migrator --seed` |
+| Eskalasi transfer yang lewat SLA (dijalankan scheduler tiap jam; butuh cron `php artisan schedule:run`) | `php artisan transfers:escalate` |
 | Grant per tabel untuk user app (DBA, setelah setiap migrasi) | `php artisan db:sync-app-grants` (`--dry-run` untuk melihat statement) |
 
 Semua perintah di atas tersedia sebagai run configuration PhpStorm di folder `.run/`.

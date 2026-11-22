@@ -64,6 +64,8 @@ final class Convert extends Model implements AssignableSubject
 
     protected $fillable = [];
 
+    private static bool $officeMoveAllowed = false;
+
     /** @var array<string, mixed> */
     protected $attributes = [
         'status' => 'active',
@@ -89,10 +91,12 @@ final class Convert extends Model implements AssignableSubject
         });
 
         self::updating(function (self $convert): void {
-            foreach (['origin_tenant_id', 'current_tenant_id'] as $column) {
-                if ($convert->isDirty($column)) {
-                    throw ConvertTenantImmutable::make($column);
-                }
+            if ($convert->isDirty('origin_tenant_id')) {
+                throw ConvertTenantImmutable::make('origin_tenant_id');
+            }
+
+            if ($convert->isDirty('current_tenant_id') && ! self::$officeMoveAllowed) {
+                throw ConvertTenantImmutable::make('current_tenant_id');
             }
         });
 
@@ -101,6 +105,23 @@ final class Convert extends Model implements AssignableSubject
                 $convert->name_search_key = NameSearchKey::make($convert->full_name);
             }
         });
+    }
+
+    /**
+     * Moves the convert to another office. Only CompleteConvertTransfer calls
+     * this, inside its transaction on a locked row; every other change of
+     * current_tenant_id is refused.
+     */
+    public function moveToOffice(int $tenantId): void
+    {
+        self::$officeMoveAllowed = true;
+
+        try {
+            $this->current_tenant_id = $tenantId;
+            $this->save();
+        } finally {
+            self::$officeMoveAllowed = false;
+        }
     }
 
     /** @return list<string> */

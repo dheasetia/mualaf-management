@@ -72,6 +72,8 @@ final class Prospect extends Model implements AssignableSubject
 
     protected $hidden = ['phone_encrypted', 'phone_fingerprint', 'email_encrypted'];
 
+    private static bool $officeMoveAllowed = false;
+
     /** @var array<string, mixed> */
     protected $attributes = [
         'status' => 'new',
@@ -88,6 +90,26 @@ final class Prospect extends Model implements AssignableSubject
                 $prospect->phone_fingerprint = PhoneNumber::fingerprint($prospect->phone_encrypted);
             }
         });
+    }
+
+    /**
+     * Moves the prospect to another office (prospect transfer only).
+     */
+    public function moveToOffice(int $tenantId): void
+    {
+        self::$officeMoveAllowed = true;
+
+        try {
+            $this->tenant_id = $tenantId;
+            $this->save();
+        } finally {
+            self::$officeMoveAllowed = false;
+        }
+    }
+
+    public function tenantMoveAllowed(): bool
+    {
+        return self::$officeMoveAllowed;
     }
 
     /** @return list<string> */
