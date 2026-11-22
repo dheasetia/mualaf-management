@@ -14,6 +14,8 @@ use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
+use App\Domain\Examinations\Models\Exam;
+use App\Domain\Examinations\Policies\ExamPolicy;
 use App\Domain\Guidance\Listeners\CloseEnrollmentsOnTransfer;
 use App\Domain\Guidance\Models\Enrollment;
 use App\Domain\Guidance\Models\GuidanceClass;
@@ -104,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Prospect::class, ProspectPolicy::class);
         Gate::policy(Convert::class, ConvertPolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
+        Gate::policy(Exam::class, ExamPolicy::class);
 
         foreach ([GuidanceProgram::class, GuidanceClass::class, Enrollment::class] as $guidanceModel) {
             Gate::policy($guidanceModel, GuidancePolicies::class);

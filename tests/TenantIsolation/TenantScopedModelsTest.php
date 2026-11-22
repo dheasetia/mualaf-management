@@ -5,6 +5,9 @@ declare(strict_types=1);
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiAssignment;
 use App\Domain\Dai\Models\DaiFollowUp;
+use App\Domain\Examinations\Models\Exam;
+use App\Domain\Examinations\Models\ExamAttempt;
+use App\Domain\Examinations\Models\ExamResult;
 use App\Domain\Guidance\Models\Attendance;
 use App\Domain\Guidance\Models\ClassSession;
 use App\Domain\Guidance\Models\GuidanceClass;
@@ -31,6 +34,9 @@ const TENANT_SCOPED_MODELS = [
     'class session' => ClassSession::class,
     'attendance' => Attendance::class,
     'learning progress' => LearningProgress::class,
+    'exam' => Exam::class,
+    'exam attempt' => ExamAttempt::class,
+    'exam result' => ExamResult::class,
 ];
 
 dataset('tenant_scoped_models', array_map(
