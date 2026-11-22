@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Certificates\Services;
+namespace App\Support\Pdf;
 
 /**
  * Fills a certificate template with its snapshot. Templates are data, not

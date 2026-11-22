@@ -21,6 +21,7 @@ imports/{batch_uuid}/source.xlsx
 - File convert disimpan di folder tenant *pemilik saat upload*; path disimpan di `documents.storage_path`, sehingga setelah transfer file tidak perlu dipindah dan akses tetap melalui policy convert.
 - Download hanya lewat controller yang memanggil policy lalu redirect ke `temporaryUrl()` berumur 5 menit; event `document.downloaded` diaudit.
 - Upload: whitelist MIME (`application/pdf`, `image/jpeg`, `image/png`, `image/webp`), maksimal 10 MB, validasi isi (bukan hanya ekstensi), nama file diganti UUID, scan antivirus (ClamAV) via job sebelum `verification_status` dapat diubah.
+  - Status langkah 18: tipe dibaca dari isi file (`finfo`), batas 10 MB, nama disimpan sebagai `v{n}.{ext}` di folder UUID, gambar di-encode ulang dengan GD (EXIF/GPS hilang, orientasi diterapkan dulu), unduhan lewat `temporaryUrl()` 5 menit yang diaudit (`document.downloaded`; di disk lokal berupa signed URL `storage.local`). Scan ClamAV **belum**: dijadwalkan di langkah 26, sampai saat itu verifikasi tidak menunggu scan.
 - Gambar di-strip metadata EXIF (lokasi GPS) saat upload.
 
 ## 13.2 Pembuatan dokumen PDF

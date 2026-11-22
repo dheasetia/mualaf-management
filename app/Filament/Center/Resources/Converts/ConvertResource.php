@@ -86,6 +86,8 @@ final class ConvertResource extends Resource
             RelationManagers\EmploymentsRelationManager::class,
             RelationManagers\ResidencesRelationManager::class,
             RelationManagers\ContactPersonsRelationManager::class,
+            RelationManagers\DocumentsRelationManager::class,
+            RelationManagers\LettersRelationManager::class,
         ];
     }
 

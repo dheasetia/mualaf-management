@@ -9,6 +9,8 @@ use App\Domain\Converts\Enums\DisclosureLevel;
 use App\Domain\Converts\Exceptions\ConvertTenantImmutable;
 use App\Domain\Converts\Scopes\ConvertScope;
 use App\Domain\Dai\Contracts\AssignableSubject;
+use App\Domain\Documents\Models\Document;
+use App\Domain\Documents\Models\GeneratedDocument;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\Country;
 use App\Domain\Platform\Models\Language;
@@ -25,6 +27,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * The national record of one person (BR-001). Created only through the
@@ -212,6 +215,18 @@ final class Convert extends Model implements AssignableSubject
         $words = preg_split('/\s+/u', trim($this->full_name)) ?: [];
 
         return implode(' ', array_map(static fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)).'.', array_filter($words)));
+    }
+
+    /** @return MorphMany<Document, $this> */
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'owner')->latest('id');
+    }
+
+    /** @return MorphMany<GeneratedDocument, $this> */
+    public function letters(): MorphMany
+    {
+        return $this->morphMany(GeneratedDocument::class, 'subject')->latest('id');
     }
 
     /** @return array<string, string> */
