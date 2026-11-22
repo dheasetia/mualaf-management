@@ -8,6 +8,7 @@ use App\Domain\Dai\Models\DaiAssignment;
 use App\Domain\Dai\Models\DaiFollowUp;
 use App\Domain\Dawah\Models\DaiDailyActivity;
 use App\Domain\Dawah\Models\DawahActivityPlan;
+use App\Domain\Dawah\Models\DawahMaterialDistribution;
 use App\Domain\Documents\Models\GeneratedDocument;
 use App\Domain\Examinations\Models\Exam;
 use App\Domain\Examinations\Models\ExamAttempt;
@@ -45,6 +46,7 @@ const TENANT_SCOPED_MODELS = [
     'generated document' => GeneratedDocument::class,
     'activity plan' => DawahActivityPlan::class,
     'daily activity' => DaiDailyActivity::class,
+    'material distribution' => DawahMaterialDistribution::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

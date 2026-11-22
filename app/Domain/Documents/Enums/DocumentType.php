@@ -11,6 +11,7 @@ enum DocumentType: string
     case Photo = 'photo';
     case MedicalLetter = 'medical_letter';
     case Receipt = 'receipt';
+    case DawahMaterial = 'dawah_material';
     case Other = 'other';
 
     public function label(): string

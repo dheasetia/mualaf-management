@@ -66,6 +66,8 @@ Aturan:
 - `approved_amount` hanya oleh `budget.approve`; total approved disalin ke `dawah_activity_plans.approved_budget`.
 - `actual_amount` diisi saat laporan; variance > 10% (konfigurasi) wajib keterangan.
 
+Implementasi (langkah 20, `PlanBudget`): estimasi = kuantitas × biaya satuan (dihitung dalam halalah), hanya oleh da'i rencana selama `draft`/`needs_revision`. `approved_amount` oleh `budget.approve` saat `submitted`/`supervisor_review`, tidak oleh da'i rencana itu; `PlanWorkflow::approve` menolak selama masih ada baris tanpa `approved_amount` (plan tanpa baris disetujui dengan budget 0). Total estimasi/approved/aktual disalin ke plan setiap perubahan dan aktual disalin ke laporan saat diajukan. Aktual dicatat saat `in_progress`/`completed` oleh `budget.record_actual` **atau** da'i penanggung jawab yang memegang `dawah.reports.submit` (matriks RBAC hanya memberi `budget.record_actual` ke Transportation Officer, sedangkan aturan di atas menyebut aktual diisi saat laporan). Ambang variance di `config/dawah.php` (`DAWAH_VARIANCE_NOTE_THRESHOLD`, default 0,10); baseline nol berarti setiap aktual > 0 butuh catatan. `receipt_document_id` belum diisi (unggah kuitansi menyusul).
+
 Kategori seed (PRD §17): transportasi, konsumsi, sewa, hadiah, buku, brosur, peralatan, penginapan, media, olahraga, lain-lain.
 
 ## 8.4 Materi dakwah
@@ -92,6 +94,8 @@ dawah_material_distributions
 ```
 
 Hanya materi `approved` yang dapat didistribusikan. Materi baru versi = record baru dengan `parent_material_id`; versi lama di-`retired`.
+
+Implementasi (langkah 20, `ManageMaterials`, `DistributeMaterial`): kantor melihat materi nasional dan miliknya (`MaterialScope`), tetapi hanya mengubah miliknya. `draft → in_review → approved → retired`; review dikembalikan ke `draft` dengan `review_note` (kolom tambahan); penyetuju bukan pembuatnya; versi baru di-`retired`-kan induknya saat disetujui. Sebelum review harus ada file atau `external_url`. File disimpan lewat `Documents\Attachments` (cek isi, EXIF, link bertanda tangan 5 menit, diaudit). Stok hanya untuk materi kantor dan dikurangi di bawah lock, tidak bisa negatif; materi nasional tidak punya stok kantor. Distribusi hanya ke prospect/convert milik da'i itu. Pembuatan materi nasional menunggu permission platform (matriks belum memberi `materials.*` ke role Central).
 
 ## 8.5 Peserta kegiatan
 

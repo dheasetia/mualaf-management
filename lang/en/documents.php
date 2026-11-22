@@ -9,7 +9,7 @@ return [
     'templates' => ['model' => 'letter template', 'plural' => 'Letter templates'],
     'document_types' => [
         'iqamah_copy' => 'Iqamah copy', 'passport_copy' => 'Passport copy', 'photo' => 'Photo',
-        'medical_letter' => 'Medical letter', 'receipt' => 'Receipt', 'other' => 'Other',
+        'medical_letter' => 'Medical letter', 'receipt' => 'Receipt', 'dawah_material' => 'Dawah material', 'other' => 'Other',
     ],
     'letter_types' => [
         'shahadah_certificate' => 'Shahadah certificate', 'new_convert_data_letter' => 'New convert data letter',

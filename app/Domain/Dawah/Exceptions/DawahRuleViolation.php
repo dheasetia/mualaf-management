@@ -97,4 +97,54 @@ final class DawahRuleViolation extends RuleViolation
     {
         return new self(__('dawah.errors.own_activity'), 'status');
     }
+
+    public static function budgetNotApproved(): self
+    {
+        return new self(__('dawah.errors.budget_not_approved'), 'status');
+    }
+
+    public static function budgetClosed(): self
+    {
+        return new self(__('dawah.errors.budget_closed'), 'status');
+    }
+
+    public static function invalidAmount(): self
+    {
+        return new self(__('dawah.errors.invalid_amount'), 'amount');
+    }
+
+    public static function varianceNoteRequired(): self
+    {
+        return new self(__('dawah.errors.variance_note_required'), 'notes');
+    }
+
+    public static function categoryUnavailable(): self
+    {
+        return new self(__('dawah.errors.category_unavailable'), 'budget_category_id');
+    }
+
+    public static function materialNotDistributable(): self
+    {
+        return new self(__('dawah.errors.material_not_distributable'), 'material_id');
+    }
+
+    public static function insufficientStock(): self
+    {
+        return new self(__('dawah.errors.insufficient_stock'), 'quantity');
+    }
+
+    public static function languageUnavailable(): self
+    {
+        return new self(__('dawah.errors.language_unavailable'), 'language_id');
+    }
+
+    public static function materialSourceRequired(): self
+    {
+        return new self(__('dawah.errors.material_source_required'), 'external_url');
+    }
+
+    public static function selfReview(): self
+    {
+        return new self(__('dawah.errors.self_review'), 'status');
+    }
 }

@@ -9,7 +9,7 @@ return [
     'templates' => ['model' => 'قالب خطاب', 'plural' => 'قوالب الخطابات'],
     'document_types' => [
         'iqamah_copy' => 'صورة الإقامة', 'passport_copy' => 'صورة الجواز', 'photo' => 'صورة شخصية',
-        'medical_letter' => 'خطاب طبي', 'receipt' => 'إيصال', 'other' => 'أخرى',
+        'medical_letter' => 'خطاب طبي', 'receipt' => 'إيصال', 'dawah_material' => 'مادة دعوية', 'other' => 'أخرى',
     ],
     'letter_types' => [
         'shahadah_certificate' => 'شهادة إشهار الإسلام', 'new_convert_data_letter' => 'خطاب بيانات مهتدٍ جديد',
