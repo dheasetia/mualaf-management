@@ -6,6 +6,7 @@ namespace App\Support\Tenancy;
 
 use App\Domain\Tenancy\Exceptions\MissingTenantContext;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Support\Tenancy\Events\TenantScopeBypassed;
 use Closure;
 use Illuminate\Support\Facades\Context;
 
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Context;
 final class TenantContext
 {
     private const string KEY = 'tenancy.tenant_id';
+
+    private const string BYPASS_KEY = 'tenancy.bypass_reason';
 
     public function set(Tenant $tenant): void
     {
@@ -50,6 +53,34 @@ final class TenantContext
     public function clear(): void
     {
         Context::forgetHidden(self::KEY);
+    }
+
+    /**
+     * Runs the callback with scopes that honour bypass (convert and convert-child
+     * scopes) lifted. Only for domain services that have checked access
+     * themselves (03-tenancy-authorization §3.2); every use is audited.
+     *
+     * @template TReturn
+     *
+     * @param  Closure(): TReturn  $callback
+     * @return TReturn
+     */
+    public function bypass(string $reason, Closure $callback): mixed
+    {
+        $previous = Context::getHidden(self::BYPASS_KEY);
+        TenantScopeBypassed::dispatch($reason);
+        Context::addHidden(self::BYPASS_KEY, $reason);
+
+        try {
+            return $callback();
+        } finally {
+            $previous === null ? Context::forgetHidden(self::BYPASS_KEY) : Context::addHidden(self::BYPASS_KEY, $previous);
+        }
+    }
+
+    public function isBypassed(): bool
+    {
+        return Context::getHidden(self::BYPASS_KEY) !== null;
     }
 
     /**
