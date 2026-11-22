@@ -92,6 +92,14 @@ learning_progress
 
 Persentase kehadiran = `(present + late) / (sesi held − excused) × 100`. Bobot `late` dapat dikonfigurasi (default 1,0).
 
+Implementasi (langkah 15, `app/Domain/Guidance`):
+
+- Program: nasional (`tenant_id NULL`, template; `GuidanceProgramSeeder` membuat `NEW-MUSLIM` dengan 10 modul PRD §19) atau milik kantor; kantor melihat keduanya (`ProgramScope`) dan hanya mengubah miliknya (`guidance.programs.manage`), program nasional disalin (`copyNational`) beserta modul dan pelajaran. Kode nasional unik lewat generated column `national_code_key`. Pelajaran yang sudah punya progres tidak dapat dihapus.
+- Kelas (`guidance.classes.manage`): status `planned → open → in_progress → completed`, `cancelled` dari planned/open; hanya `open`/`in_progress` menerima enrollment. Guru harus anggota aktif kantor; satu penugasan aktif per guru per kelas.
+- Enrollment (`guidance.enroll`): convert aktif kantor ini; kelas harus milik program yang sama; `gender_policy` ditegakkan (open question #3: diterapkan sesuai kolom); kapasitas dihitung pada baris kelas yang dikunci. `completed` ditolak bila kehadiran di bawah `minimum_attendance_percentage`; `withdrawn` wajib alasan; `transferred` hanya oleh listener `TransferCompleted`. Enrollment baru untuk program yang sama setelah transfer menautkan enrollment lama dan menyalin pelajaran `completed` (`source = transferred`).
+- Sesi, absensi, progres: absensi dan progres hanya oleh guru yang **saat ini** ditugaskan ke kelas itu (`guidance.attendance.record`/`guidance.progress.record`; critical test #6); sesi oleh koordinator atau guru kelas. Absensi menandai sesi `held`, mengaktifkan enrollment `enrolled`, dan menghitung ulang `attendance_percentage` secara sinkron (bukan job).
+- Guru (pemegang perekam absensi/progres tanpa `guidance.classes.manage`) hanya melihat kelasnya; `converts.view_class` melihat convert yang terdaftar di kelasnya lewat kontrak `Converts\Contracts\TeacherRoster` (diimplementasikan Guidance).
+
 ## 9.5 Ujian
 
 ```

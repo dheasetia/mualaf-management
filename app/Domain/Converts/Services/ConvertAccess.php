@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Converts\Services;
 
+use App\Domain\Converts\Contracts\TeacherRoster;
 use App\Domain\Converts\Enums\DisclosureLevel;
 use App\Domain\Converts\Enums\ProfileAccess;
 use App\Domain\Converts\Models\Convert;
@@ -18,8 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  * (03-tenancy-authorization §3.5 layers 3–4, 04-identity-privacy §4.6).
  *
  * - converts.view: every convert of the office; converts.view_own (da'i):
- *   those their da'i record is assigned to. converts.view_class (teacher)
- *   arrives with guidance classes (step 15).
+ *   those their da'i record is assigned to; converts.view_class (teacher):
+ *   those enrolled in the classes they teach (TeacherRoster).
  * - restricted: full profile for the primary da'i and converts.view_restricted,
  *   name and operational minimum for others.
  * - high_confidentiality: full profile for the primary da'i and
@@ -27,7 +28,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 final readonly class ConvertAccess
 {
-    public function __construct(private DaiDirectory $directory, private DaiAssignmentService $assignments) {}
+    public function __construct(
+        private DaiDirectory $directory,
+        private DaiAssignmentService $assignments,
+        private TeacherRoster $roster,
+    ) {}
 
     /**
      * @template TModel of Model
@@ -42,10 +47,15 @@ final readonly class ConvertAccess
         }
 
         $daiId = $this->ownDaiId($user);
+        $teaches = $user->hasPermission('converts.view_class');
 
-        return $daiId === null
-            ? $query->whereRaw('1 = 0')
-            : $query->whereIn('id', $this->assignments->assignedSubjectIds('convert', $daiId));
+        if ($daiId === null && ! $teaches) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(fn (Builder $visible) => $visible
+            ->when($daiId !== null, fn (Builder $own) => $own->orWhereIn('id', $this->assignments->assignedSubjectIds('convert', (int) $daiId)))
+            ->when($teaches, fn (Builder $class) => $class->orWhereIn('id', $this->roster->convertIds($user))));
     }
 
     public function canSee(User $user, Convert $convert): bool
@@ -56,7 +66,11 @@ final readonly class ConvertAccess
 
         $daiId = $this->ownDaiId($user);
 
-        return $daiId !== null && $this->assignments->isAssigned($convert, $daiId);
+        if ($daiId !== null && $this->assignments->isAssigned($convert, $daiId)) {
+            return true;
+        }
+
+        return $user->hasPermission('converts.view_class') && $this->roster->teaches($user, $convert);
     }
 
     public function profile(User $user, Convert $convert): ProfileAccess

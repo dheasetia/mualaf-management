@@ -55,7 +55,7 @@ Test memakai `RefreshDatabase` dengan migration (bukan schema dump) agar generat
 | 3 | Transfer tidak dapat selesai dua kali | `Concurrency/TransferCompletionTest.php` |
 | 4 | `origin_tenant_id` tidak dapat berubah melalui CRUD biasa (form Filament, mass assignment, `update()` langsung pada model) | `Feature/Converts/OriginImmutabilityTest.php` |
 | 5 | Prospect tidak dapat menjadi convert tanpa workflow syahadat | `Feature/Prospects/ConversionGuardTest.php` |
-| 6 | Teacher tidak dapat mengubah kelas lain | `Feature/Guidance/TeacherScopeTest.php` |
+| 6 | Teacher tidak dapat mengubah kelas lain | `Feature/Guidance/GuidanceTest.php` ("lets only an assigned teacher…") |
 | 7 | Da'i tidak dapat melihat subjek yang bukan binaannya | `Feature/Dai/SubjectVisibilityTest.php` |
 | 8 | Sertifikat yang dicabut gagal verifikasi | `Feature/Certificates/VerificationTest.php` |
 | 9 | Lost contact tidak mengubah status convert maupun status keagamaan | `Feature/FollowUp/LostContactTest.php` |

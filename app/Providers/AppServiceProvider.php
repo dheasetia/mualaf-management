@@ -9,10 +9,17 @@ use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Policies\AuditLogPolicy;
 use App\Domain\Companies\Models\Company;
 use App\Domain\Companies\Policies\CompanyPolicy;
+use App\Domain\Converts\Contracts\TeacherRoster;
 use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
+use App\Domain\Guidance\Listeners\CloseEnrollmentsOnTransfer;
+use App\Domain\Guidance\Models\Enrollment;
+use App\Domain\Guidance\Models\GuidanceClass;
+use App\Domain\Guidance\Models\GuidanceProgram;
+use App\Domain\Guidance\Policies\GuidancePolicies;
+use App\Domain\Guidance\Services\GuidanceTeacherRoster;
 use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
 use App\Domain\Identity\Rbac\Authorizer;
@@ -32,6 +39,7 @@ use App\Domain\Registration\Models\DuplicateReviewCase;
 use App\Domain\Registration\Policies\ConvertRegistrationPolicy;
 use App\Domain\Registration\Policies\DuplicateReviewCasePolicy;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Domain\Transfers\Events\TransferCompleted;
 use App\Domain\Transfers\Models\ConvertTransferRequest;
 use App\Domain\Transfers\Models\ProspectTransferRequest;
 use App\Domain\Transfers\Policies\ConvertTransferRequestPolicy;
@@ -54,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // State lives in Laravel Context, so one instance per application is safe.
         $this->app->singleton(TenantContext::class);
+        $this->app->bind(TeacherRoster::class, GuidanceTeacherRoster::class);
     }
 
     public function boot(): void
@@ -69,6 +78,7 @@ class AppServiceProvider extends ServiceProvider
             'prospect' => Prospect::class,
             'convert' => Convert::class,
             'company' => Company::class,
+            'enrollment' => Enrollment::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -94,6 +104,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Prospect::class, ProspectPolicy::class);
         Gate::policy(Convert::class, ConvertPolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
+
+        foreach ([GuidanceProgram::class, GuidanceClass::class, Enrollment::class] as $guidanceModel) {
+            Gate::policy($guidanceModel, GuidancePolicies::class);
+        }
         Gate::policy(ConvertRegistration::class, ConvertRegistrationPolicy::class);
         Gate::policy(DuplicateReviewCase::class, DuplicateReviewCasePolicy::class);
         Gate::policy(ConvertTransferRequest::class, ConvertTransferRequestPolicy::class);
@@ -106,5 +120,6 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Failed::class, RecordFailedLogin::class);
         Event::listen(Login::class, RecordSuccessfulLogin::class);
         Event::listen(TenantScopeBypassed::class, RecordTenantScopeBypass::class);
+        Event::listen(TransferCompleted::class, CloseEnrollmentsOnTransfer::class);
     }
 }

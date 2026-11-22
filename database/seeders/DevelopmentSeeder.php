@@ -17,6 +17,12 @@ use App\Domain\Dai\Enums\EmploymentStatus;
 use App\Domain\Dai\Enums\FollowUpType;
 use App\Domain\Dai\Enums\LanguageProficiency;
 use App\Domain\Dai\Models\Dai;
+use App\Domain\Guidance\Actions\ManageClasses;
+use App\Domain\Guidance\Actions\ManageEnrollments;
+use App\Domain\Guidance\Enums\ClassStatus;
+use App\Domain\Guidance\Enums\TeacherRole;
+use App\Domain\Guidance\Models\GuidanceClass;
+use App\Domain\Guidance\Models\GuidanceProgram;
 use App\Domain\Identity\Actions\AssignRole;
 use App\Domain\Identity\Enums\RoleScope;
 use App\Domain\Identity\Models\Role;
@@ -70,7 +76,7 @@ final class DevelopmentSeeder extends Seeder
             throw new RuntimeException('Set DEV_SEED_PASSWORD (12+ characters) in .env before seeding development data.');
         }
 
-        $this->call([PlatformMasterSeeder::class, RbacSeeder::class]);
+        $this->call([PlatformMasterSeeder::class, RbacSeeder::class, GuidanceProgramSeeder::class]);
 
         $user = User::query()->firstOrCreate(
             ['email' => 'dev.admin@muallaf.test'],
@@ -132,6 +138,10 @@ final class DevelopmentSeeder extends Seeder
 
             if (! Convert::query()->exists()) {
                 $this->seedConvert($tenant->code);
+            }
+
+            if (! GuidanceClass::query()->exists()) {
+                $this->seedClass($tenant->code);
             }
         });
     }
@@ -242,5 +252,36 @@ final class DevelopmentSeeder extends Seeder
             primaryDaiId: (int) Dai::query()->where('employee_number', $code.'-D002')->value('id'),
             phone: '0552000000',
         ), $registrar);
+    }
+
+    /**
+     * An open Tagalog class of the national program, taught by the synthetic
+     * Teacher, with the office's sample convert enrolled.
+     */
+    private function seedClass(string $code): void
+    {
+        $user = fn (string $role): User => User::query()->where('email', sprintf('%s.%s@muallaf.test', $role, strtolower($code)))->firstOrFail();
+        $coordinator = $user('guidance-coordinator');
+        $program = GuidanceProgram::query()->whereNull('tenant_id')->where('code', 'NEW-MUSLIM')->firstOrFail();
+
+        $class = app(ManageClasses::class)->save(null, [
+            'program_id' => $program->id,
+            'code' => $code.'-TL-01',
+            'name' => 'Tagalog foundation class',
+            'language_id' => Language::query()->where('code', 'tl')->value('id'),
+            'gender_policy' => 'male',
+            'capacity' => 20,
+            'starts_on' => CarbonImmutable::today()->subWeek()->toDateString(),
+            'ends_on' => CarbonImmutable::today()->addMonths(3)->toDateString(),
+        ], [['day_of_week' => 5, 'start_time' => '16:00', 'end_time' => '17:30']], $coordinator);
+
+        app(ManageClasses::class)->changeStatus($class, ClassStatus::Open, $coordinator);
+        app(ManageClasses::class)->assignTeacher($class, $user('teacher')->id, TeacherRole::LeadTeacher, $coordinator);
+
+        $convert = Convert::query()->first();
+
+        if ($convert !== null) {
+            app(ManageEnrollments::class)->enroll($convert->id, $program->id, $class->id, $coordinator);
+        }
     }
 }

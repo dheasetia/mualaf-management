@@ -20,13 +20,14 @@ beforeEach(function (): void {
     ]);
 });
 
-it('opens the convert list to roles with converts.view or view_own', function (string $role, int $status): void {
+it('opens the convert list to roles with converts.view, view_own or view_class', function (string $role, int $status): void {
     $this->actingAs(($this->staff)($role))->get('/center/DMM/converts')->assertStatus($status);
 })->with([
     'center admin' => ['center_admin', 200],
     'registration officer' => ['registration_officer', 200],
     'da\'i' => ['dai', 200],
-    'teacher (classes arrive in step 15)' => ['teacher', 403],
+    'teacher (own classes only)' => ['teacher', 200],
+    'pilgrimage officer' => ['pilgrimage_officer', 200],
 ]);
 
 it('lists high-confidentiality converts under an alias that cannot be opened', function (): void {
