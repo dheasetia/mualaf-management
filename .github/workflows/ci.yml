@@ -36,6 +36,12 @@ jobs:
       - name: Pint
         run: vendor/bin/pint --test
 
+      # Larastan boots the application, which needs an encryption key.
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
       - name: Larastan
         run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress
 
