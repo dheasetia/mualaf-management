@@ -10,6 +10,14 @@ use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
 use App\Domain\Identity\Rbac\Authorizer;
 use App\Domain\Identity\Rbac\PermissionCatalog;
+use App\Domain\Platform\Models\BudgetCategory;
+use App\Domain\Platform\Models\City;
+use App\Domain\Platform\Models\Country;
+use App\Domain\Platform\Models\DaiActivityType;
+use App\Domain\Platform\Models\Language;
+use App\Domain\Platform\Models\Region;
+use App\Domain\Platform\Models\Religion;
+use App\Domain\Platform\Policies\MasterDataPolicy;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Tenancy\TenantContext;
@@ -60,6 +68,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::policy(AuditLog::class, AuditLogPolicy::class);
+
+        foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
+            Gate::policy($masterModel, MasterDataPolicy::class);
+        }
 
         Event::listen(Failed::class, RecordFailedLogin::class);
         Event::listen(Login::class, RecordSuccessfulLogin::class);
