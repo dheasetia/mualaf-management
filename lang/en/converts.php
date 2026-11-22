@@ -44,6 +44,31 @@ return [
     'notifications' => [
         'saved' => 'Saved.', 'revealed' => 'Number: :number (this view was logged)',
     ],
+    'job_statuses' => ['employed' => 'Employed', 'ended' => 'Ended', 'unknown' => 'Unknown'],
+    'residence_types' => [
+        'company_dormitory' => 'Company dormitory', 'workers_camp' => 'Workers camp', 'house' => 'House',
+        'apartment' => 'Apartment', 'other' => 'Other',
+    ],
+    'contact_roles' => [
+        'dormitory_head' => 'Dormitory head', 'hr' => 'HR', 'public_relations' => 'Public relations',
+        'supervisor' => 'Supervisor', 'friend' => 'Friend', 'family' => 'Family', 'other' => 'Other',
+    ],
+    'disclosure_scopes' => [
+        'none' => 'Knows nothing', 'general_support' => 'General support only', 'knows_conversion' => 'Knows about the conversion',
+    ],
+    'locations' => [
+        'employments' => 'Employment', 'residences' => 'Residence', 'contact_persons' => 'Contact persons',
+        'company' => 'Company', 'company_name_free' => 'Company (not in directory)', 'occupation' => 'Occupation',
+        'department' => 'Department', 'employee_number' => 'Employee number', 'work_location' => 'Work location',
+        'work_city' => 'Work city', 'work_phone' => 'Work phone', 'employment_status' => 'Status',
+        'started_at' => 'From', 'ended_at' => 'Until', 'is_current' => 'Current',
+        'residence_type' => 'Type', 'name' => 'Name', 'city' => 'City', 'address' => 'Address', 'district' => 'District',
+        'building_no' => 'Building', 'room_no' => 'Room', 'is_pickup_point' => 'Pickup point',
+        'pickup_instructions' => 'Pickup instructions', 'latitude' => 'Latitude', 'longitude' => 'Longitude',
+        'google_maps_url' => 'Google Maps link', 'notes' => 'Notes', 'position' => 'Position', 'contact_role' => 'Role',
+        'phone' => 'Phone', 'alternate_phone' => 'Alternate phone', 'email' => 'Email', 'preferred_language' => 'Language',
+        'permission_to_contact' => 'May be contacted', 'disclosure_scope' => 'What they know', 'is_primary' => 'Primary',
+    ],
     'search' => [
         'title' => 'National identity search',
         'description' => 'Checks whether a person is already registered as a convert in any center. Searches are logged and limited to :max per hour.',
@@ -58,6 +83,7 @@ return [
         'name' => 'Name: :name',
     ],
     'errors' => [
+        'invalid_maps_url' => 'Use an https link from Google Maps.',
         'reason_required' => 'A reason is required.',
         'invalid_transition' => 'Record status cannot change from :from to :to.',
         'closed' => 'This record is closed and can no longer be changed.',

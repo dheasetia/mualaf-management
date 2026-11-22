@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Prospects\Services;
 
+use App\Domain\Companies\Models\Company;
 use App\Domain\Prospects\Data\ProspectData;
 use App\Domain\Prospects\Exceptions\ProspectRuleViolation;
 use App\Domain\Prospects\Models\Prospect;
@@ -44,6 +45,8 @@ final class ProspectRules
         $prospect->phone_encrypted = $data->phone;
         $prospect->email_encrypted = $data->email;
         $prospect->occupation = $data->occupation;
+        // Office or national company the office may see (CompanyScope).
+        $prospect->company_id = $data->companyId === null ? null : (Company::query()->whereKey($data->companyId)->exists() ? $data->companyId : null);
         $prospect->residence_city_id = $data->residenceCityId;
         $prospect->residence_description = $data->residenceDescription;
         $prospect->source_type = $data->source;

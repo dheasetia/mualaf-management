@@ -44,6 +44,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $phone_fingerprint
  * @property string|null $email_encrypted
  * @property string|null $occupation
+ * @property int|null $company_id
  * @property int|null $residence_city_id
  * @property string|null $residence_description
  * @property int $primary_dai_id

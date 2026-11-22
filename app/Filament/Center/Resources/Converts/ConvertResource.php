@@ -80,6 +80,15 @@ final class ConvertResource extends Resource
         return ConvertsTable::configure($table);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\EmploymentsRelationManager::class,
+            RelationManagers\ResidencesRelationManager::class,
+            RelationManagers\ContactPersonsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [

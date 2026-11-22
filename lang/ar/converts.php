@@ -44,6 +44,31 @@ return [
     'notifications' => [
         'saved' => 'تم الحفظ.', 'revealed' => 'الرقم: :number (تم تسجيل هذا العرض)',
     ],
+    'job_statuses' => ['employed' => 'على رأس العمل', 'ended' => 'انتهى', 'unknown' => 'غير معروف'],
+    'residence_types' => [
+        'company_dormitory' => 'سكن الشركة', 'workers_camp' => 'مخيم عمال', 'house' => 'منزل',
+        'apartment' => 'شقة', 'other' => 'أخرى',
+    ],
+    'contact_roles' => [
+        'dormitory_head' => 'مسؤول السكن', 'hr' => 'الموارد البشرية', 'public_relations' => 'العلاقات العامة',
+        'supervisor' => 'المشرف', 'friend' => 'صديق', 'family' => 'العائلة', 'other' => 'أخرى',
+    ],
+    'disclosure_scopes' => [
+        'none' => 'لا يعلم شيئًا', 'general_support' => 'دعم عام فقط', 'knows_conversion' => 'يعلم بإسلامه',
+    ],
+    'locations' => [
+        'employments' => 'العمل', 'residences' => 'السكن', 'contact_persons' => 'جهات الاتصال',
+        'company' => 'الشركة', 'company_name_free' => 'الشركة (خارج الدليل)', 'occupation' => 'المهنة',
+        'department' => 'القسم', 'employee_number' => 'الرقم الوظيفي', 'work_location' => 'موقع العمل',
+        'work_city' => 'مدينة العمل', 'work_phone' => 'هاتف العمل', 'employment_status' => 'الحالة',
+        'started_at' => 'من', 'ended_at' => 'إلى', 'is_current' => 'حالي',
+        'residence_type' => 'النوع', 'name' => 'الاسم', 'city' => 'المدينة', 'address' => 'العنوان', 'district' => 'الحي',
+        'building_no' => 'المبنى', 'room_no' => 'الغرفة', 'is_pickup_point' => 'نقطة التقاء',
+        'pickup_instructions' => 'تعليمات الالتقاء', 'latitude' => 'خط العرض', 'longitude' => 'خط الطول',
+        'google_maps_url' => 'رابط خرائط Google', 'notes' => 'ملاحظات', 'position' => 'المنصب', 'contact_role' => 'الصفة',
+        'phone' => 'الهاتف', 'alternate_phone' => 'هاتف بديل', 'email' => 'البريد الإلكتروني', 'preferred_language' => 'اللغة',
+        'permission_to_contact' => 'يسمح بالتواصل', 'disclosure_scope' => 'ما يعلمه', 'is_primary' => 'أساسي',
+    ],
     'search' => [
         'title' => 'البحث الوطني بالهوية',
         'description' => 'يتحقق مما إذا كان الشخص مسجلًا كمهتدٍ في أي مركز. تُسجَّل عمليات البحث ويُسمح بـ :max عملية في الساعة.',
@@ -58,6 +83,7 @@ return [
         'name' => 'الاسم: :name',
     ],
     'errors' => [
+        'invalid_maps_url' => 'استخدم رابط https من خرائط Google.',
         'reason_required' => 'السبب مطلوب.',
         'invalid_transition' => 'لا يمكن تغيير حالة الملف من :from إلى :to.',
         'closed' => 'هذا الملف مغلق ولا يمكن تعديله.',

@@ -49,6 +49,7 @@ app/
 │   ├── Identity/          # users, roles, permissions, MFA
 │   ├── Audit/             # audit log, privileged access
 │   ├── Prospects/
+│   ├── Companies/         # direktori perusahaan nasional dan kantor (langkah 14)
 │   ├── Converts/          # convert profile, identifiers, contacts, employment, residence
 │   ├── Registration/      # registration, shahadah, duplicate review, origin correction
 │   ├── Transfers/
@@ -86,7 +87,7 @@ app/Domain/Transfers/
 
 ### Aturan dependensi
 
-1. Modul domain boleh memakai `Platform`, `Tenancy`, `Identity`, `Audit`, dan `Support`.
+1. Modul domain boleh memakai `Platform`, `Tenancy`, `Identity`, `Audit`, `Companies` (direktori bersama), dan `Support`.
 2. Antar modul domain lain hanya melalui Actions dan Events publik; tidak ada query langsung ke tabel modul lain dari luar modul.
 3. Filament Resource, Page, dan Livewire component hanya memanggil Actions; tidak berisi logika bisnis atau transisi status.
 4. Perubahan status hanya melalui Service state machine; kolom `status` tidak masuk `$fillable`.
