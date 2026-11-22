@@ -10,11 +10,16 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Symfony\Component\Finder\Finder;
 
-// 14-testing §14.4: every tenant-scoped model must be listed here.
-dataset('tenant_scoped_models', [
-    'dai' => [Dai::class, fn (): Factory => Dai::factory()],
-    'dai assignment' => [DaiAssignment::class, fn (): Factory => DaiAssignment::factory()],
-]);
+// 14-testing §14.4: every tenant-scoped model must be listed here, with its factory.
+const TENANT_SCOPED_MODELS = [
+    'dai' => Dai::class,
+    'dai assignment' => DaiAssignment::class,
+];
+
+dataset('tenant_scoped_models', array_map(
+    fn (string $model): array => [$model, fn (): Factory => $model::factory()],
+    TENANT_SCOPED_MODELS,
+));
 
 it('hides, and refuses to change, records of another tenant', function (string $model, Closure $factory): void {
     [$tenantA, $tenantB] = Tenant::factory()->active()->count(2)->create();
@@ -41,7 +46,5 @@ it('lists every model that uses BelongsToTenant', function (): void {
         }
     }
 
-    $registered = [Dai::class, DaiAssignment::class];
-
-    expect($scoped)->toEqualCanonicalizing($registered);
+    expect($scoped)->toEqualCanonicalizing(array_values(TENANT_SCOPED_MODELS));
 })->group('tenant-isolation');
