@@ -78,6 +78,7 @@ Audit log menyimpan nilai lama/baru dengan redaksi: field sensitif diganti `[RED
 | `high_confidentiality` | Hanya Primary Da'i dan Head of Dawah; nama ditampilkan sebagai alias di daftar; tidak boleh dicetak di daftar peserta/pickup tanpa persetujuan Head of Dawah; dikecualikan dari pencarian nasional berbasis nama (exact identity tetap memblokir duplikasi, hasil hanya "terdaftar di kantor lain, hubungi admin pusat") |
 
 - Perubahan level memerlukan `converts.set_disclosure` dan alasan, tercatat di audit.
+- Implementasi (langkah 10, `ConvertAccess`): profil penuh `restricted` untuk Primary Da'i dan pemegang `converts.view_restricted` (Head of Dawah, Center Admin), selainnya nama Islam atau inisial + status dan Primary Da'i; profil `high_confidentiality` untuk Primary Da'i dan pemegang `converts.view_high_confidentiality` (Head of Dawah), selainnya hanya alias `مهتدٍ XXXXXX` di daftar tanpa bisa dibuka dan tidak ikut pencarian nama. Agama sebelumnya hanya untuk pemegang `converts.view_sensitive` yang punya profil penuh, juga saat mengedit. Kedua permission `view_*` dan `converts.change_status` ditambahkan v1.1 agar aturan ini dinyatakan sebagai permission, bukan kode role.
 - Sistem tidak pernah mengirim notifikasi masuk Islam secara otomatis ke keluarga, perusahaan, atau pihak lain. Kontak pihak ketiga hanya bila `permission_to_contact = true` dan tujuan kontak dicatat.
 - Contact person dan home country contact mempunyai `permission_to_contact` dan `disclosure_scope` (`none`, `general_support`, `knows_conversion`).
 

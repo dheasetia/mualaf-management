@@ -13,7 +13,7 @@
 | 7 | Da'i (selesai 22-11-2026) | 2 | `dais`, `dai_languages`, `dai_assignments` (skema), supervisor, status, workload view; dataset isolasi tenant + test kelengkapan |
 | 8 | Prospect (selesai 22-11-2026) | 2 | `prospects` + histori append-only, status machine, `dai_follow_ups`, `DaiAssignmentService`, visibilitas `view_own`, deteksi telepon ganda |
 | 9 | Identity registry (selesai 22-11-2026) | 2 | `convert_identifiers`, normalisasi + fingerprint, `IdentityRegistry` (penjaga unique, reveal diaudit), national search terbatas + rate limit; tabel inti `converts`, `ConvertScope`, `TenantContext::bypass` |
-| 10 | Convert | 2 | Profil convert, kontak, disclosure level (tabel inti `converts` sudah ada sejak langkah 9) |
+| 10 | Convert (selesai 22-11-2026) | 2 | Profil, kontak terenkripsi, disclosure level berlapis (`ConvertAccess`), status record + histori append-only, assign da'i; panel Center tanpa create |
 | 11 | Shahadah | 2 | Registrasi + syahadat + verifikasi |
 | 12 | Duplicate detection | 2 | Fuzzy match, `duplicate_review_cases` |
 | 13 | Transfer | 2 | Transfer convert dan prospect, histori, eskalasi |

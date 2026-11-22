@@ -10,6 +10,9 @@ use App\Domain\Converts\Exceptions\ConvertTenantImmutable;
 use App\Domain\Converts\Scopes\ConvertScope;
 use App\Domain\Dai\Contracts\AssignableSubject;
 use App\Domain\Platform\Enums\Gender;
+use App\Domain\Platform\Models\Country;
+use App\Domain\Platform\Models\Language;
+use App\Domain\Platform\Models\Religion;
 use App\Domain\Tenancy\Exceptions\TenantMismatch;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Support\Tenancy\TenantContext;
@@ -35,6 +38,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $full_name
  * @property string|null $name_ar
  * @property string|null $islamic_name
+ * @property string|null $previous_name
+ * @property int|null $native_language_id
+ * @property int|null $previous_religion_id
+ * @property string|null $previous_religion_other
  * @property string $name_search_key
  * @property Gender $gender
  * @property CarbonImmutable|null $date_of_birth
@@ -115,6 +122,42 @@ final class Convert extends Model implements AssignableSubject
     public function currentTenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'current_tenant_id');
+    }
+
+    /** @return HasMany<ConvertContact, $this> */
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(ConvertContact::class);
+    }
+
+    /** @return HasMany<ConvertStatusHistory, $this> */
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(ConvertStatusHistory::class);
+    }
+
+    /** @return BelongsTo<Country, $this> */
+    public function nationality(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'nationality_id');
+    }
+
+    /** @return BelongsTo<Language, $this> */
+    public function nativeLanguage(): BelongsTo
+    {
+        return $this->belongsTo(Language::class, 'native_language_id');
+    }
+
+    /** @return BelongsTo<Religion, $this> */
+    public function previousReligion(): BelongsTo
+    {
+        return $this->belongsTo(Religion::class, 'previous_religion_id');
+    }
+
+    /** Shown instead of the name where the convert must not be identifiable. */
+    public function alias(): string
+    {
+        return __('converts.alias', ['code' => strtoupper(substr(str_replace('-', '', $this->uuid), 0, 6))]);
     }
 
     /** @return HasMany<ConvertIdentifier, $this> */

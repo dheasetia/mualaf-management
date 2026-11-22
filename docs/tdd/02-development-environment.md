@@ -75,7 +75,8 @@ Migrasi dijalankan dengan koneksi `migrator` (`php artisan migrate --database=mi
 
 ```bash
 php artisan db:sync-app-grants
-php artisan db:sync-app-grants --env=testing   # database muallaf_testing
+php artisan migrate --database=migrator --env=testing   # buat dulu tabel baru di muallaf_testing
+php artisan db:sync-app-grants --env=testing           # database muallaf_testing
 ```
 
 Test memakai user owner agar `RefreshDatabase` dapat membuat ulang skema. Test grant append-only memakai user app: isi `DB_APP_USERNAME=muallaf_app` dan `DB_APP_PASSWORD` di `.env.testing`; tanpa keduanya test tersebut di-skip (CI selalu menjalankannya). Grant per tabel di MySQL tetap ada walau tabel di-drop dan dibuat ulang, sehingga `migrate:fresh` tidak menghapusnya.

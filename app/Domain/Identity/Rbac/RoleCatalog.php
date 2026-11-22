@@ -50,7 +50,7 @@ final class RoleCatalog
             'center_admin' => self::tenant('مدير المركز', 'Center Admin', [
                 'users.view', 'users.create', 'users.update', 'users.deactivate', 'users.assign_roles',
                 'dais.view', 'dais.create', 'dais.update',
-                'prospects.view', 'converts.view', 'dawah.plans.view', 'budget.view', 'materials.view',
+                'prospects.view', 'converts.view', 'converts.view_restricted', 'dawah.plans.view', 'budget.view', 'materials.view',
                 'guidance.view', 'exams.view', 'certificates.view', 'documents.view', 'submissions.view',
                 'transport.view', 'pilgrimage.view',
                 'reports.view_office', 'reports.export', 'audit.view_office',
@@ -61,6 +61,7 @@ final class RoleCatalog
                 'prospects.change_status', 'prospects.transfer',
                 'converts.view', 'converts.update', 'converts.view_sensitive', 'converts.assign_dai',
                 'converts.set_disclosure', 'converts.transfer', 'converts.review_transfer',
+                'converts.view_restricted', 'converts.view_high_confidentiality', 'converts.change_status',
                 'identity.national_search', 'duplicates.review',
                 'followups.view', 'followups.create', 'followups.view_confidential',
                 'dawah.activities.verify', 'dawah.plans.view', 'dawah.plans.review', 'dawah.plans.approve',

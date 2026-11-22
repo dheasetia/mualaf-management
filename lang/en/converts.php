@@ -11,6 +11,39 @@ return [
         'border_number' => 'Border number',
         'other' => 'Other',
     ],
+    'model' => 'convert',
+    'plural' => 'Converts',
+    'alias' => 'Convert :code',
+    'statuses' => [
+        'active' => 'Active', 'inactive' => 'Inactive', 'deceased' => 'Deceased', 'record_closed' => 'Record closed',
+    ],
+    'disclosure_levels' => [
+        'normal' => 'Normal', 'restricted' => 'Restricted', 'high_confidentiality' => 'High confidentiality',
+    ],
+    'contact_types' => [
+        'mobile' => 'Mobile', 'whatsapp' => 'WhatsApp', 'email' => 'Email', 'telegram' => 'Telegram', 'other' => 'Other',
+    ],
+    'sections' => [
+        'profile' => 'Profile', 'sensitive' => 'Religious background', 'identifiers' => 'Identity documents',
+        'contacts' => 'Contacts', 'history' => 'Record status history',
+    ],
+    'fields' => [
+        'full_name' => 'Full name', 'name_ar' => 'Name (Arabic)', 'previous_name' => 'Previous name',
+        'islamic_name' => 'Islamic name', 'display_name' => 'Name', 'gender' => 'Gender', 'date_of_birth' => 'Date of birth',
+        'nationality' => 'Nationality', 'native_language' => 'Native language', 'previous_religion' => 'Previous religion',
+        'previous_religion_other' => 'Previous religion (other)', 'status' => 'Record status',
+        'disclosure_risk_level' => 'Disclosure level', 'primary_dai' => "Primary da'i", 'origin_office' => 'Office of origin',
+        'reason' => 'Reason', 'contact_type' => 'Type', 'value' => 'Contact', 'is_primary' => 'Primary',
+        'identity_type' => 'Type', 'identity_number' => 'Number', 'issuing_country' => 'Issued by',
+        'verification_status' => 'Verification', 'changed_by' => 'Changed by', 'changed_at' => 'Changed at',
+    ],
+    'actions' => [
+        'change_disclosure' => 'Change disclosure level', 'change_status' => 'Change record status',
+        'assign_dai' => "Assign da'i", 'add_contact' => 'Add contact', 'remove_contact' => 'Remove', 'reveal' => 'Show number',
+    ],
+    'notifications' => [
+        'saved' => 'Saved.', 'revealed' => 'Number: :number (this view was logged)',
+    ],
     'search' => [
         'title' => 'National identity search',
         'description' => 'Checks whether a person is already registered as a convert in any center. Searches are logged and limited to :max per hour.',
@@ -25,6 +58,10 @@ return [
         'name' => 'Name: :name',
     ],
     'errors' => [
+        'reason_required' => 'A reason is required.',
+        'invalid_transition' => 'Record status cannot change from :from to :to.',
+        'closed' => 'This record is closed and can no longer be changed.',
+        'invalid_contact' => 'This contact is not valid for the selected type.',
         'invalid_identity_number' => 'This identity number is not valid for the selected type.',
         'issuing_country_required' => 'Choose the issuing country.',
         'search_limit' => 'Search limit reached. Try again in :minutes minutes.',
