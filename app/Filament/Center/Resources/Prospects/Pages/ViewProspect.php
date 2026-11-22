@@ -14,6 +14,7 @@ use App\Domain\Prospects\Actions\ChangeProspectStatus;
 use App\Domain\Prospects\Actions\RecordProspectFollowUp;
 use App\Domain\Prospects\Enums\ProspectStatus;
 use App\Domain\Prospects\Models\Prospect;
+use App\Filament\Center\Pages\RegisterShahadah;
 use App\Filament\Center\Resources\Prospects\ProspectResource;
 use App\Filament\Concerns\ResolvesActor;
 use App\Support\Exceptions\RuleViolation;
@@ -89,6 +90,13 @@ final class ViewProspect extends ViewRecord
                 ])
                 ->action($this->run(fn (array $data) => app(AssignProspectDai::class)
                     ->handle($this->record, (int) $data['dai_id'], $this->actor(), $data['reason'] ?? null), 'prospects.notifications.dai_assigned')),
+
+            Action::make('registerShahadah')
+                ->label(__('registration.actions.register_shahadah'))
+                ->icon('heroicon-o-sparkles')
+                ->color('success')
+                ->visible(fn (): bool => $this->record->status === ProspectStatus::ReadyForShahadah && RegisterShahadah::canAccess())
+                ->url(fn (): string => RegisterShahadah::getUrl(['prospect' => $this->record->id])),
 
             EditAction::make(),
         ];

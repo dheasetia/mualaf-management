@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Converts\Data\ConvertProfileData;
+use App\Domain\Converts\Data\IdentifierData;
+use App\Domain\Converts\Enums\IdentityType;
+use App\Domain\Converts\Models\Convert;
+use App\Domain\Converts\Services\IdentityNumber;
 use App\Domain\Dai\Actions\CreateDai;
 use App\Domain\Dai\Data\DaiData;
 use App\Domain\Dai\Data\FollowUpData;
@@ -17,6 +22,7 @@ use App\Domain\Identity\Enums\RoleScope;
 use App\Domain\Identity\Models\Role;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\City;
+use App\Domain\Platform\Models\Country;
 use App\Domain\Platform\Models\Language;
 use App\Domain\Prospects\Actions\ChangeProspectStatus;
 use App\Domain\Prospects\Actions\CreateProspect;
@@ -25,6 +31,8 @@ use App\Domain\Prospects\Data\ProspectData;
 use App\Domain\Prospects\Enums\ProspectSource;
 use App\Domain\Prospects\Enums\ProspectStatus;
 use App\Domain\Prospects\Models\Prospect;
+use App\Domain\Registration\Actions\RecordShahadah;
+use App\Domain\Registration\Data\ShahadahRegistrationData;
 use App\Domain\Tenancy\Actions\ChangeTenantStatus;
 use App\Domain\Tenancy\Actions\CreateTenant;
 use App\Domain\Tenancy\Actions\GrantTenantMembership;
@@ -121,6 +129,10 @@ final class DevelopmentSeeder extends Seeder
             if (! Prospect::query()->exists()) {
                 $this->seedProspects($tenant->code);
             }
+
+            if (! Convert::query()->exists()) {
+                $this->seedConvert($tenant->code);
+            }
         });
     }
 
@@ -210,5 +222,25 @@ final class DevelopmentSeeder extends Seeder
                 app(ChangeProspectStatus::class)->handle($prospect, $step, $daiUser);
             }
         }
+    }
+
+    /**
+     * One walk-in convert per office, registered by the synthetic Registration
+     * Officer and left waiting for verification. The Iqamah number is synthetic.
+     */
+    private function seedConvert(string $code): void
+    {
+        $registrar = User::query()->where('email', sprintf('registration-officer.%s@muallaf.test', strtolower($code)))->firstOrFail();
+        $prefix = '29'.str_pad((string) (crc32($code) % 10_000_000), 7, '0', STR_PAD_LEFT);
+        $iqamah = collect(range(0, 9))->map(fn (int $check): string => $prefix.$check)->first(fn (string $number): bool => IdentityNumber::passesLuhn($number));
+
+        app(RecordShahadah::class)->handle(new ShahadahRegistrationData(
+            profile: new ConvertProfileData('Daniel Mendoza', Gender::Male, (int) Country::query()->where('iso2', 'PH')->value('id'), islamicName: 'Dawud'),
+            identity: new IdentifierData(IdentityType::Iqamah, (string) $iqamah),
+            shahadahDate: CarbonImmutable::now()->subDays(2),
+            location: 'Center hall',
+            primaryDaiId: (int) Dai::query()->where('employee_number', $code.'-D002')->value('id'),
+            phone: '0552000000',
+        ), $registrar);
     }
 }

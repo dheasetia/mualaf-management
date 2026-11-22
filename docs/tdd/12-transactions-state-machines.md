@@ -63,6 +63,16 @@ Verifikasi (`VerifyShahadah`, oleh user berbeda): status `verified` pada registr
 
 Walk-in tanpa prospect: action yang sama dengan langkah 1 dan 8 dilewati; Primary Da'i wajib dipilih pada form.
 
+Implementasi (langkah 11, `app/Domain/Registration`):
+
+- Modul Registration tidak memakai model Prospect atau Dai: langkah 1 dan 8 lewat `Prospects\Services\ProspectConversion` (`lockReady`, `markConverted`), langkah 3 lewat `Converts\Actions\CreateConvert` (satu-satunya pembuat convert), langkah 9 lewat `DaiAssignmentService::endAllFor` + `assignPrimary`. Arch test menjaga batas ini.
+- Profil convert diambil dari form; bahasa ibu dan agama sebelumnya dilengkapi dari prospect bila kosong. Kontak telepon/email prospect (atau dari form untuk walk-in) menjadi kontak convert; telepon menjadi kontak primary.
+- Tanggal syahadat tidak boleh di masa depan (zona Asia/Riyadh). Nomor registrasi `{KODE}-REG-{YYYY}-{000001}` per kantor dan tahun syahadat, dari `NumberAllocator` di dalam transaksi (rollback mengembalikan nomor, jadi tanpa celah).
+- Identitas yang sudah aktif (pre-check atau unique key) → `ConvertAlreadyRegistered`; seluruh transaksi di-rollback, lalu audit `shahadah.duplicate_blocked` ditulis di luar transaksi dan form menampilkan galat pada field nomor identitas.
+- Event `ShahadahRecorded`/`ShahadahVerified` dikirim setelah commit; listener (notifikasi verifier, jadwal follow-up, enrollment, permintaan sertifikat) dibuat pada langkah terkait.
+- `VerifyShahadah` menolak user yang mendaftarkan atau mencatat syahadat (juga bila ia memegang `shahadah.verify`) dan registrasi yang tidak `pending_verification`; identifier convert ikut `verified`.
+- Belum dibuat: penolakan dan void registrasi (butuh alur persetujuan Central, 07 §7.1) dan `shahadah_witnesses` (open question #2).
+
 ## 12.3 Transfer convert
 
 Alur dan aktor:
