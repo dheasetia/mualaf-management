@@ -34,8 +34,13 @@ final class ConvertResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    /** Converts belong to the office currently responsible for them. */
-    protected static ?string $tenantOwnershipRelationshipName = 'currentTenant';
+    /**
+     * ConvertScope already limits converts to the current office. Filament's own
+     * tenancy scope would be added to the Convert model for the whole request
+     * and could not be lifted by TenantContext::bypass(), breaking the national
+     * search and duplicate screening inside the panel.
+     */
+    protected static bool $isScopedToTenant = false;
 
     public static function getModelLabel(): string
     {

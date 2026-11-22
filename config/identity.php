@@ -10,4 +10,10 @@ return [
     */
     'hmac_key' => env('IDENTITY_HMAC_KEY'),
     'hmac_key_version' => (int) env('IDENTITY_HMAC_KEY_VERSION', 1),
+
+    /*
+    | Score from which a registration is held for duplicate review
+    | (open question #10: proposed 0.85).
+    */
+    'duplicate_threshold' => (float) env('DUPLICATE_MATCH_THRESHOLD', 0.85),
 ];

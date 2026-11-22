@@ -26,7 +26,9 @@ use App\Domain\Platform\Policies\MasterDataPolicy;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Policies\ProspectPolicy;
 use App\Domain\Registration\Models\ConvertRegistration;
+use App\Domain\Registration\Models\DuplicateReviewCase;
 use App\Domain\Registration\Policies\ConvertRegistrationPolicy;
+use App\Domain\Registration\Policies\DuplicateReviewCasePolicy;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Tenancy\Events\TenantScopeBypassed;
@@ -85,6 +87,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Prospect::class, ProspectPolicy::class);
         Gate::policy(Convert::class, ConvertPolicy::class);
         Gate::policy(ConvertRegistration::class, ConvertRegistrationPolicy::class);
+        Gate::policy(DuplicateReviewCase::class, DuplicateReviewCasePolicy::class);
 
         foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);

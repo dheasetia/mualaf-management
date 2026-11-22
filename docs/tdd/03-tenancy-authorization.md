@@ -33,7 +33,7 @@ Aturan:
 | Subject history | `shahadah_records`, `dai_follow_ups`, `convert_long_term_follow_ups`, `convert_status_histories`, `enrollments`, `certificates` | Aturan 3.3 |
 | Platform | `audit_logs`, `privileged_access_requests`, `export_jobs` | Central, atau tenant sendiri untuk baris `tenant_id` miliknya |
 
-Model convert child menggunakan trait `ScopedThroughConvert` yang menambahkan global scope `whereHas('convert')`. Query lintas kantor hanya diizinkan di dalam domain service yang sudah memverifikasi akses, lewat `TenantContext::bypass(reason, callback)`: selama callback, `ConvertScope` dan `ScopedThroughConvert` tidak membatasi (scope `BelongsToTenant` tetap berlaku). Setiap bypass memicu event `TenantScopeBypassed` yang dicatat modul Audit (`tenancy.bypassed`, dengan alasan).
+Model convert child menggunakan trait `ScopedThroughConvert` yang menambahkan global scope `whereHas('convert')`. Query lintas kantor hanya diizinkan di dalam domain service yang sudah memverifikasi akses, lewat `TenantContext::bypass(reason, callback)`: selama callback, `ConvertScope` dan `ScopedThroughConvert` tidak membatasi (scope `BelongsToTenant` tetap berlaku). Setiap bypass memicu event `TenantScopeBypassed` yang dicatat modul Audit (`tenancy.bypassed`, dengan alasan). Resource Filament untuk convert memakai `$isScopedToTenant = false`: scope tenancy Filament dipasang pada model untuk seluruh request panel dan tidak ikut terangkat oleh bypass (regresi diuji di `TenantIsolation/CrossOfficeReadsTest`).
 
 ## 3.3 Subject-scoped history
 

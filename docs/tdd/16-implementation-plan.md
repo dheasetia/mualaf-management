@@ -15,7 +15,7 @@
 | 9 | Identity registry (selesai 22-11-2026) | 2 | `convert_identifiers`, normalisasi + fingerprint, `IdentityRegistry` (penjaga unique, reveal diaudit), national search terbatas + rate limit; tabel inti `converts`, `ConvertScope`, `TenantContext::bypass` |
 | 10 | Convert (selesai 22-11-2026) | 2 | Profil, kontak terenkripsi, disclosure level berlapis (`ConvertAccess`), status record + histori append-only, assign da'i; panel Center tanpa create |
 | 11 | Shahadah (selesai 22-11-2026) | 2 | `number_sequences` + `NumberAllocator`, `RecordShahadah` (prospect atau walk-in, satu transaksi, penjaga identitas ganda), `VerifyShahadah` (segregation of duties), halaman registrasi + antrean verifikasi; tolak/void dan saksi ditunda |
-| 12 | Duplicate detection | 2 | Fuzzy match, `duplicate_review_cases` |
+| 12 | Duplicate detection (selesai 22-11-2026) | 2 | `NameSimilarity`, `DuplicateScreen` (nama + tanggal lahir + kewarganegaraan + gender, telepon), `duplicate_review_cases` + review Head of Dawah |
 | 13 | Transfer | 2 | Transfer convert dan prospect, histori, eskalasi |
 | 14 | Company / residence / contact | 3 | Employment, residence, contact person, lokasi + Google Maps |
 | 15 | Guidance | 4 | Program, modul, lesson, kelas, enrollment, sesi, absensi, progres |
@@ -71,7 +71,7 @@ Langkah 1 (project foundation) dapat dimulai sebelum gate penuh karena tidak ber
 | 7 | Hosting: cloud region di Saudi (misal penyedia lokal) atau on-premise? | Infrastruktur, kepatuhan PDPL | Islamic Center Dammam |
 | 8 | Apakah ada integrasi resmi dengan instansi pemerintah (Absher, Muqeem) di masa depan? | Integration logs, identitas terverifikasi | Islamic Center Dammam |
 | 9 | Kanal notifikasi selain email (SMS, WhatsApp Business API)? | Notification channels, biaya | Islamic Center Dammam |
-| 10 | Ambang skor fuzzy duplicate (usulan 0,85) dan field yang dipakai | Duplicate review volume | Tim teknis + admin pilot |
+| 10 | Ambang skor fuzzy duplicate (usulan 0,85) dan field yang dipakai — diterapkan sementara: 0,85 via `DUPLICATE_MATCH_THRESHOLD`, bobot di 04 §4.4 | Duplicate review volume | Tim teknis + admin pilot |
 
 ## 16.5 Kepatuhan
 

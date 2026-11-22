@@ -7,6 +7,7 @@ use App\Domain\Dai\Models\DaiAssignment;
 use App\Domain\Dai\Models\DaiFollowUp;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Models\ProspectStatusHistory;
+use App\Domain\Registration\Models\DuplicateReviewCase;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Support\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,6 +22,7 @@ const TENANT_SCOPED_MODELS = [
     'dai follow-up' => DaiFollowUp::class,
     'prospect' => Prospect::class,
     'prospect status history' => ProspectStatusHistory::class,
+    'duplicate review case' => DuplicateReviewCase::class,
 ];
 
 dataset('tenant_scoped_models', array_map(
