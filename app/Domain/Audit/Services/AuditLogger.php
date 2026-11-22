@@ -54,6 +54,11 @@ final readonly class AuditLogger
 
     /**
      * Records the attributes changed by the subject's last save, old and new.
+     *
+     * Call it only right after a save that changed something: when nothing was
+     * dirty, Eloquent keeps the changes of an earlier save (refresh() does not
+     * clear them). Callers that may save without changes capture getDirty()
+     * before saving and use record() instead.
      */
     public function recordChanges(string $action, Model $subject, ?int $tenantId = null, ?User $actor = null): AuditLog
     {

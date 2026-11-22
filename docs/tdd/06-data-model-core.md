@@ -105,7 +105,7 @@ dais
   education? · specialties json · supervisor_dai_id? fk → dais
   joined_at? · employment_status enum(full_time, part_time, volunteer, contract)
   status enum(active, on_leave, inactive)
-  uq(tenant_id, employee_number)
+  uq(tenant_id, employee_number) · uq(tenant_id, user_id)
   idx(tenant_id, status)
 
 dai_languages
@@ -113,6 +113,14 @@ dai_languages
   proficiency enum(native, fluent, working, basic)
   pk(dai_id, language_id)
 ```
+
+Aturan (langkah 7, `CreateDai`/`UpdateDai`/`ChangeDaiStatus` di `app/Domain/Dai`):
+
+- Akun user yang ditautkan harus anggota aktif kantor tersebut dan hanya ke satu da'i per kantor (`uq(tenant_id, user_id)`, tambahan v1.1).
+- Supervisor harus da'i `active` di kantor yang sama, bukan dirinya sendiri, dan rantai supervisor di atasnya tidak boleh kembali ke da'i tersebut.
+- Status: `active ↔ on_leave`, `active/on_leave → inactive`, `inactive → active`. Da'i yang masih Primary aktif untuk prospect/convert tidak dapat dijadikan `inactive` sebelum dialihkan. Da'i tidak pernah dihapus.
+- Audit: `dai.created`, `dai.updated` (hanya field yang berubah, termasuk bahasa), `dai.status_changed`; nomor telepon diredaksi.
+- Workload (`dais.view_workload`): per da'i `active`/`on_leave`, jumlah assignment Primary aktif per jenis subjek, assignment lain yang aktif, dan da'i aktif yang disupervisi.
 
 Perubahan dari v1.0: `languages` JSON diganti tabel pivot agar bisa dicari ("da'i yang berbahasa Tagalog") dan dipakai untuk saran penugasan. `gender` ditambahkan untuk mendukung aturan pencocokan gender bila disetujui (open question).
 

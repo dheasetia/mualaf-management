@@ -6,6 +6,8 @@ namespace App\Providers;
 
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Policies\AuditLogPolicy;
+use App\Domain\Dai\Models\Dai;
+use App\Domain\Dai\Policies\DaiPolicy;
 use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
 use App\Domain\Identity\Rbac\Authorizer;
@@ -47,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             'user' => User::class,
             'tenant' => Tenant::class,
+            'dai' => Dai::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -68,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::policy(AuditLog::class, AuditLogPolicy::class);
+        Gate::policy(Dai::class, DaiPolicy::class);
 
         foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);

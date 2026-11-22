@@ -123,6 +123,8 @@ dai_assignments                  -- pengganti dai_assignments_to_people
   idx(dai_id, ended_at) · idx(subject_type, subject_id)
 ```
 
+Tabel dan model `DaiAssignment` dibuat pada langkah 7 (dibaca oleh workload view); `DaiAssignmentService` yang menulisnya dibuat pada langkah 8 bersama prospect.
+
 `DaiAssignmentService::assignPrimary(subject, dai, reason)`:
 
 1. Lock subjek.

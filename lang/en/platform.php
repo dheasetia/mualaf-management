@@ -33,4 +33,8 @@ return [
         'scholarly_media' => 'Scholarly and media',
         'social' => 'Social',
     ],
+    'genders' => [
+        'male' => 'Male',
+        'female' => 'Female',
+    ],
 ];
