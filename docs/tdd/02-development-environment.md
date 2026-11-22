@@ -65,7 +65,20 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON muallaf.* TO 'muallaf_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON muallaf_testing.* TO 'muallaf_app'@'localhost';"
 ```
 
-Pembatasan `UPDATE, DELETE` pada tabel append-only dilakukan oleh migration khusus (lihat [05-database-conventions.md](05-database-conventions.md) §5.4). Migrasi dijalankan dengan koneksi `migrator` (`php artisan migrate --database=migrator`); test memakai user owner agar `RefreshDatabase` dapat membuat ulang skema, dan test append-only memakai koneksi app untuk membuktikan penolakan.
+Trigger append-only dibuat oleh migration dengan user owner. Karena binary logging aktif secara default di MySQL 8, izinkan pembuatan trigger tanpa `SUPER` (sekali per server):
+
+```bash
+mysql -uroot -e "SET PERSIST log_bin_trust_function_creators = 1"
+```
+
+Migrasi dijalankan dengan koneksi `migrator` (`php artisan migrate --database=migrator`). Setelah setiap migrasi, DBA mengganti grant level database `muallaf_app` dengan grant per tabel (append-only hanya `SELECT, INSERT`; lihat [05-database-conventions.md](05-database-conventions.md) §5.4). Isi `DB_DBA_USERNAME`/`DB_DBA_PASSWORD` di `.env` dan `.env.testing` (user ber-`GRANT OPTION`, lokal: `root`). Akun yang diatur adalah `DB_APP_USERNAME`@`DB_APP_HOST` (default `muallaf_app`@`localhost`), bukan `DB_USERNAME`: di `.env.testing`, `DB_USERNAME` adalah owner. Perintah menolak akun DBA, akun migrator, dan akun apa pun yang punya hak DDL di database tersebut. Lalu:
+
+```bash
+php artisan db:sync-app-grants
+php artisan db:sync-app-grants --env=testing   # database muallaf_testing
+```
+
+Test memakai user owner agar `RefreshDatabase` dapat membuat ulang skema. Test grant append-only memakai user app: isi `DB_APP_USERNAME=muallaf_app` dan `DB_APP_PASSWORD` di `.env.testing`; tanpa keduanya test tersebut di-skip (CI selalu menjalankannya). Grant per tabel di MySQL tetap ada walau tabel di-drop dan dibuat ulang, sehingga `migrate:fresh` tidak menghapusnya.
 
 `.env` lokal (nilai placeholder; jangan commit `.env`):
 

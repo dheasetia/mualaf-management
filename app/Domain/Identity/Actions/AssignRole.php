@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Identity\Actions;
 
+use App\Domain\Audit\Services\AuditLogger;
 use App\Domain\Identity\Enums\RoleScope;
 use App\Domain\Identity\Exceptions\CannotChangeOwnRoles;
 use App\Domain\Identity\Exceptions\InvalidRoleScope;
@@ -17,10 +18,11 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 
 final readonly class AssignRole
 {
-    public function __construct(private Authorizer $authorizer) {}
+    public function __construct(private Authorizer $authorizer, private AuditLogger $audit) {}
 
     /**
      * @param  User|null  $assignedBy  null only for system bootstrap (seeder, console command)
@@ -51,7 +53,17 @@ final readonly class AssignRole
         $assignment->assigned_at = CarbonImmutable::now();
 
         try {
-            $assignment->save();
+            DB::transaction(function () use ($assignment, $role, $user, $tenant, $assignedBy): void {
+                $assignment->save();
+
+                $this->audit->record(
+                    'roles.assigned',
+                    $user,
+                    newValues: ['role' => $role->code, 'assignment_id' => $assignment->id],
+                    tenantId: $tenant?->id,
+                    actor: $assignedBy,
+                );
+            });
         } catch (UniqueConstraintViolationException) {
             throw RoleAlreadyAssigned::make($role->code);
         }

@@ -65,7 +65,7 @@ fingerprint = HMAC-SHA256(IDENTITY_HMAC_KEY[v], type || '|' || issuing_country_i
 | Follow-up notes | Sensitif | Plaintext; `confidentiality_level` | `followups.view(_confidential)` |
 | Dokumen | Sensitif | Object storage private | Signed URL ≤ 5 menit |
 
-Audit log menyimpan nilai lama/baru dengan redaksi: field sensitif diganti `[REDACTED]` oleh `AuditRedactor` berdasarkan atribut model `$auditRedact`.
+Audit log menyimpan nilai lama/baru dengan redaksi: field sensitif diganti `[REDACTED]` oleh `AuditRedactor` (`app/Domain/Audit/Services`). Yang diredaksi: daftar global (password, token, secret, recovery code), semua atribut `$hidden` model subjek, dan atribut dari `auditRedactedAttributes()` bila model mengimplementasikan `RedactsAuditValues`. Pencocokan key tidak peka huruf besar/kecil dan berlaku sampai array bersarang.
 
 ## 4.6 Disclosure risk
 

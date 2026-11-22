@@ -27,7 +27,9 @@ php artisan key:generate
 Isi kredensial database di `.env`, lalu buat `.env.testing` (salinan `.env` dengan `APP_ENV=testing`, `DB_DATABASE=muallaf_testing`, dan kredensial user owner). Kedua file tidak di-commit.
 
 ```bash
+mysql -uroot -e "SET PERSIST log_bin_trust_function_creators = 1"   # sekali: trigger append-only
 php artisan migrate --database=migrator
+php artisan db:sync-app-grants                # sebagai DBA (DB_DBA_USERNAME)
 herd secure muallaf-management
 ```
 
@@ -43,9 +45,10 @@ Panel: `https://muallaf-management.test/central` dan `https://muallaf-management
 | Format | `vendor/bin/pint` |
 | Static analysis | `vendor/bin/phpstan analyse --memory-limit=1G` |
 | Migrasi ulang + seed | `php artisan migrate:fresh --database=migrator --seed` |
+| Grant per tabel untuk user app (DBA, setelah setiap migrasi) | `php artisan db:sync-app-grants` (`--dry-run` untuk melihat statement) |
 
 Semua perintah di atas tersedia sebagai run configuration PhpStorm di folder `.run/`.
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`) berjalan pada setiap pull request dan push ke `main`: Pint, Larastan, `composer audit`, lalu Pest (termasuk grup `tenant-isolation`) di MySQL 8.4.
+GitHub Actions (`.github/workflows/ci.yml`) berjalan pada setiap pull request dan push ke `main`: Pint, Larastan, `composer audit`, lalu Pest (termasuk grup `tenant-isolation`) di MySQL 8.4. Job test membuat user `muallaf_app` dengan grant per tabel agar test append-only membuktikan penolakan `UPDATE`/`DELETE`.
