@@ -125,7 +125,7 @@ final class RegisterShahadah extends Page implements HasForms
                 TextInput::make('islamic_name')->label(__('converts.fields.islamic_name'))->maxLength(255),
                 TextInput::make('name_ar')->label(__('converts.fields.name_ar'))->maxLength(255)->extraInputAttributes(['dir' => 'rtl']),
                 Select::make('gender')->label(__('converts.fields.gender'))->required()->options($options(Gender::cases())),
-                DatePicker::make('date_of_birth')->label(__('converts.fields.date_of_birth'))->maxDate(now()),
+                DatePicker::make('date_of_birth')->label(__('converts.fields.date_of_birth'))->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
                 Select::make('nationality_id')->label(__('converts.fields.nationality'))->required()->searchable()
                     ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
                 Select::make('native_language_id')->label(__('converts.fields.native_language'))->searchable()
@@ -134,7 +134,7 @@ final class RegisterShahadah extends Page implements HasForms
                     ->options(fn (): array => Religion::query()->where('active', true)->orderBy('sort_order')->pluck('name_ar', 'id')->all()),
             ]),
             Section::make(__('registration.sections.shahadah'))->columns(2)->columnSpanFull()->schema([
-                DatePicker::make('shahadah_date')->label(__('registration.fields.shahadah_date'))->required()->maxDate(now()),
+                DatePicker::make('shahadah_date')->label(__('registration.fields.shahadah_date'))->required()->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
                 TimePicker::make('shahadah_time')->label(__('registration.fields.shahadah_time'))->seconds(false),
                 TextInput::make('location')->label(__('registration.fields.location'))->required()->maxLength(255),
                 Select::make('city_id')->label(__('registration.fields.city'))->searchable()

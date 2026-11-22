@@ -17,6 +17,10 @@ use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
+use App\Domain\Dawah\Models\DaiDailyActivity;
+use App\Domain\Dawah\Models\DawahActivityPlan;
+use App\Domain\Dawah\Policies\DaiDailyActivityPolicy;
+use App\Domain\Dawah\Policies\DawahActivityPlanPolicy;
 use App\Domain\Documents\Models\Document;
 use App\Domain\Documents\Models\DocumentTemplate;
 use App\Domain\Documents\Models\GeneratedDocument;
@@ -97,6 +101,8 @@ class AppServiceProvider extends ServiceProvider
             'certificate' => Certificate::class,
             'document' => Document::class,
             'generated_document' => GeneratedDocument::class,
+            'dawah_plan' => DawahActivityPlan::class,
+            'dai_activity' => DaiDailyActivity::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -136,6 +142,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DuplicateReviewCase::class, DuplicateReviewCasePolicy::class);
         Gate::policy(ConvertTransferRequest::class, ConvertTransferRequestPolicy::class);
         Gate::policy(ProspectTransferRequest::class, ProspectTransferRequestPolicy::class);
+        Gate::policy(DawahActivityPlan::class, DawahActivityPlanPolicy::class);
+        Gate::policy(DaiDailyActivity::class, DaiDailyActivityPolicy::class);
 
         foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);

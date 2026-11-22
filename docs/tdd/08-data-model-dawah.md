@@ -20,6 +20,8 @@ dai_daily_activities
 
 Aktivitas dengan `requires_verification` (dari jenis aktivitas) diverifikasi Head of Dawah. Da'i hanya dapat mengubah aktivitas berstatus `draft`/`rejected`.
 
+Implementasi (langkah 19, `RecordDailyActivity`): aktivitas dicatat untuk hari ini atau sebelumnya (zona waktu tampilan), durasi dihitung dari jam bila diisi, hanya boleh ditautkan ke prospect/convert yang ditugaskan ke da'i itu. Saat diajukan, jenis tanpa `requires_verification` langsung `verified` (tanpa `verified_by`); Head of Dawah tidak memverifikasi aktivitasnya sendiri.
+
 ## 8.2 Rencana kegiatan dakwah
 
 ```
@@ -41,6 +43,8 @@ dawah_activity_plans
   uq(tenant_id, plan_number)
   idx(tenant_id, planned_date, status)
 ```
+
+Implementasi (langkah 19, `ManagePlans`, `PlanWorkflow`): da'i mengajukan (`dawah.plans.create/submit`) dan mengedit hanya saat `draft`/`needs_revision`; Head of Dawah memulai review (`supervisor_user_id` = peninjau), mengembalikan dengan catatan (`revision_note`, kolom tambahan), menolak dengan alasan, atau menyetujui (`dawah.plans.approve`, bukan oleh da'i rencana itu sendiri). Jadwal, mulai (tidak sebelum `planned_date`), dan selesai oleh da'i penanggung jawab atau pemegang `dawah.plans.approve`. Pembatalan wajib alasan (`cancellation_reason`, kolom tambahan): da'i sebelum review, approver sampai sebelum `in_progress`. Setiap transisi diaudit `dawah_plan.status_changed`. Saat disetujui, `approved_budget` diisi dari `estimated_budget` bila kosong; baris budget dan persetujuannya di langkah 20.
 
 Perubahan dari v1.0: kolom `approval_status` dihapus (digabung ke `status` agar satu state machine); cabang `needs_revision`, `rejected`, `cancelled` ditambahkan; `supervisor_id` dirujuk ke `users`.
 
@@ -103,6 +107,8 @@ activity_participants
 ```
 
 Daftar peserta yang dicetak/diekspor menyembunyikan convert dengan disclosure `high_confidentiality` (lihat [04-identity-privacy.md](04-identity-privacy.md)).
+
+Implementasi (langkah 19): `ParticipantDirectory::printable()` sudah membuang convert tersebut; layar cetak/ekspor menyusul di langkah ekspor. Nama peserta mengikuti visibilitas `ConvertAccess`/`ProspectVisibility`. Daftar dapat diubah sampai `scheduled`; kehadiran dicatat saat `scheduled`–`completed`. `transport_request_id` menyusul bersama modul transportasi. Laporan (`ReportWorkflow`) ditulis da'i penanggung jawab setelah `completed`; verifikasi atau pengembalian (dengan catatan, plan kembali ke `completed`) oleh `dawah.reports.verify`, bukan oleh da'i rencana itu.
 
 ## 8.6 Laporan kegiatan
 

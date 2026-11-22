@@ -6,6 +6,8 @@ use App\Domain\Certificates\Models\Certificate;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiAssignment;
 use App\Domain\Dai\Models\DaiFollowUp;
+use App\Domain\Dawah\Models\DaiDailyActivity;
+use App\Domain\Dawah\Models\DawahActivityPlan;
 use App\Domain\Documents\Models\GeneratedDocument;
 use App\Domain\Examinations\Models\Exam;
 use App\Domain\Examinations\Models\ExamAttempt;
@@ -41,6 +43,8 @@ const TENANT_SCOPED_MODELS = [
     'exam result' => ExamResult::class,
     'certificate' => Certificate::class,
     'generated document' => GeneratedDocument::class,
+    'activity plan' => DawahActivityPlan::class,
+    'daily activity' => DaiDailyActivity::class,
 ];
 
 dataset('tenant_scoped_models', array_map(
