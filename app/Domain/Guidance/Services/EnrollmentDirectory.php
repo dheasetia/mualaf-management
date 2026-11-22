@@ -8,6 +8,7 @@ use App\Domain\Guidance\Enums\EnrollmentStatus;
 use App\Domain\Guidance\Models\Enrollment;
 use App\Domain\Guidance\Models\GuidanceClass;
 use App\Domain\Guidance\Models\GuidanceProgram;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
@@ -68,6 +69,41 @@ final class EnrollmentDirectory
         $convertId = Enrollment::query()->whereKey($enrollmentId)->value('convert_id');
 
         return $convertId === null ? null : (int) $convertId;
+    }
+
+    /**
+     * Completion facts of a completed enrollment, or null.
+     *
+     * @return array{convert_id: int, program_id: int, program_name_ar: string, program_name_en: ?string, attendance: ?string, minimum_attendance: string, completed_at: CarbonImmutable, certificate_template_id: ?int}|null
+     */
+    public function completion(int $enrollmentId): ?array
+    {
+        $enrollment = Enrollment::query()->with('program')->whereKey($enrollmentId)->where('status', EnrollmentStatus::Completed)->first();
+
+        if ($enrollment === null || $enrollment->completed_at === null) {
+            return null;
+        }
+
+        return [
+            'convert_id' => $enrollment->convert_id,
+            'program_id' => $enrollment->program_id,
+            'program_name_ar' => $enrollment->program->name_ar,
+            'program_name_en' => $enrollment->program->name_en,
+            'attendance' => $enrollment->attendance_percentage,
+            'minimum_attendance' => $enrollment->program->minimum_attendance_percentage,
+            'completed_at' => $enrollment->completed_at,
+            'certificate_template_id' => $enrollment->program->getAttribute('certificate_template_id') === null ? null : (int) $enrollment->program->getAttribute('certificate_template_id'),
+        ];
+    }
+
+    /**
+     * Completed enrollments of the office for pickers: id => convert id.
+     *
+     * @return Collection<int, int>
+     */
+    public function completed(): Collection
+    {
+        return Enrollment::query()->where('status', EnrollmentStatus::Completed)->pluck('convert_id', 'id')->map(fn (mixed $id): int => (int) $id);
     }
 
     public function recordFinalScore(int $enrollmentId, string $score): void

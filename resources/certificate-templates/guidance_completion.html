@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  body { margin: 0; font-family: 'Amiri', 'Noto Naskh Arabic', 'Noto Sans Arabic', 'DejaVu Sans', serif; color: #1f2a37; }
+  .page { box-sizing: border-box; width: 297mm; height: 210mm; padding: 18mm 22mm; border: 6mm solid #0f766e; position: relative; text-align: center; }
+  h1 { font-size: 34pt; margin: 6mm 0 2mm; color: #0f766e; }
+  .en { direction: ltr; font-family: 'DejaVu Sans', sans-serif; font-size: 11pt; color: #4b5563; }
+  .name { font-size: 28pt; font-weight: bold; margin: 8mm 0 2mm; }
+  .body { font-size: 16pt; line-height: 1.9; margin: 4mm 18mm; }
+  .footer { position: absolute; bottom: 16mm; left: 22mm; right: 22mm; display: flex; justify-content: space-between; align-items: flex-end; font-size: 12pt; }
+  .qr svg { width: 32mm; height: 32mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="en">{{ office_name_en }}</div>
+  <div>{{ office_name_ar }}</div>
+  <h1>شهادة إتمام برنامج التأهيل</h1>
+  <div class="en">Certificate of Completion</div>
+  <div class="body">يشهد {{ office_name_ar }} بأن</div>
+  <div class="name">{{ full_name }}</div>
+  <div class="body">قد أتم {{ program_name_ar }} بنجاح بتاريخ {{ completed_on_hijri_ar }}<br>
+    بنسبة حضور {{ attendance_percentage }}% ودرجة نهائية {{ final_score }}</div>
+  <div class="footer">
+    <div class="qr">{{ qr_code }}<div class="en">{{ certificate_number }}</div></div>
+    <div>صدرت في {{ issued_on_hijri_ar }}<br>المدير: {{ director_name }}</div>
+  </div>
+</div>
+</body>
+</html>

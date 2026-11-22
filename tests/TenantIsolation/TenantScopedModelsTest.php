@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Certificates\Models\Certificate;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiAssignment;
 use App\Domain\Dai\Models\DaiFollowUp;
@@ -37,6 +38,7 @@ const TENANT_SCOPED_MODELS = [
     'exam' => Exam::class,
     'exam attempt' => ExamAttempt::class,
     'exam result' => ExamResult::class,
+    'certificate' => Certificate::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

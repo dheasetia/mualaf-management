@@ -15,8 +15,9 @@ final class CountryFactory extends Factory
     public function definition(): array
     {
         return [
-            'iso2' => strtoupper(fake()->unique()->lexify('??')),
-            'iso3' => strtoupper(fake()->unique()->lexify('???')),
+            // ISO 3166 user-assigned codes (QM–QZ, XA–XZ): never a real country such as SA.
+            'iso2' => fake()->unique()->randomElement([...array_map(fn (string $l): string => 'Q'.$l, range('M', 'Z')), ...array_map(fn (string $l): string => 'X'.$l, range('A', 'Z'))]),
+            'iso3' => 'X'.strtoupper(fake()->unique()->lexify('??')),
             'name_ar' => 'دولة '.fake()->unique()->numberBetween(1, 99999),
             'name_en' => fake()->unique()->country(),
         ];

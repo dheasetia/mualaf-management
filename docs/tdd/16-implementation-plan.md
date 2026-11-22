@@ -20,7 +20,7 @@
 | 14 | Company / residence / contact (selesai 22-11-2026) | 3 | Direktori perusahaan (kantor + nasional, promosi/merge), employment, residence, contact person, lokasi dari tautan Google Maps |
 | 15 | Guidance (selesai 22-11-2026) | 4 | Program nasional/kantor (salin), modul, lesson, kelas + jadwal + guru, enrollment (kapasitas, gender, kelanjutan transfer), sesi, absensi, progres, akses Teacher `converts.view_class` |
 | 16 | Exams (selesai 22-11-2026) | 4 | Ujian berkomponen berbobot, attempt + remedial, penilaian (Teacher kelas sendiri), finalisasi immutable, amandemen beraudit |
-| 17 | Certificates | 5 | Template, issue, PDF, QR, verifikasi publik |
+| 17 | Certificates (selesai 22-11-2026) | 5 | Template berversi (placeholder ter-escape, bukan Blade), request/approve/issue/revoke, nomor + snapshot + token hash, PDF via Gotenberg, QR, verifikasi publik |
 | 18 | Documents | 5 | Dokumen, versi, template surat, generated documents |
 | 19 | Dawah planning | 6 | Aktivitas harian, plan, peserta, laporan |
 | 20 | Budget / material | 6 | Budget, variance, materi, distribusi |

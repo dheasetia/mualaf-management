@@ -20,6 +20,7 @@ final class AppendOnlyTables
         'convert_status_histories',
         'convert_transfer_events',
         'convert_transfer_histories',
+        'certificate_events',
     ];
 
     public static function contains(string $table): bool

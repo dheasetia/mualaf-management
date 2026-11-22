@@ -7,6 +7,9 @@ namespace App\Providers;
 use App\Domain\Audit\Listeners\RecordTenantScopeBypass;
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Policies\AuditLogPolicy;
+use App\Domain\Certificates\Models\Certificate;
+use App\Domain\Certificates\Models\CertificateTemplate;
+use App\Domain\Certificates\Policies\CertificatePolicy;
 use App\Domain\Companies\Models\Company;
 use App\Domain\Companies\Policies\CompanyPolicy;
 use App\Domain\Converts\Contracts\TeacherRoster;
@@ -47,14 +50,19 @@ use App\Domain\Transfers\Models\ProspectTransferRequest;
 use App\Domain\Transfers\Policies\ConvertTransferRequestPolicy;
 use App\Domain\Transfers\Policies\ProspectTransferRequestPolicy;
 use App\Models\User;
+use App\Support\Pdf\GotenbergPdfRenderer;
+use App\Support\Pdf\PdfRenderer;
 use App\Support\Tenancy\Events\TenantScopeBypassed;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -65,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
         // State lives in Laravel Context, so one instance per application is safe.
         $this->app->singleton(TenantContext::class);
         $this->app->bind(TeacherRoster::class, GuidanceTeacherRoster::class);
+        $this->app->bind(PdfRenderer::class, GotenbergPdfRenderer::class);
     }
 
     public function boot(): void
@@ -81,6 +90,7 @@ class AppServiceProvider extends ServiceProvider
             'convert' => Convert::class,
             'company' => Company::class,
             'enrollment' => Enrollment::class,
+            'certificate' => Certificate::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -107,6 +117,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Convert::class, ConvertPolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(Exam::class, ExamPolicy::class);
+        Gate::policy(Certificate::class, CertificatePolicy::class);
+        Gate::policy(CertificateTemplate::class, CertificatePolicy::class);
+
+        RateLimiter::for('certificate-verification', fn (Request $request): Limit => Limit::perMinute(60)->by((string) $request->ip()));
 
         foreach ([GuidanceProgram::class, GuidanceClass::class, Enrollment::class] as $guidanceModel) {
             Gate::policy($guidanceModel, GuidancePolicies::class);

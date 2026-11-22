@@ -76,7 +76,7 @@ final class DevelopmentSeeder extends Seeder
             throw new RuntimeException('Set DEV_SEED_PASSWORD (12+ characters) in .env before seeding development data.');
         }
 
-        $this->call([PlatformMasterSeeder::class, RbacSeeder::class, GuidanceProgramSeeder::class]);
+        $this->call([PlatformMasterSeeder::class, RbacSeeder::class, GuidanceProgramSeeder::class, CertificateTemplateSeeder::class]);
 
         $user = User::query()->firstOrCreate(
             ['email' => 'dev.admin@muallaf.test'],
