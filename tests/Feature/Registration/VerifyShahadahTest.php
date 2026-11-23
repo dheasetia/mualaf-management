@@ -19,6 +19,7 @@ use App\Domain\Registration\Enums\ShahadahStatus;
 use App\Domain\Registration\Events\ShahadahVerified;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\ShahadahRecord;
+use App\Domain\Registration\Models\ShahadahWitness;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Center\Pages\RegisterShahadah;
 use App\Filament\Center\Resources\ConvertRegistrations\Pages\ManageConvertRegistrations;
@@ -42,6 +43,7 @@ beforeEach(function (): void {
         shahadahDate: CarbonImmutable::today(),
         location: 'Center hall',
         primaryDaiId: $this->dai->id,
+        witnesses: shahadahWitnesses(),
     ), $actor));
     $this->registration = ($this->register)($this->registrar, saudiId('223344556'));
 });
@@ -89,12 +91,37 @@ it('registers a walk-in from the page', function (): void {
             'gender' => 'male',
             'nationality_id' => Country::factory()->create()->id,
             'location' => 'Center hall',
+            'witnesses' => [
+                ['name' => 'Saad Al-Dosari', 'phone' => '0551234011', 'identity_last4' => '1234'],
+                ['name' => 'Faisal Al-Shehri', 'phone' => '0551234012', 'relationship' => 'Colleague'],
+            ],
         ])
         ->call('register')
         ->assertHasNoFormErrors()
         ->assertRedirect();
 
-    expect(inTenant($this->dammam, fn () => ConvertRegistration::query()->count()))->toBe(2);
+    expect(inTenant($this->dammam, fn () => ConvertRegistration::query()->count()))->toBe(2)
+        ->and(inTenant($this->dammam, fn () => ShahadahWitness::query()->orderBy('id')->pluck('name')->all()))->toContain('Saad Al-Dosari', 'Faisal Al-Shehri');
+});
+
+it('does not register from the page without the witnesses', function (): void {
+    inCenterPanel($this->dammam, $this->registrar);
+
+    Livewire::test(RegisterShahadah::class)
+        ->fillForm([
+            'primary_dai_id' => $this->dai->id,
+            'identity_type' => 'iqamah',
+            'identity_number' => saudiId('276543235'),
+            'full_name' => 'No Witness',
+            'gender' => 'male',
+            'nationality_id' => Country::factory()->create()->id,
+            'location' => 'Center hall',
+            'witnesses' => [['name' => 'Ahmad Al-Harbi', 'phone' => '0551234001']],
+        ])
+        ->call('register')
+        ->assertHasFormErrors(['witnesses']);
+
+    expect(inTenant($this->dammam, fn () => ConvertRegistration::query()->count()))->toBe(1);
 });
 
 it('shows an already registered identity on the identity field', function (): void {
@@ -109,6 +136,10 @@ it('shows an already registered identity on the identity field', function (): vo
             'gender' => 'female',
             'nationality_id' => Country::factory()->create()->id,
             'location' => 'Center hall',
+            'witnesses' => [
+                ['name' => 'Ahmad Al-Harbi', 'phone' => '0551234001'],
+                ['name' => 'Khalid Al-Otaibi', 'phone' => '0551234002'],
+            ],
         ])
         ->call('register')
         ->assertHasFormErrors(['identity_number']);

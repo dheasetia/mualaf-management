@@ -17,6 +17,7 @@ use App\Domain\Platform\Models\Country;
 use App\Domain\Registration\Actions\RecordShahadah;
 use App\Domain\Registration\Actions\VerifyShahadah;
 use App\Domain\Registration\Data\ShahadahRegistrationData;
+use App\Domain\Registration\Data\ShahadahWitnessData;
 use App\Domain\Tenancy\Enums\MembershipStatus;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\UserTenantMembership;
@@ -138,6 +139,7 @@ function transferSetup(Tenant $from, Tenant $to, string $iqamah): array
             shahadahDate: CarbonImmutable::today()->subMonth(),
             location: 'Center hall',
             primaryDaiId: $fromDai->id,
+            witnesses: shahadahWitnesses(),
         ), grantRole(memberOf(Tenant::query()->findOrFail(app(TenantContext::class)->requireId())), 'registration_officer', Tenant::query()->findOrFail(app(TenantContext::class)->requireId())));
 
         return Convert::query()->findOrFail($registration->convert_id);
@@ -158,6 +160,7 @@ function documentsConvert(Tenant $tenant, Gender $gender = Gender::Male, bool $v
             shahadahDate: CarbonImmutable::parse('2026-11-01'),
             location: 'Center hall',
             primaryDaiId: Dai::factory()->create()->id,
+            witnesses: shahadahWitnesses(),
         ), grantRole(memberOf($tenant), 'registration_officer', $tenant));
 
         if ($verified) {
@@ -204,4 +207,17 @@ function convertWithPickupPoint(array $attributes = []): array
     $contact->save();
 
     return compact('convert', 'residence', 'contact');
+}
+
+/**
+ * The witnesses every shahadah registration needs (open question #2).
+ *
+ * @return list<ShahadahWitnessData>
+ */
+function shahadahWitnesses(): array
+{
+    return [
+        new ShahadahWitnessData('Ahmad Al-Harbi', '0551234001'),
+        new ShahadahWitnessData('Khalid Al-Otaibi', '0551234002', identityLast4: '4321', relationship: 'Colleague'),
+    ];
 }

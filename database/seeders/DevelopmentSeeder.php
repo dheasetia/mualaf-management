@@ -39,6 +39,7 @@ use App\Domain\Prospects\Enums\ProspectStatus;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Registration\Actions\RecordShahadah;
 use App\Domain\Registration\Data\ShahadahRegistrationData;
+use App\Domain\Registration\Data\ShahadahWitnessData;
 use App\Domain\Tenancy\Actions\ChangeTenantStatus;
 use App\Domain\Tenancy\Actions\CreateTenant;
 use App\Domain\Tenancy\Actions\GrantTenantMembership;
@@ -250,6 +251,10 @@ final class DevelopmentSeeder extends Seeder
             shahadahDate: CarbonImmutable::now()->subDays(2),
             location: 'Center hall',
             primaryDaiId: (int) Dai::query()->where('employee_number', $code.'-D002')->value('id'),
+            witnesses: [
+                new ShahadahWitnessData('Abdulrahman Al-Qahtani', '0551112233', relationship: 'Colleague'),
+                new ShahadahWitnessData('Omar Haddad', '0552223344'),
+            ],
             phone: '0552000000',
         ), $registrar);
     }

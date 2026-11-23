@@ -40,6 +40,7 @@ beforeEach(function (): void {
             shahadahDate: CarbonImmutable::today(),
             location: 'Center hall',
             primaryDaiId: Dai::factory()->create()->id,
+            witnesses: shahadahWitnesses(),
         ), ($this->staff)('registration_officer'));
         app(VerifyShahadah::class)->handle($registration, ($this->staff)('shahadah_verifier'));
 

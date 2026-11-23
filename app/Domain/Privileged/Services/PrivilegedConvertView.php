@@ -62,6 +62,7 @@ final readonly class PrivilegedConvertView
                 $sections[PrivilegedScope::Shahadah->value] = [
                     'date' => $record === null ? null : $record['date']->toDateString(),
                     'location' => $record['location'] ?? null,
+                    'witnesses' => $record === null ? null : implode('، ', $record['witnesses']),
                 ];
             }
 

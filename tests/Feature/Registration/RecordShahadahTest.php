@@ -21,15 +21,18 @@ use App\Domain\Prospects\Enums\ProspectStatus;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Registration\Actions\RecordShahadah;
 use App\Domain\Registration\Data\ShahadahRegistrationData;
+use App\Domain\Registration\Data\ShahadahWitnessData;
 use App\Domain\Registration\Enums\RegistrationStatus;
 use App\Domain\Registration\Enums\ShahadahStatus;
 use App\Domain\Registration\Events\ShahadahRecorded;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\ShahadahRecord;
+use App\Domain\Registration\Models\ShahadahWitness;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Exceptions\RuleViolation;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 
 beforeEach(function (): void {
@@ -57,6 +60,7 @@ beforeEach(function (): void {
         'identity' => new IdentifierData(IdentityType::Iqamah, $this->iqamah),
         'shahadahDate' => CarbonImmutable::today(),
         'location' => 'Islamic Center Dammam',
+        'witnesses' => shahadahWitnesses(),
         ...$overrides,
     ]);
 
@@ -151,3 +155,36 @@ it('numbers registrations per office and year without gaps, even after a failed 
 it('does not accept a shahadah date in the future', function (): void {
     expectRuleViolation(fn () => ($this->record)(($this->data)(['primaryDaiId' => $this->dai->id, 'shahadahDate' => CarbonImmutable::now()->addDays(2)])), 'shahadah_date');
 });
+
+it('stores the witnesses with the shahadah, phones normalised and encrypted', function (): void {
+    $registration = ($this->record)(($this->data)(['primaryDaiId' => $this->dai->id, 'witnesses' => [
+        new ShahadahWitnessData(' Ahmad Al-Harbi ', '055 123 4001', identityLast4: '٤٣٢١'),
+        new ShahadahWitnessData('Khalid Al-Otaibi', '+966551234002', relationship: 'Colleague'),
+    ]]));
+
+    inTenant($this->dammam, function () use ($registration): void {
+        $witnesses = ShahadahRecord::query()->where('convert_registration_id', $registration->id)->sole()->witnesses()->orderBy('id')->get();
+
+        expect($witnesses->map(fn (ShahadahWitness $witness): array => [$witness->name, $witness->phone_encrypted, $witness->identity_last4, $witness->relationship])->all())
+            ->toBe([
+                ['Ahmad Al-Harbi', '+966551234001', '4321', null],
+                ['Khalid Al-Otaibi', '+966551234002', null, 'Colleague'],
+            ])
+            ->and(DB::table('shahadah_witnesses')->pluck('phone_encrypted')->implode(' '))->not->toContain('551234001');
+    });
+
+    expect(AuditLog::query()->where('action', 'shahadah.recorded')->sole()->new_values_redacted['witnesses'])->toBe(2);
+});
+
+it('does not register a shahadah without valid, distinct witnesses', function (array $witnesses): void {
+    expectRuleViolation(fn () => ($this->record)(($this->data)(['primaryDaiId' => $this->dai->id, 'witnesses' => $witnesses])), 'witnesses');
+
+    expect(inTenant($this->dammam, fn () => Convert::query()->count()))->toBe(0);
+})->with([
+    'none' => [[]],
+    'fewer than required' => [[new ShahadahWitnessData('Ahmad Al-Harbi', '0551234001')]],
+    'without a name' => [[new ShahadahWitnessData(' ', '0551234001'), new ShahadahWitnessData('Khalid Al-Otaibi', '0551234002')]],
+    'with an invalid phone' => [[new ShahadahWitnessData('Ahmad Al-Harbi', '12'), new ShahadahWitnessData('Khalid Al-Otaibi', '0551234002')]],
+    'with a malformed ID suffix' => [[new ShahadahWitnessData('Ahmad Al-Harbi', '0551234001', identityLast4: '12a4'), new ShahadahWitnessData('Khalid Al-Otaibi', '0551234002')]],
+    'the same witness twice' => [[new ShahadahWitnessData('Ahmad Al-Harbi', '0551234001'), new ShahadahWitnessData('Ahmad', '+966 55 123 4001')]],
+]);

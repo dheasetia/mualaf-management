@@ -14,7 +14,7 @@
 | 8 | Prospect (selesai 22-11-2026) | 2 | `prospects` + histori append-only, status machine, `dai_follow_ups`, `DaiAssignmentService`, visibilitas `view_own`, deteksi telepon ganda |
 | 9 | Identity registry (selesai 22-11-2026) | 2 | `convert_identifiers`, normalisasi + fingerprint, `IdentityRegistry` (penjaga unique, reveal diaudit), national search terbatas + rate limit; tabel inti `converts`, `ConvertScope`, `TenantContext::bypass` |
 | 10 | Convert (selesai 22-11-2026) | 2 | Profil, kontak terenkripsi, disclosure level berlapis (`ConvertAccess`), status record + histori append-only, assign da'i; panel Center tanpa create |
-| 11 | Shahadah (selesai 22-11-2026) | 2 | `number_sequences` + `NumberAllocator`, `RecordShahadah` (prospect atau walk-in, satu transaksi, penjaga identitas ganda), `VerifyShahadah` (segregation of duties), halaman registrasi + antrean verifikasi; tolak/void dan saksi ditunda |
+| 11 | Shahadah (selesai 22-11-2026) | 2 | `number_sequences` + `NumberAllocator`, `RecordShahadah` (prospect atau walk-in, satu transaksi, penjaga identitas ganda), `VerifyShahadah` (segregation of duties), halaman registrasi + antrean verifikasi; saksi wajib (23-11-2026); tolak/void ditunda |
 | 12 | Duplicate detection (selesai 22-11-2026) | 2 | `NameSimilarity`, `DuplicateScreen` (nama + tanggal lahir + kewarganegaraan + gender, telepon), `duplicate_review_cases` + review Head of Dawah |
 | 13 | Transfer (selesai 22-11-2026) | 2 | Transfer convert (ajukan dari pencarian nasional, review kantor lama, terima + selesai satu transaksi), transfer prospect, histori/event append-only, eskalasi terjadwal, follow-up convert + riwayat lintas kantor |
 | 14 | Company / residence / contact (selesai 22-11-2026) | 3 | Direktori perusahaan (kantor + nasional, promosi/merge), employment, residence, contact person, lokasi dari tautan Google Maps |
@@ -64,7 +64,7 @@ Langkah 1 (project foundation) dapat dimulai sebelum gate penuh karena tidak ber
 | # | Pertanyaan | Dampak | Pemilik |
 | --- | --- | --- | --- |
 | 1 | ~~Apakah sertifikat dan surat wajib menampilkan tanggal Hijriah (Umm al-Qura) di samping Masehi?~~ Diputuskan 23-11-2026: **wajib** di sertifikat. | Template PDF, snapshot | Islamic Center Dammam |
-| 2 | ~~Apakah syahadat wajib mencatat saksi (nama, kontak)?~~ Diputuskan 23-11-2026: **wajib** dicatat. | Tabel `shahadah_witnesses`, form registrasi | Kepala Bagian Dakwah |
+| 2 | ~~Apakah syahadat wajib mencatat saksi (nama, kontak)?~~ Diputuskan 23-11-2026: **wajib** dicatat, minimal **dua** saksi (`SHAHADAH_MIN_WITNESSES=2`). | Tabel `shahadah_witnesses`, form registrasi | Kepala Bagian Dakwah |
 | 3 | ~~Apakah gender convert membatasi da'i/guru yang dapat ditugaskan?~~ Diputuskan 23-11-2026: **tidak membatasi** penugasan da'i (sesuai implementasi; `gender_policy` kelas tetap mengatur komposisi kelas). | Validasi assignment, `guidance_classes.gender_policy` | Kepala Bagian Dakwah |
 | 4 | SLA respons kantor lama untuk transfer sebelum eskalasi otomatis (usulan 7 hari)? | Scheduler eskalasi | Islamic Center Dammam |
 | 5 | ~~Siapa yang menyetujui privileged access darurat bila Super Admin satu-satunya yang tersedia?~~ Diputuskan 22-11-2026: Central Auditor juga memegang `privileged.approve`; tanpa self-approval. | Break-glass policy | Security administration |

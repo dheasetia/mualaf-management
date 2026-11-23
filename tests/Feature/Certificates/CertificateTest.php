@@ -47,6 +47,7 @@ beforeEach(function (): void {
             shahadahDate: CarbonImmutable::parse('2026-11-01'),
             location: 'Center hall',
             primaryDaiId: Dai::factory()->create()->id,
+            witnesses: shahadahWitnesses(),
         ), $staff('registration_officer'));
 
         return Convert::query()->findOrFail($registration->convert_id);

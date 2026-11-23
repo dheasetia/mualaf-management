@@ -12,6 +12,7 @@ return [
         'profile' => 'المهتدي',
         'shahadah' => 'الشهادة',
         'contact' => 'التواصل',
+        'witnesses' => 'الشهود',
     ],
     'fields' => [
         'prospect' => 'المدعو (مستعد للشهادة)',
@@ -27,14 +28,21 @@ return [
         'convert' => 'المهتدي',
         'status' => 'الحالة',
         'registered_by' => 'سجّله',
+        'witnesses' => 'الشهود',
+        'witness_name' => 'الاسم',
+        'witness_phone' => 'الجوال',
+        'witness_identity_last4' => 'آخر 4 أرقام من الهوية',
+        'witness_relationship' => 'الصلة بالمهتدي',
     ],
     'help' => [
         'prospect' => 'اتركه فارغًا للحضور المباشر، ثم اختر الداعية الأساسي.',
+        'witnesses' => 'الأشخاص الذين شهدوا النطق بالشهادة، مع رقم جوال لكل منهم.',
     ],
     'actions' => [
         'register' => 'تسجيل',
         'verify' => 'تحقق',
         'register_shahadah' => 'تسجيل الشهادة',
+        'add_witness' => 'إضافة شاهد',
     ],
     'notifications' => [
         'registered' => 'تم التسجيل برقم :number بانتظار التحقق.',
@@ -56,5 +64,9 @@ return [
         'date_in_future' => 'لا يمكن أن يكون تاريخ الشهادة في المستقبل.',
         'same_user' => 'يتحقق من التسجيل شخص غير الذي سجّله.',
         'not_pending' => 'هذا التسجيل ليس بانتظار التحقق.',
+        'witnesses_required' => '{1} سجّل شاهدًا واحدًا على الأقل.|[2,*] سجّل :count شهود على الأقل.',
+        'too_many_witnesses' => 'سجّل :count شهود كحد أقصى.',
+        'invalid_witness' => 'لكل شاهد اسم ورقم جوال صحيح، وآخر أرقام الهوية أربعة أرقام.',
+        'duplicate_witness' => 'الشاهد نفسه مذكور مرتين.',
     ],
 ];

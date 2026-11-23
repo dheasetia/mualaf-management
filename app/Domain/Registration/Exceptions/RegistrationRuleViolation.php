@@ -47,4 +47,24 @@ final class RegistrationRuleViolation extends RuleViolation
     {
         return new self(__('registration.errors.not_pending'), 'registration');
     }
+
+    public static function witnessesRequired(int $minimum): self
+    {
+        return new self(trans_choice('registration.errors.witnesses_required', $minimum, ['count' => $minimum]), 'witnesses');
+    }
+
+    public static function tooManyWitnesses(int $maximum): self
+    {
+        return new self(__('registration.errors.too_many_witnesses', ['count' => $maximum]), 'witnesses');
+    }
+
+    public static function invalidWitness(): self
+    {
+        return new self(__('registration.errors.invalid_witness'), 'witnesses');
+    }
+
+    public static function duplicateWitness(): self
+    {
+        return new self(__('registration.errors.duplicate_witness'), 'witnesses');
+    }
 }

@@ -71,7 +71,7 @@ Implementasi (langkah 11, `app/Domain/Registration`):
 - Identitas yang sudah aktif (pre-check atau unique key) → `ConvertAlreadyRegistered`; seluruh transaksi di-rollback, lalu audit `shahadah.duplicate_blocked` ditulis di luar transaksi dan form menampilkan galat pada field nomor identitas.
 - Event `ShahadahRecorded`/`ShahadahVerified` dikirim setelah commit; listener (notifikasi verifier, jadwal follow-up, enrollment, permintaan sertifikat) dibuat pada langkah terkait.
 - `VerifyShahadah` menolak user yang mendaftarkan atau mencatat syahadat (juga bila ia memegang `shahadah.verify`) dan registrasi yang tidak `pending_verification`; identifier convert ikut `verified`.
-- Belum dibuat: penolakan dan void registrasi (butuh alur persetujuan Central, 07 §7.1) dan `shahadah_witnesses` (open question #2).
+- Belum dibuat: penolakan dan void registrasi (butuh alur persetujuan Central, 07 §7.1). Saksi (`shahadah_witnesses`) wajib dan ditulis dalam transaksi registrasi.
 
 ## 12.3 Transfer convert
 

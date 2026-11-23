@@ -43,6 +43,7 @@ beforeEach(function (): void {
             shahadahDate: CarbonImmutable::today()->subYear(),
             location: 'Riyadh center',
             primaryDaiId: Dai::factory()->create()->id,
+            witnesses: shahadahWitnesses(),
             phone: '0551234000',
         ), grantRole(memberOf($this->riyadh), 'registration_officer', $this->riyadh));
 
@@ -56,6 +57,7 @@ beforeEach(function (): void {
         'shahadahDate' => CarbonImmutable::today(),
         'location' => 'Dammam center',
         'primaryDaiId' => $this->dai->id,
+        'witnesses' => shahadahWitnesses(),
         ...$overrides,
     ]), $this->registrar));
     $this->case = fn (): DuplicateReviewCase => inTenant($this->dammam, fn () => DuplicateReviewCase::query()->sole());
