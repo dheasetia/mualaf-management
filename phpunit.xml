@@ -31,6 +31,8 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
+        <!-- Test-only HMAC key for identity and phone fingerprints; never used outside tests. -->
+        <env name="IDENTITY_HMAC_KEY" value="base64:0PkhhAaJyBF12JAHP/2h6Wyqqh306Mqq/FjyYCscXR4="/>
         <env name="DB_CONNECTION" value="mysql"/>
         <env name="DB_DATABASE" value="muallaf_testing"/>
         <env name="DB_URL" value=""/>

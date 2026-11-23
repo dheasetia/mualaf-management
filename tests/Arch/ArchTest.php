@@ -13,3 +13,12 @@ arch('no debugging helpers are left in application code')
 arch('domain models do not depend on Filament resources')
     ->expect('App\Domain')
     ->not->toUse('App\Filament');
+
+// 01-architecture §1.2: modules talk through Actions, Services, Contracts and Data, not each other's models.
+arch('the prospects module does not use da\'i models')
+    ->expect('App\Domain\Prospects')
+    ->not->toUse('App\Domain\Dai\Models');
+
+arch('the da\'i module does not depend on the prospects module')
+    ->expect('App\Domain\Dai')
+    ->not->toUse('App\Domain\Prospects');

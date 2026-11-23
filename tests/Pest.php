@@ -10,6 +10,7 @@ use App\Domain\Tenancy\Models\UserTenantMembership;
 use App\Models\User;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\RbacSeeder;
+use Filament\Facades\Filament;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
@@ -64,6 +65,17 @@ function grantRole(User $user, string $roleCode, ?Tenant $tenant = null): User
 function withAuthenticator(User $user): User
 {
     $user->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
+
+    return $user;
+}
+
+/** Livewire tests skip panel middleware: sign in and set what SetTenantContext would. */
+function inCenterPanel(Tenant $tenant, User $user): User
+{
+    test()->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('center'));
+    Filament::setTenant($tenant);
+    app(TenantContext::class)->set($tenant);
 
     return $user;
 }
