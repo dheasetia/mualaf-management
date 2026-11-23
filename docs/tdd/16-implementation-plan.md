@@ -22,7 +22,7 @@
 | 16 | Exams (selesai 22-11-2026) | 4 | Ujian berkomponen berbobot, attempt + remedial, penilaian (Teacher kelas sendiri), finalisasi immutable, amandemen beraudit |
 | 17 | Certificates (selesai 22-11-2026) | 5 | Template berversi (placeholder ter-escape, bukan Blade), request/approve/issue/revoke, nomor + snapshot + token hash, PDF via Gotenberg, QR, verifikasi publik |
 | 18 | Documents (selesai 22-11-2026) | 5 | Unggahan berversi (cek isi, hapus EXIF, link bertanda tangan 5 menit), verifikasi, surat bernomor dari template berversi dengan snapshot beku, template nasional di Central. Sisa: scan ClamAV (langkah 26) |
-| 19 | Dawah planning | 6 | Aktivitas harian, plan, peserta, laporan |
+| 19 | Dawah planning (selesai 23-11-2026) | 6 | Aktivitas harian dengan verifikasi, plan dengan state machine penuh, peserta, laporan. Baris budget menyusul di langkah 20 |
 | 20 | Budget / material | 6 | Budget, variance, materi, distribusi |
 | 21 | Transport | 6 | Kendaraan, driver, trip, pickup |
 | 22 | Submissions | 7 | Jenis, workflow, dokumen, approval |

@@ -127,3 +127,22 @@ it('lets the verifier verify from the queue, not the registrar', function (): vo
 
     expect(inTenant($this->dammam, fn () => $this->registration->refresh()->status))->toBe(RegistrationStatus::Verified);
 });
+
+it('accepts today\'s shahadah date in Riyadh while UTC is still on the previous day', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-11-22 22:30:00', 'UTC'));
+    inCenterPanel($this->dammam, $this->registrar);
+
+    Livewire::test(RegisterShahadah::class)
+        ->fillForm([
+            'primary_dai_id' => $this->dai->id,
+            'identity_type' => 'iqamah',
+            'identity_number' => saudiId('276543227'),
+            'full_name' => 'Late Evening',
+            'gender' => 'male',
+            'nationality_id' => Country::factory()->create()->id,
+            'location' => 'Center hall',
+            'shahadah_date' => '2026-11-23',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors(['shahadah_date']);
+});
