@@ -15,6 +15,7 @@ use App\Domain\Platform\Models\Country;
 use App\Models\User;
 use App\Support\Identity\Fingerprint;
 use App\Support\Tenancy\TenantContext;
+use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -106,6 +107,54 @@ final readonly class IdentityRegistry
 
             return $identifier;
         });
+    }
+
+    /**
+     * Replaces the convert's primary identifier before verification (a
+     * registration returned for correction). Same number: nothing changes.
+     * A number active elsewhere throws ConvertAlreadyRegistered.
+     */
+    public function replacePrimary(Convert $convert, IdentifierData $data, User $actor, string $reason): ConvertIdentifier
+    {
+        ['fingerprint' => $fingerprint] = $this->fingerprint($data);
+
+        return DB::transaction(function () use ($convert, $data, $actor, $reason, $fingerprint): ConvertIdentifier {
+            $current = ConvertIdentifier::query()->where('convert_id', $convert->id)->where('is_primary', true)->whereNull('replaced_at')->lockForUpdate()->first();
+
+            if ($current !== null && $current->identity_fingerprint === $fingerprint && $current->identity_type === $data->type) {
+                return $current;
+            }
+
+            if ($current !== null) {
+                $this->retire($convert, $current, $actor, $reason);
+            }
+
+            return $this->add($convert, $data, $actor, primary: true);
+        });
+    }
+
+    /**
+     * Frees every active identifier of a convert whose record is closed by a
+     * voided shahadah, so the person can be registered again.
+     */
+    public function releaseAll(Convert $convert, User $actor, string $reason): void
+    {
+        ConvertIdentifier::query()->where('convert_id', $convert->id)->whereNull('replaced_at')->lockForUpdate()->get()
+            ->each(fn (ConvertIdentifier $identifier) => $this->retire($convert, $identifier, $actor, $reason));
+    }
+
+    private function retire(Convert $convert, ConvertIdentifier $identifier, User $actor, string $reason): void
+    {
+        $identifier->is_primary = false;
+        $identifier->replaced_at = CarbonImmutable::now();
+        $identifier->replaced_reason = $reason;
+        $identifier->save();
+
+        $this->audit->record('identity.replaced', $convert, newValues: [
+            'identifier_id' => $identifier->id,
+            'last4' => $identifier->identity_last4,
+            'reason' => $reason,
+        ], actor: $actor);
     }
 
     /**

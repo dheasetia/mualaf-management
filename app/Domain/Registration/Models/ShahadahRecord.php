@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $verified_at
  * @property ShahadahStatus $status
  * @property string|null $notes
+ * @property string|null $void_reason
  * @property-read Collection<int, ShahadahWitness> $witnesses
  */
 final class ShahadahRecord extends Model

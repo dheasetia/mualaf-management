@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Second pair of eyes on a registration (shahadah.verify): never the user who
- * registered it or recorded the shahadah (segregation of duties).
+ * registered it, corrected it or recorded the shahadah (segregation of duties).
  */
 final readonly class VerifyShahadah
 {
@@ -35,7 +35,7 @@ final readonly class VerifyShahadah
                 throw RegistrationRuleViolation::notPending();
             }
 
-            if (in_array($actor->id, [$locked->registered_by, $shahadah->recorded_by], true)) {
+            if (in_array($actor->id, [$locked->registered_by, $locked->corrected_by, $shahadah->recorded_by], true)) {
                 throw RegistrationRuleViolation::sameUserCannotVerify();
             }
 

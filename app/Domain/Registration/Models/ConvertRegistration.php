@@ -24,6 +24,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property CarbonImmutable $registration_date
  * @property RegistrationStatus $status
  * @property int $registered_by
+ * @property int|null $corrected_by
+ * @property string|null $rejection_reason note when returned for correction
+ * @property string|null $notes
  * @property int|null $verified_by
  * @property CarbonImmutable|null $verified_at
  * @property-read ShahadahRecord|null $shahadah

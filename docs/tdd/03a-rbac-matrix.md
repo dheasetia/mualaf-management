@@ -11,12 +11,12 @@ Dasar: [03-tenancy-authorization.md](03-tenancy-authorization.md) §3.5–3.7.
 | Kode | Role | Nama Arab | Scope | Wajib MFA | Jumlah permission |
 | --- | --- | --- | --- | --- | --- |
 | SA | Super Admin | المشرف العام | Platform | Ya | 18 |
-| CA | Central Admin | مسؤول المنصة | Platform | Ya | 17 |
+| CA | Central Admin | مسؤول المنصة | Platform | Ya | 18 |
 | CAu | Central Auditor | المدقق المركزي | Platform | Ya | 5 |
 | CR | Central Reporting | التقارير المركزية | Platform | Ya | 3 |
 | SO | Support Officer | مسؤول الدعم الفني | Platform | Ya | 2 |
 | CtA | Center Admin | مدير المركز | Kantor | Ya | 24 |
-| HoD | Head of Dawah | رئيس قسم الدعوة | Kantor | Ya | 41 |
+| HoD | Head of Dawah | رئيس قسم الدعوة | Kantor | Ya | 42 |
 | Dai | Da'i | داعية | Kantor | – | 17 |
 | Reg | Registration Officer | موظف التسجيل | Kantor | – | 8 |
 | SV | Shahadah Verifier | مدقق الشهادة | Kantor | Ya | 7 |
@@ -30,7 +30,7 @@ Dasar: [03-tenancy-authorization.md](03-tenancy-authorization.md) §3.5–3.7.
 | PO | Pilgrimage Officer | مسؤول الحج والعمرة | Kantor | – | 6 |
 | LA | Local Auditor | المدقق المحلي | Kantor | – | 18 |
 
-Role wajib MFA bila berscope platform, atau memegang permission dengan aksi: `assign_roles`, `approve`, `verify`, `reveal`, `review_transfer`, `finalize`, `issue`, `revoke`, `set_disclosure`, `view_sensitive`, `view_confidential`, `correct_origin`.
+Role wajib MFA bila berscope platform, atau memegang permission dengan aksi: `assign_roles`, `approve`, `verify`, `reveal`, `review_transfer`, `finalize`, `issue`, `revoke`, `set_disclosure`, `view_sensitive`, `view_confidential`, `correct_origin`, `approve_void`.
 
 ## Matriks per modul
 
@@ -116,6 +116,8 @@ Role wajib MFA bila berscope platform, atau memegang permission dengan aksi: `as
 | --- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | `shahadah.record` |  |  |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |
 | `shahadah.verify` |  |  |  |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |
+| `shahadah.request_void` |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
+| `shahadah.approve_void` |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 ### duplicates
 

@@ -10,8 +10,8 @@ convert_registrations
   registration_no varchar(30)          -- dari number_sequences, format {TENANT}-REG-{YYYY}-{000001}
   registration_date date
   status enum(draft, pending_verification, verified, rejected, voided)
-  registered_by fk → users · verified_by? fk → users · verified_at?
-  rejection_reason? · notes?
+  registered_by fk → users · corrected_by? fk → users · verified_by? fk → users · verified_at?
+  rejection_reason? · notes?          -- status juga 'returned' (dikembalikan untuk perbaikan); rejection_reason = catatannya
   uq(tenant_id, registration_no)
 
 shahadah_records
@@ -39,7 +39,16 @@ Aturan:
 - `shahadah_records.tenant_id` = kantor asal (sama dengan `converts.origin_tenant_id` untuk syahadat pertama).
 - `verified_by` harus berbeda dari `recorded_by` (segregation of duties, ditegakkan service).
 - Setiap syahadat dicatat bersama saksinya dalam transaksi yang sama: minimal 2 saksi (diputuskan 23-11-2026; `SHAHADAH_MIN_WITNESSES`), maksimal 5, masing-masing nama dan nomor telepon valid (disimpan ternormalisasi `+digit`, terenkripsi), tanpa telepon ganda; `identity_last4` bila diisi harus 4 digit. Nama saksi tampil di antrean verifikasi dan di scope `shahadah` akses istimewa; telepon tidak ditampilkan.
-- Record `voided` hanya melalui Head of Dawah + Central approval (koreksi data), tercatat di audit; tidak pernah dihapus.
+- Record `voided` hanya melalui Head of Dawah + Central approval (koreksi data), tercatat di audit; tidak pernah dihapus. Permintaan disimpan di:
+
+```
+shahadah_void_requests
+  id pk · uuid uq · tenant_id fk · convert_registration_id fk · requested_by fk → users · reason
+  status enum(pending, approved, rejected) · decided_by? fk → users · decision_note? · decided_at?
+  pending_key gen uq                  -- satu permintaan terbuka per registrasi
+```
+
+- Verifier tidak menolak registrasi: ia mengembalikannya untuk perbaikan (12 §12.2).
 
 ## 7.2 Duplicate review
 

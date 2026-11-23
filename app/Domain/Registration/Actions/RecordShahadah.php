@@ -23,12 +23,10 @@ use App\Domain\Registration\Events\ShahadahRecorded;
 use App\Domain\Registration\Exceptions\RegistrationRuleViolation;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\ShahadahRecord;
-use App\Domain\Registration\Models\ShahadahWitness;
 use App\Domain\Registration\Services\DuplicateScreen;
+use App\Domain\Registration\Services\ShahadahWitnesses;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
-use App\Support\Identity\Digits;
-use App\Support\Identity\PhoneNumber;
 use App\Support\Numbering\NumberAllocator;
 use App\Support\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
@@ -53,6 +51,7 @@ final readonly class RecordShahadah
         private AuditLogger $audit,
         private TenantContext $tenantContext,
         private DuplicateScreen $duplicates,
+        private ShahadahWitnesses $witnesses,
     ) {}
 
     public function handle(ShahadahRegistrationData $data, User $actor): ConvertRegistration
@@ -65,7 +64,7 @@ final readonly class RecordShahadah
             throw RegistrationRuleViolation::primaryDaiRequired();
         }
 
-        $witnesses = $this->normalizeWitnesses($data->witnesses);
+        $witnesses = $this->witnesses->normalize($data->witnesses);
 
         try {
             // Pre-check for a clear message; the unique key below is the real guard.
@@ -147,17 +146,7 @@ final readonly class RecordShahadah
         $shahadah->notes = $data->notes;
         $shahadah->save();
 
-        foreach ($witnesses as $witness) {
-            $row = new ShahadahWitness;
-            $row->shahadah_record_id = $shahadah->id;
-            $row->convert_id = $convert->id;
-            $row->name = $witness->name;
-            $row->phone_encrypted = $witness->phone;
-            $row->identity_last4 = $witness->identityLast4;
-            $row->relationship = $witness->relationship;
-            $row->created_by = $actor->id;
-            $row->save();
-        }
+        $this->witnesses->store($shahadah, $witnesses, $actor);
 
         if ($prospect !== null) {
             $this->prospects->markConverted($prospect->id, $convert->id, $actor);
@@ -197,47 +186,5 @@ final readonly class RecordShahadah
             previousReligionId: $profile->previousReligionId ?? $prospect->currentReligionId,
             previousReligionOther: $profile->previousReligionOther ?? $prospect->currentReligionOther,
         );
-    }
-
-    /**
-     * Enough distinct witnesses, each with a name and a valid phone (stored
-     * as +digits); the optional identity suffix is exactly four digits.
-     *
-     * @param  list<ShahadahWitnessData>  $witnesses
-     * @return list<ShahadahWitnessData>
-     */
-    private function normalizeWitnesses(array $witnesses): array
-    {
-        $minimum = (int) config('registration.shahadah_min_witnesses');
-        $maximum = (int) config('registration.shahadah_max_witnesses');
-
-        if (count($witnesses) < $minimum) {
-            throw RegistrationRuleViolation::witnessesRequired($minimum);
-        }
-
-        if (count($witnesses) > $maximum) {
-            throw RegistrationRuleViolation::tooManyWitnesses($maximum);
-        }
-
-        $normalized = [];
-
-        foreach ($witnesses as $witness) {
-            $name = trim($witness->name);
-            $phone = PhoneNumber::normalize($witness->phone);
-            $last4 = $witness->identityLast4 === null ? null : Digits::toAscii(trim($witness->identityLast4));
-
-            if ($name === '' || $phone === null || ($last4 !== null && preg_match('/^\d{4}$/', $last4) !== 1)) {
-                throw RegistrationRuleViolation::invalidWitness();
-            }
-
-            if (array_key_exists($phone, $normalized)) {
-                throw RegistrationRuleViolation::duplicateWitness();
-            }
-
-            $relationship = $witness->relationship === null ? null : trim($witness->relationship);
-            $normalized[$phone] = new ShahadahWitnessData($name, '+'.$phone, $last4, $relationship === '' ? null : $relationship);
-        }
-
-        return array_values($normalized);
     }
 }

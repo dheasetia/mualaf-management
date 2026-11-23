@@ -32,7 +32,8 @@ it('keeps platform roles away from office data', function (): void {
         }
 
         foreach ($definition['permissions'] as $permission) {
-            $allowed = $permission === 'converts.correct_origin';
+            // Central's data corrections: origin office and voiding a shahadah (07 §7.1, §7.3).
+            $allowed = in_array($permission, ['converts.correct_origin', 'shahadah.approve_void'], true);
             expect($allowed || ! in_array(PermissionCatalog::split($permission)['module'], $officeModules, true))
                 ->toBeTrue("{$role} must not hold {$permission}");
         }

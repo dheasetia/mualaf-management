@@ -158,6 +158,44 @@ final readonly class CertificateWorkflow
     }
 
     /**
+     * Shahadah certificates of a voided shahadah (07 §7.1), on Central's
+     * approval rather than an office permission: issued ones are revoked
+     * (the QR then shows "revoked"), open requests rejected. They may belong
+     * to any office, so each is written in its own office's context.
+     * Returns how many changed.
+     */
+    public function closeForVoidedShahadah(int $convertId, User $actor, string $reason): int
+    {
+        $open = [CertificateStatus::Draft, CertificateStatus::PendingApproval, CertificateStatus::Approved, CertificateStatus::Issued];
+        $certificates = Certificate::query()->withoutGlobalScopes()
+            ->where('convert_id', $convertId)
+            ->where('certificate_type', CertificateType::Shahadah)
+            ->whereIn('status', $open)
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($certificates as $certificate) {
+            $this->tenantContext->run($certificate->tenant_id, function () use ($certificate, $actor, $reason): void {
+                $target = $certificate->status === CertificateStatus::Issued ? CertificateStatus::Revoked : CertificateStatus::Rejected;
+                $certificate->status = $target;
+
+                if ($target === CertificateStatus::Revoked) {
+                    $certificate->revoked_at = CarbonImmutable::now();
+                    $certificate->revoked_by = $actor->id;
+                    $certificate->revocation_reason = $reason;
+                }
+
+                $certificate->save();
+
+                $this->event($certificate, $actor, $target->value, ['reason' => $reason, 'shahadah_voided' => true]);
+                $this->audit->record('certificate.'.$target->value, newValues: ['certificate_id' => $certificate->id, 'reason' => $reason], tenantId: $certificate->tenant_id, actor: $actor);
+            });
+        }
+
+        return $certificates->count();
+    }
+
+    /**
      * New PDF from the same snapshot with a new token; the old QR stops
      * verifying (12 §12.4). Certificate Officer only.
      */

@@ -67,4 +67,34 @@ final class RegistrationRuleViolation extends RuleViolation
     {
         return new self(__('registration.errors.duplicate_witness'), 'witnesses');
     }
+
+    public static function noteRequired(): self
+    {
+        return new self(__('registration.errors.note_required'), 'note');
+    }
+
+    public static function notReturned(): self
+    {
+        return new self(__('registration.errors.not_returned'), 'registration');
+    }
+
+    public static function alreadyVoided(): self
+    {
+        return new self(__('registration.errors.already_voided'), 'registration');
+    }
+
+    public static function voidRequestOpen(): self
+    {
+        return new self(__('registration.errors.void_request_open'), 'registration');
+    }
+
+    public static function voidRequestDecided(): self
+    {
+        return new self(__('registration.errors.void_request_decided'), 'request');
+    }
+
+    public static function selfDecision(): self
+    {
+        return new self(__('registration.errors.self_decision'), 'request');
+    }
 }
