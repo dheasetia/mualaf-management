@@ -24,7 +24,7 @@
 | 18 | Documents (selesai 22-11-2026) | 5 | Unggahan berversi (cek isi, hapus EXIF, link bertanda tangan 5 menit), verifikasi, surat bernomor dari template berversi dengan snapshot beku, template nasional di Central. Sisa: scan ClamAV (langkah 26) |
 | 19 | Dawah planning (selesai 23-11-2026) | 6 | Aktivitas harian dengan verifikasi, plan dengan state machine penuh, peserta, laporan. Baris budget menyusul di langkah 20 |
 | 20 | Budget / material (selesai 23-11-2026) | 6 | Baris budget (estimasi, approved, aktual, variance + catatan), syarat persetujuan plan; materi berversi dengan review, lampiran file, stok, distribusi. Sisa: unggah kuitansi, materi nasional dari Central |
-| 21 | Transport | 6 | Kendaraan, driver, trip, pickup |
+| 21 | Transport (selesai 23-11-2026) | 6 | Armada, transport kegiatan, pickup, trip tanpa tumpang tindih dan dalam kapasitas, lembar pickup tanpa data agama (critical test #14) |
 | 22 | Submissions | 7 | Jenis, workflow, dokumen, approval |
 | 23 | Pilgrimage | 7 | Program, eligibility, registrasi, grup |
 | 24 | Long-term follow-up | 8 | Status follow-up, jadwal template, catatan, negara asal, referral internasional, consent |

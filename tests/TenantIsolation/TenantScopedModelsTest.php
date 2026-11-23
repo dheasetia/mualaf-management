@@ -21,6 +21,11 @@ use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Models\ProspectStatusHistory;
 use App\Domain\Registration\Models\DuplicateReviewCase;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Domain\Transport\Models\ActivityTransportRequest;
+use App\Domain\Transport\Models\Driver;
+use App\Domain\Transport\Models\TransportRequest;
+use App\Domain\Transport\Models\TransportTrip;
+use App\Domain\Transport\Models\Vehicle;
 use App\Support\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +52,11 @@ const TENANT_SCOPED_MODELS = [
     'activity plan' => DawahActivityPlan::class,
     'daily activity' => DaiDailyActivity::class,
     'material distribution' => DawahMaterialDistribution::class,
+    'vehicle' => Vehicle::class,
+    'driver' => Driver::class,
+    'activity transport' => ActivityTransportRequest::class,
+    'transport trip' => TransportTrip::class,
+    'pickup' => TransportRequest::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

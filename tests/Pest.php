@@ -6,6 +6,8 @@ use App\Domain\Converts\Data\ConvertProfileData;
 use App\Domain\Converts\Data\IdentifierData;
 use App\Domain\Converts\Enums\IdentityType;
 use App\Domain\Converts\Models\Convert;
+use App\Domain\Converts\Models\ConvertContactPerson;
+use App\Domain\Converts\Models\ConvertResidence;
 use App\Domain\Converts\Services\IdentityNumber;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Identity\Actions\AssignRole;
@@ -178,4 +180,28 @@ function jpegWithExif(string $marker): string
     $app1 = "\xFF\xE1".pack('n', strlen($tiff) + 8)."Exif\x00\x00".$tiff;
 
     return substr($jpeg, 0, 2).$app1.substr($jpeg, 2);
+}
+
+/**
+ * A convert of $tenant with a residence pickup point and a contact person
+ * who agreed to be contacted. Use inside inTenant().
+ *
+ * @return array{convert: Convert, residence: ConvertResidence, contact: ConvertContactPerson}
+ */
+function convertWithPickupPoint(array $attributes = []): array
+{
+    $convert = Convert::factory()->create(['full_name' => 'Daniel Mendoza', 'islamic_name' => 'Dawud', ...$attributes]);
+    $author = $convert->created_by;
+    $residence = (new ConvertResidence)->forceFill([
+        'convert_id' => $convert->id, 'residence_type' => 'company_dormitory', 'name' => 'Camp 4, Block B',
+        'latitude' => '26.4207000', 'longitude' => '50.0888000', 'is_pickup_point' => true, 'is_current' => true, 'created_by' => $author,
+    ]);
+    $residence->save();
+    $contact = (new ConvertContactPerson)->forceFill([
+        'convert_id' => $convert->id, 'name' => 'Camp supervisor', 'contact_role' => 'supervisor', 'phone_encrypted' => '+966501112233',
+        'permission_to_contact' => true, 'disclosure_scope' => 'none', 'is_primary' => true, 'created_by' => $author,
+    ]);
+    $contact->save();
+
+    return compact('convert', 'residence', 'contact');
 }

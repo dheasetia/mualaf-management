@@ -61,6 +61,12 @@ use App\Domain\Transfers\Models\ConvertTransferRequest;
 use App\Domain\Transfers\Models\ProspectTransferRequest;
 use App\Domain\Transfers\Policies\ConvertTransferRequestPolicy;
 use App\Domain\Transfers\Policies\ProspectTransferRequestPolicy;
+use App\Domain\Transport\Models\ActivityTransportRequest;
+use App\Domain\Transport\Models\Driver;
+use App\Domain\Transport\Models\TransportRequest;
+use App\Domain\Transport\Models\TransportTrip;
+use App\Domain\Transport\Models\Vehicle;
+use App\Domain\Transport\Policies\TransportPolicy;
 use App\Models\User;
 use App\Support\Pdf\GotenbergPdfRenderer;
 use App\Support\Pdf\PdfRenderer;
@@ -108,6 +114,11 @@ class AppServiceProvider extends ServiceProvider
             'dawah_plan' => DawahActivityPlan::class,
             'dai_activity' => DaiDailyActivity::class,
             'dawah_material' => DawahMaterial::class,
+            'vehicle' => Vehicle::class,
+            'driver' => Driver::class,
+            'activity_transport' => ActivityTransportRequest::class,
+            'pickup' => TransportRequest::class,
+            'trip' => TransportTrip::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -151,6 +162,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DaiDailyActivity::class, DaiDailyActivityPolicy::class);
         Gate::policy(DawahMaterial::class, DawahMaterialPolicy::class);
         Gate::policy(DawahMaterialDistribution::class, DawahMaterialDistributionPolicy::class);
+
+        foreach ([Vehicle::class, Driver::class, ActivityTransportRequest::class, TransportRequest::class, TransportTrip::class] as $transportModel) {
+            Gate::policy($transportModel, TransportPolicy::class);
+        }
 
         foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);
