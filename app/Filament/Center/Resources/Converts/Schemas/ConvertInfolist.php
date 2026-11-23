@@ -13,8 +13,12 @@ use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Models\ConvertContact;
 use App\Domain\Converts\Models\ConvertIdentifier;
 use App\Domain\Converts\Services\ConvertAccess;
+use App\Domain\Dai\Enums\Confidentiality;
+use App\Domain\Dai\Enums\FollowUpType;
 use App\Domain\Dai\Services\DaiDirectory;
+use App\Domain\Dai\Services\FollowUpHistory;
 use App\Domain\Platform\Enums\Gender;
+use App\Domain\Transfers\Services\TransferLabels;
 use App\Models\User;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -87,6 +91,33 @@ final class ConvertInfolist
                                 ->state(fn (ConvertContact $record): string => $record->value_encrypted)
                                 ->extraAttributes(['dir' => 'ltr']),
                             IconEntry::make('is_primary')->label(__('converts.fields.is_primary'))->boolean(),
+                        ]),
+                ]),
+            Section::make(__('prospects.sections.follow_ups'))->columnSpanFull()
+                ->visible(fn (Convert $record): bool => self::user()->can('viewFollowUps', $record))
+                ->schema([
+                    RepeatableEntry::make('follow_ups_list')->hiddenLabel()->columns(4)
+                        ->state(fn (Convert $record): array => array_values(app(FollowUpHistory::class)->forSubject($record, self::user())->all()))
+                        ->schema([
+                            TextEntry::make('occurred_at')->label(__('prospects.fields.occurred_at'))->dateTime('Y-m-d H:i', timezone: $timezone),
+                            TextEntry::make('dai.full_name')->label(__('prospects.fields.dai'))->placeholder('—'),
+                            TextEntry::make('follow_up_type')->label(__('prospects.fields.follow_up_type'))
+                                ->formatStateUsing(fn (FollowUpType $state): string => $state->label()),
+                            TextEntry::make('confidentiality_level')->label(__('prospects.fields.confidentiality_level'))->badge()
+                                ->formatStateUsing(fn (Confidentiality $state): string => $state->label()),
+                            TextEntry::make('summary')->label(__('prospects.fields.summary'))->columnSpanFull(),
+                        ]),
+                ]),
+            Section::make(__('transfers.convert_plural'))->columnSpanFull()->collapsed()
+                ->visible(fn (Convert $record): bool => self::full($record) && app(TransferLabels::class)->completedFor($record) !== [])
+                ->schema([
+                    RepeatableEntry::make('transfers_list')->hiddenLabel()->columns(4)
+                        ->state(fn (Convert $record): array => app(TransferLabels::class)->completedFor($record))
+                        ->schema([
+                            TextEntry::make('completed_at')->label(__('transfers.fields.transferred_at'))->dateTime('Y-m-d', timezone: $timezone),
+                            TextEntry::make('fromTenant.name_ar')->label(__('transfers.fields.from')),
+                            TextEntry::make('toTenant.name_ar')->label(__('transfers.fields.to')),
+                            TextEntry::make('reason')->label(__('transfers.fields.reason')),
                         ]),
                 ]),
             Section::make(__('converts.sections.history'))->columnSpanFull()->collapsed()

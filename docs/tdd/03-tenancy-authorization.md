@@ -46,7 +46,7 @@ Histori mengikuti subjek (convert), bukan kantor. Setiap baris histori tetap dic
 | Kantor lama lain (perantara) | Tidak ada akses setelah transfer selesai |
 | Central | Agregat; detail hanya via privileged access |
 
-Implementasi: policy `ConvertHistoryPolicy::view(User, Convert)` memeriksa `convert.current_tenant_id === context.tenantId`, lalu query histori dilakukan tanpa filter `tenant_id`. Untuk statistik kantor asal dipakai tabel/aggregasi berbasis `origin_tenant_id` (lihat Reporting).
+Implementasi: policy `ConvertHistoryPolicy::view(User, Convert)` memeriksa `convert.current_tenant_id === context.tenantId`, lalu query histori dilakukan tanpa filter `tenant_id`. Untuk follow-up: `Dai\Services\FollowUpHistory::forSubject()` mengangkat scope tenant hanya bila subjek kini milik kantor dalam konteks; kantor lain hanya melihat baris yang ia tulis sendiri (critical test #12, `Feature/Transfers/HistoryAccessTest`). Untuk statistik kantor asal dipakai tabel/aggregasi berbasis `origin_tenant_id` (lihat Reporting).
 
 ## 3.4 Pencarian nasional
 

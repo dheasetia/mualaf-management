@@ -16,7 +16,7 @@
 | 10 | Convert (selesai 22-11-2026) | 2 | Profil, kontak terenkripsi, disclosure level berlapis (`ConvertAccess`), status record + histori append-only, assign da'i; panel Center tanpa create |
 | 11 | Shahadah (selesai 22-11-2026) | 2 | `number_sequences` + `NumberAllocator`, `RecordShahadah` (prospect atau walk-in, satu transaksi, penjaga identitas ganda), `VerifyShahadah` (segregation of duties), halaman registrasi + antrean verifikasi; tolak/void dan saksi ditunda |
 | 12 | Duplicate detection (selesai 22-11-2026) | 2 | `NameSimilarity`, `DuplicateScreen` (nama + tanggal lahir + kewarganegaraan + gender, telepon), `duplicate_review_cases` + review Head of Dawah |
-| 13 | Transfer | 2 | Transfer convert dan prospect, histori, eskalasi |
+| 13 | Transfer (selesai 22-11-2026) | 2 | Transfer convert (ajukan dari pencarian nasional, review kantor lama, terima + selesai satu transaksi), transfer prospect, histori/event append-only, eskalasi terjadwal, follow-up convert + riwayat lintas kantor |
 | 14 | Company / residence / contact | 3 | Employment, residence, contact person, lokasi + Google Maps |
 | 15 | Guidance | 4 | Program, modul, lesson, kelas, enrollment, sesi, absensi, progres |
 | 16 | Exams | 4 | Ujian, komponen, attempt, hasil |

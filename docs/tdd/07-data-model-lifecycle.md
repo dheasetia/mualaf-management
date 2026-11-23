@@ -97,6 +97,8 @@ convert_transfer_histories       -- append-only
   transferred_at · reason · created_at
 ```
 
+Implementasi transfer convert (langkah 13, `app/Domain/Transfers`): permintaan terlihat oleh kedua kantor (`TransferPartyScope`); kantor peminta hanya melihat inisial convert sampai transfer selesai. Kantor tujuan mengajukan dari hasil pencarian nasional (identitas, bukan id convert); setelah ditolak, kantor yang sama baru bisa mengajukan lagi setelah 30 hari. `current_tenant_id` hanya berubah lewat `Convert::moveToOffice()`. Eskalasi: `php artisan transfers:escalate` (terjadwal tiap jam) menandai permintaan `pending`/`under_review` yang lebih lama dari `TRANSFER_SLA_DAYS` (default 7, open question #4) sebagai `escalated`; sampai layar keputusan Central tersedia, kantor lama tetap dapat menyetujui/menolak permintaan `escalated`.
+
 Perubahan dari v1.0: status `accepted` dan kolom `accepted_by`, `new_primary_dai_id`. Kantor tujuan mengajukan, kantor lama menyetujui, kantor tujuan menerima dengan menunjuk da'i, lalu sistem menyelesaikan transfer dalam satu transaksi (lihat [12-transactions-state-machines.md](12-transactions-state-machines.md)).
 
 ## 7.5 Transfer prospect (baru)
@@ -111,6 +113,8 @@ prospect_transfer_requests
 ```
 
 Prospect transfer diajukan oleh kantor *lama* (misal prospect pindah kota) dan diterima kantor baru. Prospect lama berstatus `transferred`; record dipindahkan dengan mengubah `tenant_id` (prospect tidak punya konsep kantor asal), histori status tetap.
+
+Implementasi (langkah 13, `Transfers\Actions\ProspectTransfers`): karena record yang sama berpindah, status **tidak** diubah menjadi `transferred` (status terminal akan membuat prospect tidak dapat ditindaklanjuti di kantor baru); perpindahan dicatat sebagai baris histori dengan status yang sama dan alasan transfer, plus audit `prospect_transfer.*`. Kantor baru menerima dengan menunjuk Primary Da'i; assignment kantor lama berakhir. `tenant_id` hanya bisa berubah lewat `Prospect::moveToOffice()` (`BelongsToTenant` menolak perubahan lain). Satu permintaan `pending` per prospect (`active_prospect_key`).
 
 ## 7.6 Assignment da'i
 

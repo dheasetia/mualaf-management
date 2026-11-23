@@ -14,6 +14,9 @@ use App\Domain\Prospects\Actions\ChangeProspectStatus;
 use App\Domain\Prospects\Actions\RecordProspectFollowUp;
 use App\Domain\Prospects\Enums\ProspectStatus;
 use App\Domain\Prospects\Models\Prospect;
+use App\Domain\Tenancy\Enums\TenantStatus;
+use App\Domain\Tenancy\Models\Tenant;
+use App\Domain\Transfers\Actions\ProspectTransfers;
 use App\Filament\Center\Pages\RegisterShahadah;
 use App\Filament\Center\Resources\Prospects\ProspectResource;
 use App\Filament\Concerns\ResolvesActor;
@@ -90,6 +93,18 @@ final class ViewProspect extends ViewRecord
                 ])
                 ->action($this->run(fn (array $data) => app(AssignProspectDai::class)
                     ->handle($this->record, (int) $data['dai_id'], $this->actor(), $data['reason'] ?? null), 'prospects.notifications.dai_assigned')),
+
+            Action::make('transferProspect')
+                ->label(__('transfers.actions.transfer_prospect'))
+                ->authorize(fn (): bool => auth()->user()?->can('transfer', $this->record) ?? false)
+                ->schema([
+                    Select::make('to_tenant_id')->label(__('transfers.fields.destination'))->required()->searchable()
+                        ->options(fn (): array => Tenant::query()->where('status', TenantStatus::Active)
+                            ->whereKeyNot($this->record->tenant_id)->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    Textarea::make('reason')->label(__('transfers.fields.reason'))->required()->maxLength(1000),
+                ])
+                ->action($this->run(fn (array $data) => app(ProspectTransfers::class)
+                    ->request($this->record->id, (int) $data['to_tenant_id'], (string) $data['reason'], $this->actor()), 'transfers.notifications.saved')),
 
             Action::make('registerShahadah')
                 ->label(__('registration.actions.register_shahadah'))

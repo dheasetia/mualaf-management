@@ -104,6 +104,7 @@ DB::transaction(attempts: 3):
   6. insert convert_transfer_histories
   7. DaiAssignmentService: akhiri assignment kantor lama, assign primary da'i baru
   8. enrollment aktif kantor lama → transferred; follow-up schedules kantor lama → cancelled (reason transfer)
+    (langkah 13: belum ada tabelnya; ditangani listener TransferCompleted pada langkah 15/24)
   9. update request: status completed, completed_at; insert convert_transfer_events
  10. audit transfer.completed
 commit

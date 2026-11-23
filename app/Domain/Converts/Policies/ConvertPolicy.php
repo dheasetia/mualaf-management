@@ -60,6 +60,21 @@ final readonly class ConvertPolicy
         return $this->full($user, $convert);
     }
 
+    public function recordFollowUp(User $user, Convert $convert): bool
+    {
+        return $this->openWithFullProfile($user, $convert) && $user->hasPermission('followups.create');
+    }
+
+    public function viewFollowUps(User $user, Convert $convert): bool
+    {
+        return $this->full($user, $convert) && $user->hasPermission('followups.view');
+    }
+
+    public function requestTransfer(User $user): bool
+    {
+        return $this->tenantContext->has() && $user->hasPermission('converts.transfer');
+    }
+
     public function revealIdentity(User $user, Convert $convert): bool
     {
         return $this->full($user, $convert) && $user->hasPermission('identity.reveal');
