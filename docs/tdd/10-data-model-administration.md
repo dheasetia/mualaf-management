@@ -49,7 +49,7 @@ Implementasi (langkah 22, `Administration\Actions\SubmissionWorkflow`):
 - Selesai (`submissions.process`) menerbitkan surat jenis `generates_document_template_code` lewat `LetterWorkflow` (kolom tambahan `generated_document_id`); aturan surat tetap berlaku (shahadah terverifikasi, khitan untuk laki-laki).
 - Tolak/batal wajib alasan; pembuat dapat membatalkan sebelum verifikasi, approver sampai sebelum `processing`. Setiap langkah dicatat di `submission_events` (append-only) dan audit.
 
-Jenis seed: pengajuan data mualaf baru, surat khitan, surat pembaruan data agama, surat lain. Submission khitan menyimpan dokumen medis hanya sebagai lampiran dengan akses `submissions.view`.
+Jenis seed: pengajuan data mualaf baru, surat khitan, surat pembaruan data agama, surat lain. Jenis dikelola di Central (**Jenis submission**, `master.manage`, `ManageSubmissionTypes`): kode huruf kecil/angka/garis bawah dan tidak dapat diubah setelah dipakai submission, kode persyaratan unik, 1–5 tahap approval, SLA 1–365 hari, surat hanya jenis untuk convert; jenis dinonaktifkan, tidak dihapus. Submission khitan menyimpan dokumen medis hanya sebagai lampiran dengan akses `submissions.view`.
 
 ## 10.2 Umrah dan haji
 

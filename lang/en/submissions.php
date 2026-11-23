@@ -14,7 +14,11 @@ return [
     'document_checks' => ['pending' => 'Not checked', 'verified' => 'Verified', 'rejected' => 'Rejected'],
     'decisions' => ['approved' => 'Approved', 'rejected' => 'Rejected', 'returned' => 'Returned'],
     'assignment_types' => ['verifier' => 'Verifier', 'processor' => 'Processor', 'approver' => 'Approver'],
+    'types' => ['model' => 'submission type', 'plural' => 'Submission types'],
     'fields' => [
+        'code' => 'Code', 'name_ar' => 'Arabic name', 'name_en' => 'English name', 'description' => 'Description',
+        'required_documents' => 'Documents', 'required' => 'Required', 'approval_stages' => 'Approval stages', 'sla_days' => 'Days to complete',
+        'letter_type' => 'Letter issued on completion', 'active' => 'Active',
         'reference_no' => 'Reference', 'convert' => 'Convert', 'type' => 'Type', 'status' => 'Status', 'notes' => 'Notes',
         'submitted_at' => 'Submitted', 'due_at' => 'Due', 'assigned_to' => 'Assigned to', 'correction_note' => 'Correction requested',
         'requirement' => 'Requirement', 'file' => 'File', 'check' => 'Check', 'note' => 'Note', 'reason' => 'Reason',
@@ -33,6 +37,11 @@ return [
     ],
     'notifications' => ['saved' => 'Saved.'],
     'errors' => [
+        'invalid_type_code' => 'Use lowercase letters, digits and underscores, starting with a letter.',
+        'type_code_locked' => 'The code cannot change once submissions use this type.',
+        'type_code_taken' => 'Another type already uses this code.',
+        'invalid_requirements' => 'Each document needs a unique code of lowercase letters, digits and underscores.',
+        'invalid_letter' => 'Choose a letter that is issued for converts.',
         'invalid_transition' => 'The submission cannot move from :from to :to.',
         'reason_required' => 'A reason is required.',
         'convert_unavailable' => 'Choose a convert you can see in this center.',

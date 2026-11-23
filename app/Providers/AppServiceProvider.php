@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domain\Administration\Models\Submission;
+use App\Domain\Administration\Models\SubmissionType;
 use App\Domain\Administration\Policies\SubmissionPolicy;
 use App\Domain\Audit\Listeners\RecordTenantScopeBypass;
 use App\Domain\Audit\Models\AuditLog;
@@ -151,6 +152,7 @@ class AppServiceProvider extends ServiceProvider
             'pickup' => TransportRequest::class,
             'trip' => TransportTrip::class,
             'submission' => Submission::class,
+            'submission_type' => SubmissionType::class,
             'pilgrimage_program' => PilgrimageProgram::class,
             'pilgrimage_registration' => PilgrimageRegistration::class,
             'consent' => ConsentRecord::class,
@@ -215,7 +217,7 @@ class AppServiceProvider extends ServiceProvider
             Gate::policy($transportModel, TransportPolicy::class);
         }
 
-        foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
+        foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class, SubmissionType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);
         }
 
