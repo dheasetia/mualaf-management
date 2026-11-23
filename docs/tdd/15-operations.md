@@ -24,7 +24,7 @@ Dataset uji beban awal:
 | Dashboard nasional (dari tabel agregat) | < 2 s |
 | PDF sertifikat (async) | < 10 s sejak issue |
 
-Target divalidasi dengan k6 atau Locust di staging berukuran produksi. Seeder `LoadTestSeeder` membangkitkan dataset sintetis.
+Target divalidasi dengan k6 atau Locust di staging berukuran produksi. Seeder `LoadTestSeeder` membangkitkan dataset sintetis (kantor `LOAD`, ukuran lewat `LOAD_DAIS`/`LOAD_CONVERTS`/`LOAD_PROSPECTS`, menolak berjalan di produksi). Skrip k6: `tests/Load/center.js` (ambang p95 sesuai tabel di atas; butuh cookie sesi Center Admin kantor `LOAD`). Load test belum dijalankan di staging.
 
 Praktik:
 

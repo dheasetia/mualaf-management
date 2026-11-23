@@ -18,6 +18,7 @@ return [
     ],
     'verification_statuses' => ['pending' => 'بانتظار التحقق', 'verified' => 'تم التحقق', 'rejected' => 'مرفوض'],
     'generated_statuses' => ['draft' => 'مسودة', 'pending_approval' => 'بانتظار الاعتماد', 'issued' => 'صادر', 'cancelled' => 'ملغى'],
+    'scan_statuses' => ['pending' => 'قيد الفحص', 'clean' => 'سليم', 'infected' => 'مصاب، حُذف', 'failed' => 'تعذر الفحص', 'skipped' => 'لم يُفحص'],
     'fields' => [
         'type' => 'النوع', 'file' => 'الملف', 'filename' => 'اسم الملف', 'version' => 'الإصدار', 'status' => 'الحالة',
         'uploaded_at' => 'تاريخ الرفع', 'reason' => 'السبب', 'number' => 'الرقم', 'addressee' => 'الجهة الموجه إليها',
@@ -37,6 +38,7 @@ return [
     ],
     'notifications' => ['saved' => 'تم الحفظ.'],
     'errors' => [
+        'not_scanned' => 'لم يجتز الملف فحص الفيروسات بعد.',
         'file_type' => 'تُقبل ملفات PDF أو JPEG أو PNG أو WebP فقط.',
         'file_too_large' => 'حجم الملف أكبر من :mb ميجابايت.',
         'already_decided' => 'تم التحقق من هذا المستند أو رفضه مسبقًا.',

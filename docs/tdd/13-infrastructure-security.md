@@ -88,6 +88,15 @@ Aturan:
 | Error | `APP_DEBUG=false` di non-lokal; error page generik |
 | Penetration test | Sebelum pilot dan sebelum setiap wave rollout; fokus tenant isolation dan IDOR |
 
+Status implementasi (langkah 26):
+
+- Header: middleware `SecurityHeaders` di grup web. CSP hanya mengizinkan origin sendiri (+ host font Filament `CSP_FONT_HOST`, + Vite dev server di lokal), `frame-ancestors 'none'`, `object-src 'none'`, `base-uri`/`form-action 'self'`; **masih** `'unsafe-inline' 'unsafe-eval'` pada `script-src` karena Livewire/Alpine — target berikutnya build Alpine CSP + nonce. HSTS 1 tahun hanya lewat HTTPS. Font Filament belum di-bundle lokal.
+- Logging: `tap` `RedactPersonalData` pada channel `single`/`daily` memasking email, nomor telepon, dan nomor identitas 10 digit pada pesan dan context.
+- Antivirus: `ScanDocument` (antrean `files`) memanggil clamd via INSTREAM; `documents.scan_status` (`pending/clean/infected/failed/skipped`); hanya file `clean` (atau `skipped` bila `CLAMAV_ENABLED=false`) yang dapat diverifikasi (dokumen convert, dokumen submission, persyaratan umrah) atau diunduh; file terinfeksi dihapus dan dokumen ditolak; clamd tak terjangkau → dicoba ulang, file tetap tidak dapat dipakai.
+- Login dari browser baru (hash HMAC user agent, `user_login_devices`) dalam `KNOWN_DEVICE_DAYS` memicu email dan audit `auth.new_device`; login pertama tidak dilaporkan.
+- Laporan akses berkala: halaman **Review akses** (`audit.view_office`) dan `php artisan access:review` bulanan ke audit log (role sensitif tanpa authenticator, akun tidak dipakai `STALE_ACCOUNT_DAYS`).
+- Pentest: belum dilakukan pihak eksternal; sebagai gantinya `tests/TenantIsolation/IdorSweepTest.php` membuka setiap halaman record Center dengan record kantor lain oleh pengguna berperan luas (semua harus gagal). Checklist pra-pilot di [runbook](../runbook.md) §11.
+
 ## 13.6 Ancaman utama dan mitigasi
 
 | Ancaman | Mitigasi |

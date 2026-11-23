@@ -22,6 +22,8 @@ use App\Domain\Documents\Actions\Attachments;
 use App\Domain\Documents\Actions\LetterWorkflow;
 use App\Domain\Documents\Enums\DocumentType;
 use App\Domain\Documents\Enums\LetterType;
+use App\Domain\Documents\Exceptions\DocumentRuleViolation;
+use App\Domain\Documents\Services\FileSafety;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Numbering\NumberAllocator;
@@ -48,6 +50,7 @@ final readonly class SubmissionWorkflow
 {
     public function __construct(
         private Attachments $attachments,
+        private FileSafety $safety,
         private LetterWorkflow $letters,
         private ConvertAccess $converts,
         private NumberAllocator $numbers,
@@ -168,6 +171,10 @@ final readonly class SubmissionWorkflow
 
         if ($submission->status !== SubmissionStatus::UnderVerification || $result === DocumentCheck::Pending) {
             throw SubmissionRuleViolation::invalidTransition($submission->status->label(), SubmissionStatus::UnderVerification->label());
+        }
+
+        if ($result === DocumentCheck::Verified && ! $this->safety->isSafe($document->document_id)) {
+            throw DocumentRuleViolation::notScanned();
         }
 
         if ($result === DocumentCheck::Rejected && blank($note)) {

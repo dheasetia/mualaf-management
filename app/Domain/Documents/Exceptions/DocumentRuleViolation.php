@@ -18,6 +18,11 @@ final class DocumentRuleViolation extends RuleViolation
         return new self(__('documents.errors.file_too_large', ['mb' => (int) (config('documents.max_bytes') / 1048576)]), 'file');
     }
 
+    public static function notScanned(): self
+    {
+        return new self(__('documents.errors.not_scanned'), 'scan_status');
+    }
+
     public static function alreadyDecided(): self
     {
         return new self(__('documents.errors.already_decided'), 'verification_status');

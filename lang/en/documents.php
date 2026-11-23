@@ -18,6 +18,7 @@ return [
     ],
     'verification_statuses' => ['pending' => 'Pending', 'verified' => 'Verified', 'rejected' => 'Rejected'],
     'generated_statuses' => ['draft' => 'Draft', 'pending_approval' => 'Waiting for approval', 'issued' => 'Issued', 'cancelled' => 'Cancelled'],
+    'scan_statuses' => ['pending' => 'Being scanned', 'clean' => 'Clean', 'infected' => 'Infected, removed', 'failed' => 'Scan failed', 'skipped' => 'Not scanned'],
     'fields' => [
         'type' => 'Type', 'file' => 'File', 'filename' => 'File name', 'version' => 'Version', 'status' => 'Status',
         'uploaded_at' => 'Uploaded', 'reason' => 'Reason', 'number' => 'Number', 'addressee' => 'Addressed to',
@@ -37,6 +38,7 @@ return [
     ],
     'notifications' => ['saved' => 'Saved.'],
     'errors' => [
+        'not_scanned' => 'The file has not passed the virus scan yet.',
         'file_type' => 'Only PDF, JPEG, PNG or WebP files are accepted.',
         'file_too_large' => 'The file is larger than :mb MB.',
         'already_decided' => 'This document has already been verified or rejected.',

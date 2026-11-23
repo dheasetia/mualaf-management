@@ -19,3 +19,6 @@ Schedule::command('followups:flag-quiet')->dailyAt('03:00')->withoutOverlapping(
 // 11 §11.8 and §11.5: nightly statistics, and export files removed after they expire.
 Schedule::command('reports:aggregate')->dailyAt('01:30')->withoutOverlapping()->onOneServer();
 Schedule::command('exports:purge')->hourly()->withoutOverlapping()->onOneServer();
+
+// 13 §13.6: monthly access review summary for the auditors.
+Schedule::command('access:review')->monthlyOn(1, '06:00')->onOneServer();

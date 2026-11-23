@@ -87,6 +87,8 @@ use App\Domain\Transport\Models\TransportTrip;
 use App\Domain\Transport\Models\Vehicle;
 use App\Domain\Transport\Policies\TransportPolicy;
 use App\Models\User;
+use App\Support\Antivirus\ClamAvScanner;
+use App\Support\Antivirus\FileScanner;
 use App\Support\Pdf\GotenbergPdfRenderer;
 use App\Support\Pdf\PdfRenderer;
 use App\Support\Tenancy\Events\TenantScopeBypassed;
@@ -111,6 +113,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(TenantContext::class);
         $this->app->bind(TeacherRoster::class, GuidanceTeacherRoster::class);
         $this->app->bind(PdfRenderer::class, GotenbergPdfRenderer::class);
+        $this->app->bind(FileScanner::class, ClamAvScanner::class);
     }
 
     public function boot(): void

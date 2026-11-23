@@ -6,6 +6,7 @@ namespace App\Domain\Identity\Listeners;
 
 use App\Domain\Audit\Services\AuditLogger;
 use App\Domain\Identity\Services\AccountLockout;
+use App\Domain\Identity\Services\KnownDevices;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -13,7 +14,7 @@ use Illuminate\Auth\Events\Login;
 
 final readonly class RecordSuccessfulLogin
 {
-    public function __construct(private AccountLockout $lockout, private AuditLogger $audit) {}
+    public function __construct(private AccountLockout $lockout, private AuditLogger $audit, private KnownDevices $devices) {}
 
     public function handle(Login $event): void
     {
@@ -31,6 +32,7 @@ final readonly class RecordSuccessfulLogin
         ]);
 
         $this->audit->record('auth.login', $user, newValues: ['guard' => $event->guard], actor: $user);
+        $this->devices->remember($user, request()->userAgent(), request()->ip());
 
         // The application session store: the same store the request uses over HTTP,
         // and also available when login happens inside a Livewire update.
