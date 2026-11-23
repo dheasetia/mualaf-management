@@ -14,7 +14,7 @@
 | 8 | Prospect (selesai 22-11-2026) | 2 | `prospects` + histori append-only, status machine, `dai_follow_ups`, `DaiAssignmentService`, visibilitas `view_own`, deteksi telepon ganda |
 | 9 | Identity registry (selesai 22-11-2026) | 2 | `convert_identifiers`, normalisasi + fingerprint, `IdentityRegistry` (penjaga unique, reveal diaudit), national search terbatas + rate limit; tabel inti `converts`, `ConvertScope`, `TenantContext::bypass` |
 | 10 | Convert (selesai 22-11-2026) | 2 | Profil, kontak terenkripsi, disclosure level berlapis (`ConvertAccess`), status record + histori append-only, assign da'i; panel Center tanpa create |
-| 11 | Shahadah | 2 | Registrasi + syahadat + verifikasi |
+| 11 | Shahadah (selesai 22-11-2026) | 2 | `number_sequences` + `NumberAllocator`, `RecordShahadah` (prospect atau walk-in, satu transaksi, penjaga identitas ganda), `VerifyShahadah` (segregation of duties), halaman registrasi + antrean verifikasi; tolak/void dan saksi ditunda |
 | 12 | Duplicate detection | 2 | Fuzzy match, `duplicate_review_cases` |
 | 13 | Transfer | 2 | Transfer convert dan prospect, histori, eskalasi |
 | 14 | Company / residence / contact | 3 | Employment, residence, contact person, lokasi + Google Maps |

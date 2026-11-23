@@ -87,6 +87,17 @@ final readonly class DaiAssignmentService
     }
 
     /**
+     * Ends the active assignments of one subject, identified by type and id.
+     */
+    public function endAllFor(string $subjectType, int $subjectId, string $reason): int
+    {
+        return DaiAssignment::query()->active()
+            ->where('subject_type', $subjectType)
+            ->where('subject_id', $subjectId)
+            ->update(['ended_at' => CarbonImmutable::now(), 'end_reason' => $reason, 'updated_at' => CarbonImmutable::now()]);
+    }
+
+    /**
      * Whether the da'i holds an active assignment (primary or other) for the subject.
      *
      * @param  Model&AssignableSubject  $subject

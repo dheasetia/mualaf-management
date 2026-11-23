@@ -26,3 +26,11 @@ arch('the da\'i module does not depend on the prospects module')
 arch('the converts module does not use da\'i or prospect models')
     ->expect('App\Domain\Converts')
     ->not->toUse(['App\Domain\Dai\Models', 'App\Domain\Prospects\Models']);
+
+arch('the registration module does not use prospect or da\'i models')
+    ->expect('App\Domain\Registration')
+    ->not->toUse(['App\Domain\Prospects\Models', 'App\Domain\Dai\Models']);
+
+arch('the converts module does not depend on the registration module')
+    ->expect('App\Domain\Converts')
+    ->not->toUse('App\Domain\Registration');

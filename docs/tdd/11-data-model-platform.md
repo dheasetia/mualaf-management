@@ -41,6 +41,8 @@ number_sequences                 -- baru
   uq(tenant_id, sequence_type, period)
 ```
 
+Implementasi: `App\Support\Numbering\NumberAllocator::next(tenantId, type, period)`; `tenant_id` disimpan `0` untuk sequence nasional karena unique key MySQL menganggap NULL berbeda-beda. Memanggilnya di luar transaksi melempar exception.
+
 `NumberAllocator::next(tenant, type)`:
 
 1. Dalam transaksi pemanggil, `SELECT ... FOR UPDATE` baris sequence (dibuat dengan `INSERT ... ON DUPLICATE KEY UPDATE` bila belum ada).

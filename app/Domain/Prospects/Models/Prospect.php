@@ -55,6 +55,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $last_contact_at
  * @property CarbonImmutable|null $next_follow_up_at
  * @property int $created_by
+ * @property CarbonImmutable|null $converted_at
+ * @property int|null $convert_id
  */
 #[UseFactory(ProspectFactory::class)]
 final class Prospect extends Model implements AssignableSubject

@@ -34,6 +34,11 @@ final class ProspectRuleViolation extends RuleViolation
         return new self(__('prospects.errors.closed'), 'status');
     }
 
+    public static function notReadyForShahadah(): self
+    {
+        return new self(__('prospects.errors.not_ready_for_shahadah'), 'prospect_id');
+    }
+
     public static function notAssigned(): self
     {
         return new self(__('prospects.errors.not_assigned'), 'dai_id');

@@ -89,6 +89,7 @@ return [
         'high' => 'High',
     ],
     'errors' => [
+        'not_ready_for_shahadah' => 'This prospect is not ready for shahadah registration.',
         'possible_duplicate' => 'This phone number belongs to another prospect of this center (:name). Check before saving, or confirm below.',
         'primary_dai_required' => "Choose the primary da'i. If you register your own contact, your user account must be linked to a da'i record.",
         'invalid_transition' => 'Status cannot change from :from to :to.',
