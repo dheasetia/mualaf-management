@@ -26,6 +26,7 @@ use App\Models\User;
 use App\Support\Pdf\TemplateRenderer;
 use Carbon\CarbonImmutable;
 use Database\Seeders\CertificateTemplateSeeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -78,7 +79,9 @@ it('issues a shahadah certificate with a number, frozen snapshot and hashed toke
         ->certificate_number->toBe('DMM-SH-'.now()->format('Y').'-000001')
         ->and(strlen((string) $certificate->verification_token_hash))->toBe(32)
         ->and($certificate->snapshot_data)->toMatchArray(['full_name' => 'Daniel Mendoza', 'shahadah_date' => '2026-11-01', 'certificate_number' => $certificate->certificate_number])
-        ->and($certificate->snapshot_data['shahadah_date_hijri_ar'])->toContain('١٤٤٨');
+        ->and($certificate->snapshot_data['shahadah_date_hijri_ar'])->toContain('١٤٤٨')
+        ->and($certificate->snapshot_data['shahadah_date_gregorian_en'])->toBe('November 1, 2026')
+        ->and($certificate->snapshot_data['shahadah_date_hijri_en'])->toContain('1448 AH');
 
     Queue::assertPushedOn('pdf', GenerateCertificatePdf::class);
 });
@@ -110,7 +113,10 @@ it('renders the PDF through Gotenberg into private storage with a checksum', fun
 
     Http::assertSent(fn ($request): bool => str_contains($request->url(), '/forms/chromium/convert/html')
         && str_contains((string) $request->body(), 'Daniel Mendoza')
-        && str_contains((string) $request->body(), '<svg'));
+        && str_contains((string) $request->body(), 'شهادة إشهار الإسلام')
+        && str_contains((string) $request->body(), 'Certificate of Embracing Islam')
+        && str_contains((string) $request->body(), 'on November 1, 2026')
+        && substr_count((string) $request->body(), '<svg') === 2);
 
     $certificate->refresh();
     expect($certificate->file_checksum)->toBe(hash('sha256', '%PDF-1.7 fake'));
@@ -162,4 +168,24 @@ it('versions templates: approved versions are frozen and approval needs a second
 
     expect($approved->refresh()->active)->toBeFalse()
         ->and($draft->refresh()->active)->toBeTrue();
+});
+
+it('adds a changed national template as a new version without replacing one approved in Central', function (): void {
+    $versions = fn () => CertificateTemplate::query()->whereNull('tenant_id')->where('template_code', 'NATIONAL-SHAHADAH')->orderBy('template_version');
+
+    $this->seed(CertificateTemplateSeeder::class);
+    expect($versions()->count())->toBe(1);
+
+    // An older system version (the file has changed since): the next run adds and activates the file.
+    $rows = fn () => DB::table('certificate_templates')->whereNull('tenant_id')->where('template_code', 'NATIONAL-SHAHADAH');
+    $rows()->update(['html_template' => '<p>old</p>']);
+    $this->seed(CertificateTemplateSeeder::class);
+    expect($versions()->pluck('active', 'template_version')->all())->toBe([1 => false, 2 => true]);
+
+    // A version approved in Central stays active; the changed file waits as an inactive version.
+    $rows()->where('template_version', 2)->update(['active' => false, 'html_template' => '<p>older</p>']);
+    $rows()->where('template_version', 1)->update(['active' => true, 'approved_by' => $this->approver->id]);
+    $this->seed(CertificateTemplateSeeder::class);
+
+    expect($versions()->pluck('active', 'template_version')->all())->toBe([1 => true, 2 => false, 3 => false]);
 });

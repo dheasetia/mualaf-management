@@ -5,28 +5,46 @@
 <style>
   @page { size: A4 landscape; margin: 0; }
   body { margin: 0; font-family: 'Amiri', 'Noto Naskh Arabic', 'Noto Sans Arabic', 'DejaVu Sans', serif; color: #1f2a37; }
-  .page { box-sizing: border-box; width: 297mm; height: 210mm; padding: 18mm 22mm; border: 6mm solid #0f766e; position: relative; text-align: center; }
+  .page { box-sizing: border-box; width: 297mm; height: 210mm; padding: 18mm 22mm; border: 6mm solid #0f766e; position: relative; text-align: center; overflow: hidden; }
+  .page + .page { break-before: page; }
+  .page.en { direction: ltr; font-family: 'DejaVu Serif', 'Times New Roman', serif; }
   h1 { font-size: 34pt; margin: 6mm 0 2mm; color: #0f766e; }
-  .en { direction: ltr; font-family: 'DejaVu Sans', sans-serif; font-size: 11pt; color: #4b5563; }
+  .page.en h1 { font-size: 30pt; }
+  .office { font-size: 14pt; color: #4b5563; }
   .name { font-size: 28pt; font-weight: bold; margin: 8mm 0 2mm; }
+  .sub { font-size: 13pt; color: #4b5563; }
   .body { font-size: 16pt; line-height: 1.9; margin: 4mm 18mm; }
+  .page.en .body { font-size: 15pt; line-height: 1.7; }
   .footer { position: absolute; bottom: 16mm; left: 22mm; right: 22mm; display: flex; justify-content: space-between; align-items: flex-end; font-size: 12pt; }
   .qr svg { width: 32mm; height: 32mm; }
+  .number { direction: ltr; font-family: 'DejaVu Sans', sans-serif; font-size: 10pt; color: #4b5563; }
 </style>
 </head>
 <body>
-<div class="page">
-  <div class="en">{{ office_name_en }}</div>
-  <div>{{ office_name_ar }}</div>
+<!-- Page 1: Arabic -->
+<div class="page" lang="ar" dir="rtl">
+  <div class="office">{{ office_name_ar }}</div>
   <h1>شهادة إتمام برنامج التأهيل</h1>
-  <div class="en">Certificate of Completion</div>
   <div class="body">يشهد {{ office_name_ar }} بأن</div>
   <div class="name">{{ full_name }}</div>
-  <div class="body">قد أتم {{ program_name_ar }} بنجاح بتاريخ {{ completed_on_hijri_ar }}<br>
+  <div class="body">قد أتم {{ program_name_ar }} بنجاح بتاريخ {{ completed_on_hijri_ar }} الموافق {{ completed_on_gregorian_ar }}<br>
     بنسبة حضور {{ attendance_percentage }}% ودرجة نهائية {{ final_score }}</div>
   <div class="footer">
-    <div class="qr">{{ qr_code }}<div class="en">{{ certificate_number }}</div></div>
-    <div>صدرت في {{ issued_on_hijri_ar }}<br>المدير: {{ director_name }}</div>
+    <div class="qr">{{ qr_code }}<div class="number">{{ certificate_number }}</div></div>
+    <div>صدرت في {{ issued_on_hijri_ar }} الموافق {{ issued_on_gregorian_ar }}<br>المدير: {{ director_name }}</div>
+  </div>
+</div>
+<!-- Page 2: English -->
+<div class="page en" lang="en" dir="ltr">
+  <div class="office">{{ office_name_en }}</div>
+  <h1>Certificate of Completion</h1>
+  <div class="body">{{ office_name_en }} certifies that</div>
+  <div class="name">{{ full_name }}</div>
+  <div class="body">has successfully completed {{ program_name_en }} on {{ completed_on_gregorian_en }} ({{ completed_on_hijri_en }})<br>
+    with {{ attendance_percentage }}% attendance and a final score of {{ final_score }}.</div>
+  <div class="footer">
+    <div>Issued on {{ issued_on_gregorian_en }} ({{ issued_on_hijri_en }})<br>Director: {{ director_name }}</div>
+    <div class="qr">{{ qr_code }}<div class="number">{{ certificate_number }}</div></div>
   </div>
 </div>
 </body>
