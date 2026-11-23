@@ -152,6 +152,24 @@ final class Convert extends Model implements AssignableSubject
         return $this->hasMany(ConvertContact::class);
     }
 
+    /** @return HasMany<ConvertEmployment, $this> */
+    public function employments(): HasMany
+    {
+        return $this->hasMany(ConvertEmployment::class);
+    }
+
+    /** @return HasMany<ConvertResidence, $this> */
+    public function residences(): HasMany
+    {
+        return $this->hasMany(ConvertResidence::class);
+    }
+
+    /** @return HasMany<ConvertContactPerson, $this> */
+    public function contactPersons(): HasMany
+    {
+        return $this->hasMany(ConvertContactPerson::class);
+    }
+
     /** @return HasMany<ConvertStatusHistory, $this> */
     public function statusHistory(): HasMany
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Center\Resources\Prospects\Schemas;
 
+use App\Domain\Companies\Models\Company;
 use App\Domain\Dai\Services\DaiDirectory;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\City;
@@ -38,6 +39,8 @@ final class ProspectForm
                     ->options(fn (): array => Religion::query()->where('active', true)->orderBy('sort_order')->pluck('name_ar', 'id')->all()),
                 TextInput::make('current_religion_other')->label(__('prospects.fields.current_religion_other'))->maxLength(255),
                 TextInput::make('occupation')->label(__('prospects.fields.occupation'))->maxLength(255),
+                Select::make('company_id')->label(__('companies.model'))->searchable()
+                    ->options(fn (): array => Company::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
             ]),
             Section::make(__('prospects.sections.contact'))->columns(2)->columnSpanFull()->schema([
                 TextInput::make('phone')->label(__('prospects.fields.phone'))->tel()->maxLength(30)

@@ -26,7 +26,7 @@ Aturan:
 | Kategori | Contoh | Scope |
 | --- | --- | --- |
 | Global master | `regions`, `cities`, `countries`, `languages`, `religions`, `budget_categories`, `dai_activity_types` | Baca semua; tulis hanya Central |
-| Global atau tenant | `companies`, `dawah_materials`, `document_templates`, `certificate_templates` | `tenant_id NULL` = nasional (dikelola Central), terisi = milik kantor |
+| Global atau tenant | `companies`, `dawah_materials`, `document_templates`, `certificate_templates` | `tenant_id NULL` = nasional (dikelola Central), terisi = milik kantor; kantor melihat nasional + miliknya (`CompanyScope` untuk companies) |
 | Tenant-owned | `prospects`, `dais`, `dawah_activity_plans`, `guidance_classes`, `vehicles` | Global scope `BelongsToTenant` pada `tenant_id` |
 | Convert-owned | `converts` | Global scope `ConvertScope` pada `current_tenant_id` |
 | Convert child | `convert_identifiers`, `convert_contacts`, `convert_employments`, `convert_residences`, `convert_contact_persons`, `convert_home_*` | Diakses hanya melalui relasi convert yang sudah di-scope (`whereHas` ke `converts.current_tenant_id`) |

@@ -7,6 +7,8 @@ namespace App\Providers;
 use App\Domain\Audit\Listeners\RecordTenantScopeBypass;
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Policies\AuditLogPolicy;
+use App\Domain\Companies\Models\Company;
+use App\Domain\Companies\Policies\CompanyPolicy;
 use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
@@ -66,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
             'dai' => Dai::class,
             'prospect' => Prospect::class,
             'convert' => Convert::class,
+            'company' => Company::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -90,6 +93,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Dai::class, DaiPolicy::class);
         Gate::policy(Prospect::class, ProspectPolicy::class);
         Gate::policy(Convert::class, ConvertPolicy::class);
+        Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(ConvertRegistration::class, ConvertRegistrationPolicy::class);
         Gate::policy(DuplicateReviewCase::class, DuplicateReviewCasePolicy::class);
         Gate::policy(ConvertTransferRequest::class, ConvertTransferRequestPolicy::class);

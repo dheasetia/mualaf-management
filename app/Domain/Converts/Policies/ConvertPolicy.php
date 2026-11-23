@@ -55,6 +55,12 @@ final readonly class ConvertPolicy
         return $this->update($user, $convert);
     }
 
+    /** Employment, residence and contact persons (06 §6.9; addresses are sensitive, 04 §4.5). */
+    public function viewLocations(User $user, Convert $convert): bool
+    {
+        return $this->full($user, $convert);
+    }
+
     public function viewContacts(User $user, Convert $convert): bool
     {
         return $this->full($user, $convert);

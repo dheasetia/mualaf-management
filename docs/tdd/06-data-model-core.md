@@ -137,6 +137,8 @@ companies
 
 Perusahaan yang dibuat kantor bersifat milik kantor; Central dapat mempromosikan ke direktori nasional (dedup berdasarkan `registration_number`).
 
+Implementasi (langkah 14, modul `app/Domain/Companies`): `CompanyScope` — kantor melihat direktori nasional + perusahaannya sendiri, tanpa tenant context hanya nasional (layar Central mengangkat scope untuk daftar promosi). Pemilik diisi saat dibuat dan tidak berubah kecuali `PromoteCompany`. Perusahaan kantor dikelola pemegang `converts.update` atau `prospects.update`; direktori nasional dan promosi oleh `master.manage`. Promosi dengan `registration_number` yang sudah ada di direktori nasional **menggabungkan**: semua referensi (`prospects`, `convert_employments`, `convert_contact_persons`) dipindah ke perusahaan nasional dan salinan kantor dihapus; audit `companies.promoted`/`companies.merged`. Koordinat diambil dari tautan Google Maps (`App\Support\Geo\GoogleMapsLink`, tanpa API key; hanya https dari domain Google) bila lintang/bujur kosong. FK `prospects.company_id` ditambahkan.
+
 ## 6.7 Prospects
 
 ```
@@ -262,3 +264,5 @@ convert_contact_persons
 ```
 
 Aturan aplikasi: maksimal satu `is_current = true` per convert untuk employment utama dan residence utama (ditegakkan service; boleh dipertegas dengan generated column bila diperlukan).
+
+Implementasi (langkah 14): `SaveConvertLocationRecord` menulis ketiga tabel dari field yang di-whitelist; record `is_current` (employment, residence) atau `is_primary` (contact person) yang baru menonaktifkan yang lama. Telepon kerja dan telepon contact person dienkripsi. Data ini mengikuti convert (`ScopedThroughConvert`), hanya terlihat dengan profil penuh (`ConvertAccess`) dan hanya diubah pemegang `converts.update`; record tertutup tidak dapat diubah. Contact person boleh dihapus (data pihak ketiga, bukan histori) dengan audit; employment dan residence diakhiri lewat `is_current`/`ended_at`.
