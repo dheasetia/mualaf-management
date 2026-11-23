@@ -108,7 +108,7 @@ Format `module.action` atau `module.resource.action`. Sumber kebenaran adalah `a
 | prospects | `prospects.view`, `prospects.view_own`, `prospects.create`, `prospects.update`, `prospects.assign_dai`, `prospects.change_status`, `prospects.transfer` |
 | converts | `converts.view`, `converts.view_own`, `converts.view_class`, `converts.create`, `converts.update`, `converts.view_sensitive`, `converts.assign_dai`, `converts.set_disclosure`, `converts.transfer`, `converts.review_transfer`, `converts.correct_origin` |
 | identity | `identity.national_search`, `identity.verify`, `identity.reveal` |
-| shahadah | `shahadah.record`, `shahadah.verify` |
+| shahadah | `shahadah.record`, `shahadah.verify`, `shahadah.request_void`, `shahadah.approve_void` |
 | duplicates | `duplicates.review` |
 | followups | `followups.view`, `followups.create`, `followups.view_confidential` |
 | dawah | `dawah.activities.create`, `dawah.activities.verify`, `dawah.plans.view`, `dawah.plans.create`, `dawah.plans.submit`, `dawah.plans.review`, `dawah.plans.approve`, `dawah.reports.submit`, `dawah.reports.verify` |

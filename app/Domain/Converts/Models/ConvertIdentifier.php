@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_primary
  * @property VerificationStatus $verification_status
  * @property CarbonImmutable|null $replaced_at
+ * @property string|null $replaced_reason
  * @property int $created_by
  * @property-read Convert $convert
  */

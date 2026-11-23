@@ -78,8 +78,10 @@ use App\Domain\Registration\Events\ShahadahRecorded;
 use App\Domain\Registration\Events\ShahadahVerified;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\DuplicateReviewCase;
+use App\Domain\Registration\Models\ShahadahVoidRequest;
 use App\Domain\Registration\Policies\ConvertRegistrationPolicy;
 use App\Domain\Registration\Policies\DuplicateReviewCasePolicy;
+use App\Domain\Registration\Policies\ShahadahVoidRequestPolicy;
 use App\Domain\Reporting\Models\ExportJob;
 use App\Domain\Reporting\Policies\ExportJobPolicy;
 use App\Domain\Tenancy\Models\Tenant;
@@ -202,6 +204,7 @@ class AppServiceProvider extends ServiceProvider
             Gate::policy($guidanceModel, GuidancePolicies::class);
         }
         Gate::policy(ConvertRegistration::class, ConvertRegistrationPolicy::class);
+        Gate::policy(ShahadahVoidRequest::class, ShahadahVoidRequestPolicy::class);
         Gate::policy(DuplicateReviewCase::class, DuplicateReviewCasePolicy::class);
         Gate::policy(ConvertTransferRequest::class, ConvertTransferRequestPolicy::class);
         Gate::policy(ProspectTransferRequest::class, ProspectTransferRequestPolicy::class);

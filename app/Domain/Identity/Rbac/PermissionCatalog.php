@@ -23,7 +23,7 @@ final class PermissionCatalog
         'converts.assign_dai', 'converts.set_disclosure', 'converts.transfer', 'converts.review_transfer',
         'converts.correct_origin', 'converts.view_restricted', 'converts.view_high_confidentiality', 'converts.change_status',
         'identity.national_search', 'identity.verify', 'identity.reveal',
-        'shahadah.record', 'shahadah.verify',
+        'shahadah.record', 'shahadah.verify', 'shahadah.request_void', 'shahadah.approve_void',
         'duplicates.review',
         'followups.view', 'followups.create', 'followups.view_confidential',
         'dawah.activities.create', 'dawah.activities.verify',
@@ -54,7 +54,7 @@ final class PermissionCatalog
      */
     public const array MFA_ACTIONS = [
         'assign_roles', 'approve', 'verify', 'reveal', 'review_transfer', 'finalize', 'issue', 'revoke',
-        'set_disclosure', 'view_sensitive', 'view_confidential', 'correct_origin',
+        'set_disclosure', 'view_sensitive', 'view_confidential', 'correct_origin', 'approve_void',
     ];
 
     public static function exists(string $code): bool

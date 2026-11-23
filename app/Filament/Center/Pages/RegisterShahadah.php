@@ -7,6 +7,8 @@ namespace App\Filament\Center\Pages;
 use App\Domain\Converts\Data\ConvertProfileData;
 use App\Domain\Converts\Data\IdentifierData;
 use App\Domain\Converts\Enums\IdentityType;
+use App\Domain\Converts\Models\Convert;
+use App\Domain\Converts\Models\ConvertIdentifier;
 use App\Domain\Dai\Services\DaiDirectory;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\City;
@@ -14,16 +16,22 @@ use App\Domain\Platform\Models\Country;
 use App\Domain\Platform\Models\Language;
 use App\Domain\Platform\Models\Religion;
 use App\Domain\Prospects\Services\ProspectConversion;
+use App\Domain\Registration\Actions\CorrectShahadahRegistration;
 use App\Domain\Registration\Actions\RecordShahadah;
+use App\Domain\Registration\Data\ShahadahCorrectionData;
 use App\Domain\Registration\Data\ShahadahRegistrationData;
 use App\Domain\Registration\Data\ShahadahWitnessData;
 use App\Domain\Registration\Models\ConvertRegistration;
+use App\Domain\Registration\Models\ShahadahRecord;
+use App\Domain\Registration\Models\ShahadahWitness;
+use App\Filament\Center\Resources\ConvertRegistrations\ConvertRegistrationResource;
 use App\Filament\Center\Resources\Converts\ConvertResource;
 use App\Filament\Concerns\ResolvesActor;
 use App\Support\Exceptions\RuleViolation;
 use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Carbon\CarbonImmutable;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -31,6 +39,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -47,7 +56,10 @@ use Livewire\Attributes\Url;
 
 /**
  * Registration Officer form for RecordShahadah (shahadah.record). Opened from
- * a prospect page with ?prospect=<id>, or empty for a walk-in.
+ * a prospect page with ?prospect=<id>, or empty for a walk-in. With
+ * ?registration=<id> it corrects a registration returned by the verifier
+ * (CorrectShahadahRegistration): no source or contact, the identity number
+ * only when it was wrong.
  *
  * @property-read Schema $form
  */
@@ -62,6 +74,12 @@ final class RegisterShahadah extends Page implements HasForms
 
     #[Url]
     public ?int $prospect = null;
+
+    #[Url]
+    public ?int $registration = null;
+
+    /** Last four digits of the current number, when correcting. */
+    public ?string $currentIdentityLast4 = null;
 
     /** @var array<string, mixed> */
     public array $data = [];
@@ -83,11 +101,19 @@ final class RegisterShahadah extends Page implements HasForms
 
     public function getTitle(): string
     {
-        return __('registration.page_title');
+        $record = $this->correcting();
+
+        return $record === null ? __('registration.page_title') : __('registration.page_title_correct', ['number' => $record->registration_no]);
     }
 
     public function mount(): void
     {
+        if ($this->registration !== null) {
+            $this->prefillFromRegistration($this->correctingOrFail());
+
+            return;
+        }
+
         $this->form->fill([
             'identity_type' => IdentityType::Iqamah->value,
             'shahadah_date' => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString(),
@@ -105,7 +131,7 @@ final class RegisterShahadah extends Page implements HasForms
         $options = static fn (array $cases): array => collect($cases)->mapWithKeys(fn ($case): array => [$case->value => $case->label()])->all();
 
         return $schema->statePath('data')->columns(2)->components([
-            Section::make(__('registration.sections.source'))->columns(2)->columnSpanFull()->schema([
+            Section::make(__('registration.sections.source'))->columns(2)->columnSpanFull()->hidden(fn (): bool => $this->registration !== null)->schema([
                 Select::make('prospect_id')->label(__('registration.fields.prospect'))->searchable()->live()
                     ->helperText(__('registration.help.prospect'))
                     ->options(fn (): array => app(ProspectConversion::class)->readyOptions())
@@ -116,13 +142,18 @@ final class RegisterShahadah extends Page implements HasForms
                     ->hidden(fn (Get $get): bool => filled($get('prospect_id'))),
             ]),
             Section::make(__('registration.sections.identity'))->columns(3)->columnSpanFull()->schema([
+                Toggle::make('replace_identity')->label(__('registration.fields.replace_identity'))->live()->columnSpanFull()
+                    ->helperText(fn (): string => __('registration.help.replace_identity', ['last4' => (string) $this->currentIdentityLast4]))
+                    ->visible(fn (): bool => $this->registration !== null),
                 Select::make('identity_type')->label(__('converts.search.identity_type'))->required()->live()
-                    ->options($options(IdentityType::cases())),
+                    ->options($options(IdentityType::cases()))
+                    ->visible(fn (Get $get): bool => $this->entersIdentity($get)),
                 Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()->required()
                     ->options(fn (): array => LocalizedName::options(Country::query()))
-                    ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false),
+                    ->hidden(fn (Get $get): bool => ! $this->entersIdentity($get) || (IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false)),
                 TextInput::make('identity_number')->label(__('converts.search.identity_number'))->required()->maxLength(40)
-                    ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr']),
+                    ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr'])
+                    ->visible(fn (Get $get): bool => $this->entersIdentity($get)),
             ]),
             Section::make(__('registration.sections.profile'))->columns(2)->columnSpanFull()->schema([
                 TextInput::make('full_name')->label(__('converts.fields.full_name'))->required()->maxLength(255),
@@ -135,6 +166,7 @@ final class RegisterShahadah extends Page implements HasForms
                 Select::make('native_language_id')->label(__('converts.fields.native_language'))->searchable()
                     ->options(fn (): array => LocalizedName::options(Language::query())),
                 Select::make('previous_religion_id')->label(__('converts.fields.previous_religion'))
+                    ->hidden(fn (): bool => $this->registration !== null && ! (auth()->user()?->hasPermission('converts.view_sensitive') ?? false))
                     ->options(fn (): array => LocalizedName::options(Religion::query()->where('active', true)->orderBy('sort_order'), sortByName: false)),
             ]),
             Section::make(__('registration.sections.shahadah'))->columns(2)->columnSpanFull()->schema([
@@ -166,7 +198,7 @@ final class RegisterShahadah extends Page implements HasForms
                         ->addActionLabel(__('registration.actions.add_witness')),
                 ]),
             Section::make(__('registration.sections.contact'))->columns(2)->columnSpanFull()
-                ->hidden(fn (Get $get): bool => filled($get('prospect_id')))
+                ->hidden(fn (Get $get): bool => filled($get('prospect_id')) || $this->registration !== null)
                 ->schema([
                     TextInput::make('phone')->label(__('prospects.fields.phone'))->tel()->maxLength(30)->extraInputAttributes(['dir' => 'ltr']),
                     TextInput::make('email')->label(__('prospects.fields.email'))->email()->maxLength(255)->extraInputAttributes(['dir' => 'ltr']),
@@ -181,7 +213,8 @@ final class RegisterShahadah extends Page implements HasForms
                 ->id('form')
                 ->livewireSubmitHandler('register')
                 ->footer([
-                    Actions::make([Action::make('register')->label(__('registration.actions.register'))->submit('register')]),
+                    Actions::make([Action::make('register')->submit('register')
+                        ->label(fn (): string => $this->registration === null ? __('registration.actions.register') : __('registration.actions.resubmit'))]),
                 ]),
         ]);
     }
@@ -191,6 +224,12 @@ final class RegisterShahadah extends Page implements HasForms
         $state = $this->form->getState();
         $id = static fn (mixed $value): ?int => blank($value) ? null : (int) $value;
         $text = static fn (mixed $value): ?string => blank($value) ? null : trim((string) $value);
+
+        if ($this->registration !== null) {
+            $this->correct($state, $id, $text);
+
+            return;
+        }
 
         try {
             $registration = app(RecordShahadah::class)->handle(new ShahadahRegistrationData(
@@ -242,5 +281,101 @@ final class RegisterShahadah extends Page implements HasForms
             'native_language_id' => $snapshot->nativeLanguageId,
             'previous_religion_id' => $snapshot->currentReligionId,
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $state
+     * @param  Closure(mixed): ?int  $id
+     * @param  Closure(mixed): ?string  $text
+     */
+    private function correct(array $state, Closure $id, Closure $text): void
+    {
+        $registration = $this->correctingOrFail();
+        $convert = Convert::query()->findOrFail($registration->convert_id);
+
+        // Fields this form does not show keep their current values.
+        $profile = ConvertProfileData::fromForm([
+            'previous_name' => $convert->previous_name,
+            'previous_religion_id' => $convert->previous_religion_id,
+            'previous_religion_other' => $convert->previous_religion_other,
+            ...$state,
+        ]);
+
+        try {
+            app(CorrectShahadahRegistration::class)->handle($registration, new ShahadahCorrectionData(
+                profile: $profile,
+                shahadahDate: CarbonImmutable::parse((string) $state['shahadah_date']),
+                location: trim((string) $state['location']),
+                witnesses: array_values(array_map(ShahadahWitnessData::fromForm(...), $state['witnesses'] ?? [])),
+                identity: (bool) ($state['replace_identity'] ?? false) ? new IdentifierData(
+                    IdentityType::from((string) $state['identity_type']),
+                    (string) $state['identity_number'],
+                    $id($state['issuing_country_id'] ?? null),
+                ) : null,
+                shahadahTime: $text($state['shahadah_time'] ?? null),
+                cityId: $id($state['city_id'] ?? null),
+                preacherDaiId: $id($state['preacher_dai_id'] ?? null),
+                notes: $text($state['notes'] ?? null),
+            ), $this->actor());
+        } catch (RuleViolation $violation) {
+            throw ValidationException::withMessages(['data.'.$violation->field => $violation->getMessage()]);
+        }
+
+        Notification::make()->success()->title(__('registration.notifications.corrected'))->send();
+
+        $this->redirect(ConvertRegistrationResource::getUrl());
+    }
+
+    private function entersIdentity(Get $get): bool
+    {
+        return $this->registration === null || (bool) $get('replace_identity');
+    }
+
+    private function correcting(): ?ConvertRegistration
+    {
+        return $this->registration === null ? null : ConvertRegistration::query()->find($this->registration);
+    }
+
+    private function correctingOrFail(): ConvertRegistration
+    {
+        $registration = $this->correcting();
+
+        abort_unless($registration !== null && (auth()->user()?->can('correct', $registration) ?? false), 403);
+
+        return $registration;
+    }
+
+    private function prefillFromRegistration(ConvertRegistration $registration): void
+    {
+        $convert = Convert::query()->findOrFail($registration->convert_id);
+        $shahadah = ShahadahRecord::query()->where('convert_registration_id', $registration->id)->firstOrFail();
+        $this->currentIdentityLast4 = ConvertIdentifier::query()->where('convert_id', $convert->id)->where('is_primary', true)->whereNull('replaced_at')->value('identity_last4');
+        $sensitive = auth()->user()?->hasPermission('converts.view_sensitive') ?? false;
+
+        $this->form->fill([
+            'replace_identity' => false,
+            'identity_type' => IdentityType::Iqamah->value,
+            'full_name' => $convert->full_name,
+            'islamic_name' => $convert->islamic_name,
+            'name_ar' => $convert->name_ar,
+            'gender' => $convert->gender->value,
+            'date_of_birth' => $convert->date_of_birth?->toDateString(),
+            'nationality_id' => $convert->nationality_id,
+            'native_language_id' => $convert->native_language_id,
+            'previous_religion_id' => $sensitive ? $convert->previous_religion_id : null,
+            'shahadah_date' => $shahadah->shahadah_date->toDateString(),
+            'shahadah_time' => $shahadah->shahadah_time,
+            'location' => $shahadah->location,
+            'city_id' => $shahadah->city_id,
+            'preacher_dai_id' => $shahadah->preacher_dai_id,
+            'notes' => $shahadah->notes,
+            'witnesses' => ShahadahWitness::query()->where('shahadah_record_id', $shahadah->id)->orderBy('id')->get()
+                ->map(fn (ShahadahWitness $witness): array => [
+                    'name' => $witness->name,
+                    'phone' => $witness->phone_encrypted,
+                    'identity_last4' => $witness->identity_last4,
+                    'relationship' => $witness->relationship,
+                ])->all(),
+        ]);
     }
 }
