@@ -8,6 +8,7 @@ use App\Domain\Dai\Services\DaiDirectory;
 use App\Domain\Dawah\Actions\ManagePlans;
 use App\Domain\Dawah\Enums\PlanStatus;
 use App\Domain\Dawah\Models\DawahActivityPlan;
+use App\Domain\Pilgrimage\Services\ProgramDirectory;
 use App\Domain\Platform\Models\City;
 use App\Domain\Platform\Models\DaiActivityType;
 use App\Filament\Center\Resources\DawahPlans\Pages\CreateDawahActivityPlan;
@@ -84,6 +85,9 @@ final class DawahActivityPlanResource extends Resource
             TimePicker::make('end_time')->label(__('dawah.fields.end_time'))->seconds(false),
             TextInput::make('location')->label(__('dawah.fields.location'))->maxLength(255),
             TextInput::make('google_maps_url')->label(__('dawah.fields.google_maps_url'))->url()->maxLength(500),
+            Select::make('pilgrimage_program_id')->label(__('dawah.fields.pilgrimage_program'))->searchable()
+                ->helperText(__('dawah.help.pilgrimage_program'))
+                ->options(fn (): array => app(ProgramDirectory::class)->linkableOptions()),
             Toggle::make('transport_required')->label(__('dawah.fields.transport_required')),
             Toggle::make('material_required')->label(__('dawah.fields.material_required')),
             Textarea::make('equipment_required')->label(__('dawah.fields.equipment_required'))->maxLength(2000)->columnSpanFull(),
@@ -102,6 +106,8 @@ final class DawahActivityPlanResource extends Resource
                 TextEntry::make('responsible')->label(__('dawah.fields.responsible_dai'))
                     ->state(fn (DawahActivityPlan $record): string => app(DaiDirectory::class)->names([$record->responsible_dai_id])[$record->responsible_dai_id] ?? '—'),
                 TextEntry::make('location')->label(__('dawah.fields.location'))->placeholder('—'),
+                TextEntry::make('program')->label(__('dawah.fields.pilgrimage_program'))->placeholder('—')
+                    ->state(fn (DawahActivityPlan $record): ?string => app(ProgramDirectory::class)->name($record->pilgrimage_program_id)),
                 TextEntry::make('objective')->label(__('dawah.fields.objective'))->columnSpanFull(),
                 IconEntry::make('transport_required')->label(__('dawah.fields.transport_required'))->boolean(),
                 IconEntry::make('material_required')->label(__('dawah.fields.material_required'))->boolean(),

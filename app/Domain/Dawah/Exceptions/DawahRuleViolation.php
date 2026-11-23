@@ -147,4 +147,9 @@ final class DawahRuleViolation extends RuleViolation
     {
         return new self(__('dawah.errors.self_review'), 'status');
     }
+
+    public static function programUnavailable(): self
+    {
+        return new self(__('dawah.errors.program_unavailable'), 'pilgrimage_program_id');
+    }
 }

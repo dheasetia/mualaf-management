@@ -21,8 +21,10 @@ return [
         'too_recent' => 'The shahadah must be at least :months months old when the program starts.',
         'guidance_not_completed' => 'No completed guidance program.',
         'documents_pending' => ':count required document(s) still pending.',
+        'consent_missing' => 'No active consent to take part in a pilgrimage program has been recorded.',
     ],
     'fields' => [
+        'activity' => 'Activity', 'transport_request' => 'Approved transport (optional)', 'pickup_at' => 'Pickup time',
         'program_type' => 'Type', 'name' => 'Name', 'season_year' => 'Season', 'starts_on' => 'Starts', 'ends_on' => 'Ends',
         'registration_deadline' => 'Registration deadline', 'capacity' => 'Seats', 'seats' => 'Seats taken', 'status' => 'Status',
         'min_months_since_shahadah' => 'Minimum months since shahadah', 'require_completed_guidance' => 'Requires a completed guidance program',
@@ -30,11 +32,13 @@ return [
         'file' => 'File', 'note' => 'Note', 'reason' => 'Reason', 'group_name' => 'Group', 'leader' => 'Leader', 'members' => 'Members', 'group' => 'Group',
     ],
     'actions' => [
+        'request_pickups' => 'Request pickups',
         'register' => 'Register a convert', 'check' => 'Check eligibility', 'approve' => 'Approve', 'confirm' => 'Confirm', 'withdraw' => 'Withdraw',
         'open' => 'Open', 'change_status' => 'Change status', 'add_requirement' => 'Add requirement', 'attach' => 'Attach document',
         'fulfil' => 'Mark fulfilled', 'waive' => 'Waive', 'download' => 'Download', 'add_group' => 'New group', 'add_member' => 'Add pilgrim',
     ],
-    'notifications' => ['saved' => 'Saved.'],
+    'notifications' => ['saved' => 'Saved.', 'pickups_requested' => ':created pickup(s) requested, :skipped skipped (already requested, no residence or no access).'],
+    'help' => ['request_pickups' => 'One pickup per approved or confirmed pilgrim, from their pickup point or current residence, for an activity linked to this program.'],
     'errors' => [
         'invalid_transition' => 'Cannot move from :from to :to.',
         'reason_required' => 'A reason is required.',

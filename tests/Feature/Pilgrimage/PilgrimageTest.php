@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Domain\Converts\Enums\ConvertStatus;
+use App\Domain\International\Actions\Consents;
+use App\Domain\International\Models\ConsentRecord;
 use App\Domain\Pilgrimage\Actions\ManagePrograms;
 use App\Domain\Pilgrimage\Actions\RegistrationWorkflow;
 use App\Domain\Pilgrimage\Enums\ProgramStatus;
@@ -28,6 +30,7 @@ beforeEach(function (): void {
     $this->program = fn (array $overrides = []) => ($this->in)(fn () => PilgrimageProgram::factory()->create($overrides));
     $this->eligible = function (PilgrimageProgram $program, string $identity) {
         $convert = documentsConvert($this->tenant, identity: $identity);
+        pilgrimageConsent($this->tenant, $convert);
 
         return ($this->in)(function () use ($program, $convert): PilgrimageRegistration {
             $registration = ($this->workflow)()->register($program, $convert, $this->officer);
@@ -152,4 +155,37 @@ it('never lowers capacity below the seats taken', function (): void {
         'program_type' => 'umrah', 'name' => 'x', 'season_year' => 2027, 'capacity' => 1,
         'starts_on' => $program->starts_on->toDateString(), 'ends_on' => $program->ends_on->toDateString(), 'registration_deadline' => $program->registration_deadline->toDateString(),
     ], $this->officer), 'capacity'));
+});
+
+it('needs the convert\'s active consent before a registration is eligible or approved, and records it', function (): void {
+    $program = ($this->program)();
+    $convert = documentsConvert($this->tenant, identity: '277001233');
+
+    $registration = ($this->in)(fn () => ($this->workflow)()->checkEligibility(($this->workflow)()->register($program, $convert, $this->officer), $this->officer));
+    expect($registration)->status->toBe(RegistrationStatus::EligibilityChecked)->eligibility_notes->toContain(__('pilgrimage.eligibility.consent_missing'));
+
+    ($this->in)(fn () => $registration->forceFill(['status' => RegistrationStatus::Eligible])->save());
+    ($this->in)(fn () => expectRuleViolation(fn () => ($this->workflow)()->approve($registration, $this->approver), 'consent'));
+
+    $consent = pilgrimageConsent($this->tenant, $convert);
+    expect(($this->in)(fn () => ($this->workflow)()->approve($registration, $this->approver)))
+        ->status->toBe(RegistrationStatus::Approved)->consent_record_id->toBe($consent->id);
+});
+
+it('withdraws registrations that have not departed when their consent is withdrawn, freeing the seat', function (): void {
+    $program = ($this->program)(['capacity' => 1]);
+    $first = ($this->eligible)($program, '277001244');
+    $waiting = ($this->eligible)($program, '277001255');
+    $head = grantRole(memberOf($this->tenant), 'head_of_dawah', $this->tenant);
+
+    ($this->in)(function () use ($first, $waiting, $head): void {
+        ($this->workflow)()->approve($first, $this->approver);
+        ($this->workflow)()->approve($waiting, $this->approver);
+        $this->actingAs($head);
+
+        app(Consents::class)->withdraw(ConsentRecord::query()->findOrFail($first->refresh()->consent_record_id), 'No longer wishes to travel', $head);
+
+        expect($first->refresh())->status->toBe(RegistrationStatus::Withdrawn)->withdrawal_reason->toBe('consent_withdrawn')
+            ->and(($this->workflow)()->approve($waiting, $this->approver)->status)->toBe(RegistrationStatus::Approved);
+    });
 });

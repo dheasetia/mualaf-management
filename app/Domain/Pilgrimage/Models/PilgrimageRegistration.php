@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $approved_by
  * @property CarbonImmutable|null $approved_at
  * @property string|null $withdrawal_reason
+ * @property int|null $consent_record_id
  * @property int $registered_by
  * @property-read PilgrimageProgram $program
  */

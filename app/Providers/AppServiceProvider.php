@@ -59,6 +59,7 @@ use App\Domain\International\Models\PreDepartureChecklist;
 use App\Domain\International\Policies\InternationalPolicy;
 use App\Domain\Notifications\Contracts\OfficeLinks;
 use App\Domain\Notifications\Listeners\NotifyOfficeStaff;
+use App\Domain\Pilgrimage\Listeners\WithdrawRegistrationsOnConsentWithdrawn;
 use App\Domain\Pilgrimage\Models\PilgrimageProgram;
 use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
 use App\Domain\Pilgrimage\Policies\PilgrimagePolicy;
@@ -234,6 +235,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, RecordSuccessfulLogin::class);
         Event::listen(TenantScopeBypassed::class, RecordTenantScopeBypass::class);
         Event::listen(TransferCompleted::class, CloseEnrollmentsOnTransfer::class);
+        Event::listen(ConsentWithdrawn::class, WithdrawRegistrationsOnConsentWithdrawn::class);
         Event::listen(ConvertReturnedHome::class, OpenChecklistOnReturnHome::class);
         Event::listen([
             ShahadahRecorded::class, ShahadahVerified::class, TransferRequested::class, TransferApproved::class,

@@ -11,6 +11,8 @@ use App\Domain\Documents\Actions\Attachments;
 use App\Domain\Documents\Enums\DocumentType;
 use App\Domain\Documents\Exceptions\DocumentRuleViolation;
 use App\Domain\Documents\Services\FileSafety;
+use App\Domain\International\Actions\Consents;
+use App\Domain\International\Enums\ConsentType;
 use App\Domain\Pilgrimage\Enums\ProgramStatus;
 use App\Domain\Pilgrimage\Enums\RegistrationStatus;
 use App\Domain\Pilgrimage\Enums\RequirementStatus;
@@ -50,6 +52,7 @@ final readonly class RegistrationWorkflow
         private PilgrimageEvents $events,
         private AuditLogger $audit,
         private TenantContext $tenantContext,
+        private Consents $consents,
     ) {}
 
     public function register(PilgrimageProgram $program, Convert $convert, User $actor): PilgrimageRegistration
@@ -128,18 +131,21 @@ final readonly class RegistrationWorkflow
         $failures = $this->rules->failures($program, $registration->convert_id);
         $pending = $registration->requirements()->where('status', RequirementStatus::Pending)
             ->whereHas('requirement', fn ($query) => $query->where('required', true))->count();
+        $missing = array_values(array_filter([
+            $pending > 0 ? (string) __('pilgrimage.eligibility.documents_pending', ['count' => $pending]) : null,
+            $this->consents->activeOf($registration->convert_id, ConsentType::PilgrimageParticipation) === null ? (string) __('pilgrimage.eligibility.consent_missing') : null,
+        ]));
 
         $target = match (true) {
             $failures !== [] => RegistrationStatus::Ineligible,
-            $pending > 0 => RegistrationStatus::EligibilityChecked,
+            $missing !== [] => RegistrationStatus::EligibilityChecked,
             default => RegistrationStatus::Eligible,
         };
 
-        return $this->move($registration, $target, $actor, function (PilgrimageRegistration $locked) use ($actor, $failures, $pending): void {
+        return $this->move($registration, $target, $actor, function (PilgrimageRegistration $locked) use ($actor, $failures, $missing): void {
             $locked->eligibility_checked_by = $actor->id;
             $locked->eligibility_checked_at = CarbonImmutable::now();
-            $locked->eligibility_notes = $failures !== [] ? implode("\n", $failures)
-                : ($pending > 0 ? (string) __('pilgrimage.eligibility.documents_pending', ['count' => $pending]) : null);
+            $locked->eligibility_notes = $failures !== [] ? implode("\n", $failures) : ($missing !== [] ? implode("\n", $missing) : null);
         });
     }
 
@@ -152,7 +158,11 @@ final readonly class RegistrationWorkflow
             throw PilgrimageRuleViolation::selfApproval();
         }
 
-        return DB::transaction(function () use ($registration, $actor): PilgrimageRegistration {
+        // 10 §10.8: taking part needs the convert's own, active consent; the approval records which one.
+        $consent = $this->consents->activeOf($registration->convert_id, ConsentType::PilgrimageParticipation)
+            ?? throw PilgrimageRuleViolation::consentMissing();
+
+        return DB::transaction(function () use ($registration, $actor, $consent): PilgrimageRegistration {
             $program = PilgrimageProgram::query()->lockForUpdate()->findOrFail($registration->program_id);
             $hasSeat = $this->programs->seatsTaken($program) < $program->capacity;
             $current = PilgrimageRegistration::query()->findOrFail($registration->id)->status;
@@ -161,7 +171,9 @@ final readonly class RegistrationWorkflow
                 throw PilgrimageRuleViolation::programFull();
             }
 
-            return $this->move($registration, $hasSeat ? RegistrationStatus::Approved : RegistrationStatus::Waitlisted, $actor, function (PilgrimageRegistration $locked) use ($actor, $hasSeat): void {
+            return $this->move($registration, $hasSeat ? RegistrationStatus::Approved : RegistrationStatus::Waitlisted, $actor, function (PilgrimageRegistration $locked) use ($actor, $hasSeat, $consent): void {
+                $locked->consent_record_id = $consent->id;
+
                 if ($hasSeat) {
                     $locked->approved_by = $actor->id;
                     $locked->approved_at = CarbonImmutable::now();
@@ -188,6 +200,26 @@ final readonly class RegistrationWorkflow
 
             return $withdrawn;
         });
+    }
+
+    /**
+     * A withdrawn pilgrimage consent ends every registration that has not
+     * departed yet and rests on it (reason consent_withdrawn), freeing seats.
+     * Called for the user who withdrew the consent; that is the authority.
+     */
+    public function withdrawForConsent(int $consentId, User $actor): int
+    {
+        $registrations = PilgrimageRegistration::query()->where('consent_record_id', $consentId)->get()
+            ->filter(fn (PilgrimageRegistration $registration): bool => $registration->status->canTransitionTo(RegistrationStatus::Withdrawn));
+
+        foreach ($registrations as $registration) {
+            DB::transaction(function () use ($registration, $actor): void {
+                $withdrawn = $this->move($registration, RegistrationStatus::Withdrawn, $actor, fn (PilgrimageRegistration $locked) => $locked->withdrawal_reason = 'consent_withdrawn', ['reason' => 'consent_withdrawn']);
+                DB::table('pilgrimage_group_members')->where('pilgrimage_registration_id', $withdrawn->id)->delete();
+            });
+        }
+
+        return $registrations->count();
     }
 
     /** Signed short-lived link to a requirement's document (pilgrimage.view). */

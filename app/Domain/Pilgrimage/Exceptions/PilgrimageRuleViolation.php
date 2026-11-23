@@ -77,4 +77,9 @@ final class PilgrimageRuleViolation extends RuleViolation
     {
         return new self(__('pilgrimage.errors.leader_unavailable'), 'leader_user_id');
     }
+
+    public static function consentMissing(): self
+    {
+        return new self(__('pilgrimage.eligibility.consent_missing'), 'consent');
+    }
 }

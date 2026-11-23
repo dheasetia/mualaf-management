@@ -18,7 +18,7 @@ it('never approves more pilgrims than the program has seats', function (): void 
     $officer = grantRole(memberOf($tenant), 'pilgrimage_officer', $tenant);
     $approver = grantRole(memberOf($tenant), 'approver', $tenant);
     $program = inTenant($tenant, fn () => PilgrimageProgram::factory()->create(['capacity' => 2]));
-    $converts = collect(['277003311', '277003322', '277003333', '277003344'])->map(fn (string $identity) => documentsConvert($tenant, identity: $identity));
+    $converts = collect(['277003311', '277003322', '277003333', '277003344'])->map(fn (string $identity) => tap(documentsConvert($tenant, identity: $identity), fn ($convert) => pilgrimageConsent($tenant, $convert)));
 
     inTenant($tenant, function () use ($program, $converts, $officer, $approver): void {
         $statuses = $converts->map(function ($convert) use ($program, $officer, $approver): RegistrationStatus {

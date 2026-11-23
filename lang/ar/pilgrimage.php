@@ -21,8 +21,10 @@ return [
         'too_recent' => 'يجب أن يمضي على إشهار الإسلام :months شهرًا على الأقل عند بدء البرنامج.',
         'guidance_not_completed' => 'لم يُتم برنامج تأهيل.',
         'documents_pending' => 'ما زال :count مستند مطلوب قيد الانتظار.',
+        'consent_missing' => 'لم تُسجَّل موافقة سارية على المشاركة في برنامج الحج أو العمرة.',
     ],
     'fields' => [
+        'activity' => 'النشاط', 'transport_request' => 'النقل المعتمد (اختياري)', 'pickup_at' => 'وقت الاستلام',
         'program_type' => 'النوع', 'name' => 'الاسم', 'season_year' => 'الموسم', 'starts_on' => 'البداية', 'ends_on' => 'النهاية',
         'registration_deadline' => 'آخر موعد للتسجيل', 'capacity' => 'المقاعد', 'seats' => 'المقاعد المشغولة', 'status' => 'الحالة',
         'min_months_since_shahadah' => 'أقل عدد أشهر منذ إشهار الإسلام', 'require_completed_guidance' => 'يشترط إتمام برنامج تأهيل',
@@ -30,11 +32,13 @@ return [
         'file' => 'الملف', 'note' => 'ملاحظة', 'reason' => 'السبب', 'group_name' => 'المجموعة', 'leader' => 'المشرف', 'members' => 'الأعضاء', 'group' => 'المجموعة',
     ],
     'actions' => [
+        'request_pickups' => 'طلب نقل الحجاج',
         'register' => 'تسجيل مهتدٍ', 'check' => 'فحص الأهلية', 'approve' => 'اعتماد', 'confirm' => 'تأكيد', 'withdraw' => 'انسحاب',
         'open' => 'فتح', 'change_status' => 'تغيير الحالة', 'add_requirement' => 'إضافة متطلب', 'attach' => 'إرفاق مستند',
         'fulfil' => 'استيفاء', 'waive' => 'إعفاء', 'download' => 'تنزيل', 'add_group' => 'مجموعة جديدة', 'add_member' => 'إضافة حاج',
     ],
-    'notifications' => ['saved' => 'تم الحفظ.'],
+    'notifications' => ['saved' => 'تم الحفظ.', 'pickups_requested' => 'طُلب نقل :created، وتُخطي :skipped (مطلوب سابقًا أو بلا سكن أو بلا صلاحية).'],
+    'help' => ['request_pickups' => 'طلب نقل لكل حاج معتمد أو مؤكد، من نقطة الاستلام أو سكنه الحالي، لنشاط مرتبط بهذا البرنامج.'],
     'errors' => [
         'invalid_transition' => 'لا يمكن الانتقال من :from إلى :to.',
         'reason_required' => 'السبب مطلوب.',
