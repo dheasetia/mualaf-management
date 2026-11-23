@@ -14,6 +14,7 @@ use App\Domain\Converts\Models\ConvertResidence;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Center\Resources\Converts\Pages\ViewConvert;
 use App\Filament\Center\Resources\Converts\RelationManagers\ResidencesRelationManager;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
@@ -79,11 +80,11 @@ it('shows locations with the full profile only, read-only without converts.updat
 
     inCenterPanel($this->dammam, $auditor);
     Livewire::test(ResidencesRelationManager::class, ['ownerRecord' => $this->convert, 'pageClass' => ViewConvert::class])
-        ->assertActionHidden('create');
+        ->assertActionHidden(TestAction::make('create')->table());
 
     inCenterPanel($this->dammam, $this->head);
     Livewire::test(ResidencesRelationManager::class, ['ownerRecord' => $this->convert, 'pageClass' => ViewConvert::class])
-        ->callAction('create', ['residence_type' => 'company_dormitory', 'name' => 'Camp 4', 'is_current' => true])
+        ->callAction(TestAction::make('create')->table(), ['residence_type' => 'company_dormitory', 'name' => 'Camp 4', 'is_current' => true])
         ->assertHasNoActionErrors();
 
     expect(inTenant($this->dammam, fn () => ConvertResidence::query()->sole()->name))->toBe('Camp 4');

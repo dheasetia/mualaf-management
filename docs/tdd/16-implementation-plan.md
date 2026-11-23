@@ -18,7 +18,7 @@
 | 12 | Duplicate detection (selesai 22-11-2026) | 2 | `NameSimilarity`, `DuplicateScreen` (nama + tanggal lahir + kewarganegaraan + gender, telepon), `duplicate_review_cases` + review Head of Dawah |
 | 13 | Transfer (selesai 22-11-2026) | 2 | Transfer convert (ajukan dari pencarian nasional, review kantor lama, terima + selesai satu transaksi), transfer prospect, histori/event append-only, eskalasi terjadwal, follow-up convert + riwayat lintas kantor |
 | 14 | Company / residence / contact (selesai 22-11-2026) | 3 | Direktori perusahaan (kantor + nasional, promosi/merge), employment, residence, contact person, lokasi dari tautan Google Maps |
-| 15 | Guidance | 4 | Program, modul, lesson, kelas, enrollment, sesi, absensi, progres |
+| 15 | Guidance (selesai 22-11-2026) | 4 | Program nasional/kantor (salin), modul, lesson, kelas + jadwal + guru, enrollment (kapasitas, gender, kelanjutan transfer), sesi, absensi, progres, akses Teacher `converts.view_class` |
 | 16 | Exams | 4 | Ujian, komponen, attempt, hasil |
 | 17 | Certificates | 5 | Template, issue, PDF, QR, verifikasi publik |
 | 18 | Documents | 5 | Dokumen, versi, template surat, generated documents |

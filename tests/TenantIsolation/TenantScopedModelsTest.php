@@ -5,6 +5,10 @@ declare(strict_types=1);
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiAssignment;
 use App\Domain\Dai\Models\DaiFollowUp;
+use App\Domain\Guidance\Models\Attendance;
+use App\Domain\Guidance\Models\ClassSession;
+use App\Domain\Guidance\Models\GuidanceClass;
+use App\Domain\Guidance\Models\LearningProgress;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Models\ProspectStatusHistory;
 use App\Domain\Registration\Models\DuplicateReviewCase;
@@ -23,6 +27,10 @@ const TENANT_SCOPED_MODELS = [
     'prospect' => Prospect::class,
     'prospect status history' => ProspectStatusHistory::class,
     'duplicate review case' => DuplicateReviewCase::class,
+    'guidance class' => GuidanceClass::class,
+    'class session' => ClassSession::class,
+    'attendance' => Attendance::class,
+    'learning progress' => LearningProgress::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

@@ -22,7 +22,7 @@ final readonly class ConvertPolicy
     public function viewAny(User $user): bool
     {
         return $this->tenantContext->has()
-            && ($user->hasPermission('converts.view') || $user->hasPermission('converts.view_own'));
+            && ($user->hasPermission('converts.view') || $user->hasPermission('converts.view_own') || $user->hasPermission('converts.view_class'));
     }
 
     public function view(User $user, Convert $convert): bool
