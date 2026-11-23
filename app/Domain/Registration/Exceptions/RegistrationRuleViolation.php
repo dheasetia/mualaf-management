@@ -28,6 +28,21 @@ final class RegistrationRuleViolation extends RuleViolation
         return new self(__('registration.errors.same_user'), 'registration');
     }
 
+    public static function possibleDuplicate(): self
+    {
+        return new self(__('registration.errors.possible_duplicate'), 'full_name');
+    }
+
+    public static function reviewNotesRequired(): self
+    {
+        return new self(__('duplicates.errors.notes_required'), 'notes');
+    }
+
+    public static function caseResolved(): self
+    {
+        return new self(__('duplicates.errors.resolved'), 'decision');
+    }
+
     public static function notPending(): self
     {
         return new self(__('registration.errors.not_pending'), 'registration');

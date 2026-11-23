@@ -56,6 +56,8 @@ duplicate_review_cases
 
 Keputusan `same_person` menghentikan registrasi dan mengarahkan ke transfer. `different_person` membuka blokir registrasi dan menyimpan pasangan sebagai *known non-duplicate* agar tidak memicu lagi.
 
+Implementasi (langkah 12): kolom tambahan `candidate_key char(64)` = SHA-256 dari fingerprint identitas kandidat, sehingga percobaan berikutnya untuk orang yang sama dikenali tanpa menyimpan nomor identitas (walk-in tidak punya `candidate_id`). Kasus dimiliki kantor yang memicu (`BelongsToTenant`) dan diputuskan di sana oleh `duplicates.review` dengan catatan wajib; `inconclusive` membuat status `in_review` (registrasi tetap ditahan), `same_person`/`different_person` menutup kasus dan tidak dapat diubah. Reviewer melihat convert lain hanya sebatas pencarian nasional (kantor, inisial) ditambah tanggal lahir dan kewarganegaraan yang dipakai skor. Audit: `duplicates.case_opened`, `duplicates.resolved`.
+
 ## 7.3 Koreksi kantor asal
 
 ```

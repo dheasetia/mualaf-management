@@ -48,6 +48,12 @@ Implementasi (langkah 9, `app/Domain/Converts`): `IdentityNumber::normalize` (Lu
 3. **Insert (penjaga)**: dalam transaksi syahadat (lihat [12-transactions-state-machines.md](12-transactions-state-machines.md)), `IdentityRegistry::add` meng-insert identifier. Pelanggaran unique pada `uq_convert_identifiers_active_fingerprint` ditangkap dan diubah menjadi `ConvertAlreadyRegistered`; transaksi di-rollback. Audit kasus ini ditulis oleh pemanggil **setelah** rollback (audit di dalam transaksi ikut hilang).
 4. Tidak memakai `SELECT ... FOR UPDATE` pada baris yang belum ada (gap lock → deadlock pada beban tinggi).
 
+Implementasi fuzzy check (langkah 12, `Registration\Services\DuplicateScreen`, dijalankan `RecordShahadah` setelah pre-check identitas dan di luar transaksi):
+
+- Kandidat nasional (bypass audit): convert dengan tanggal lahir sama, atau kewarganegaraan sama dan awalan 3 huruf nama pertama sama (maks. 200), tanpa convert `high_confidentiality`.
+- Skor = rata-rata berbobot nama 0,60 (`NameSimilarity`: Levenshtein pada kata yang diurutkan dan cakupan per kata, terhadap `full_name`, `name_ar`, `previous_name`), tanggal lahir 0,25 (hanya bila keduanya ada), kewarganegaraan 0,10, gender 0,05. Kasus dibuka bila skor ≥ `DUPLICATE_MATCH_THRESHOLD` (default 0,85, open question #10) dan skor nama ≥ 0,75. Telepon yang sama dengan kontak aktif convert selalu membuka kasus (`phone_match`). Maks. 3 kasus per percobaan.
+- Registrasi ditahan selama pasangan (kandidat, convert) punya kasus yang belum diputuskan `different_person`.
+
 ### Normalisasi nama untuk fuzzy match
 
 - Hapus diakritik Arab (harakat, tatweel), samakan alif (أ إ آ → ا), ta marbuta (ة → ه), ya (ى → ي).

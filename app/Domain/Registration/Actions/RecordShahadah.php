@@ -22,6 +22,7 @@ use App\Domain\Registration\Events\ShahadahRecorded;
 use App\Domain\Registration\Exceptions\RegistrationRuleViolation;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\ShahadahRecord;
+use App\Domain\Registration\Services\DuplicateScreen;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Numbering\NumberAllocator;
@@ -46,6 +47,7 @@ final readonly class RecordShahadah
         private NumberAllocator $numbers,
         private AuditLogger $audit,
         private TenantContext $tenantContext,
+        private DuplicateScreen $duplicates,
     ) {}
 
     public function handle(ShahadahRegistrationData $data, User $actor): ConvertRegistration
@@ -63,6 +65,9 @@ final readonly class RecordShahadah
             if ($this->identities->findActive($data->identity) !== null) {
                 throw ConvertAlreadyRegistered::make();
             }
+
+            // Outside the transaction: review cases must survive the blocked attempt.
+            $this->duplicates->screen($data, $data->phone ?? ($data->prospectId === null ? null : $this->prospects->snapshot($data->prospectId)->phone), $actor);
 
             $registration = DB::transaction(fn (): ConvertRegistration => $this->register($data, $actor), attempts: 3);
         } catch (ConvertAlreadyRegistered) {

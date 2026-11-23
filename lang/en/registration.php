@@ -51,6 +51,7 @@ return [
         'first' => 'First shahadah', 'renewal_ceremony' => 'Renewal ceremony',
     ],
     'errors' => [
+        'possible_duplicate' => 'This person may already be registered. A duplicate review case was opened for the Head of Dawah; register again after the review.',
         'primary_dai_required' => "Choose the primary da'i for a walk-in.",
         'date_in_future' => 'The date of shahadah cannot be in the future.',
         'same_user' => 'A registration is verified by someone other than the person who recorded it.',

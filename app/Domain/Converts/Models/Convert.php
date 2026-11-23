@@ -52,6 +52,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $prospect_id
  * @property int $created_by
  * @property-read Tenant $currentTenant
+ * @property-read Country|null $nationality
  */
 #[UseFactory(ConvertFactory::class)]
 final class Convert extends Model implements AssignableSubject

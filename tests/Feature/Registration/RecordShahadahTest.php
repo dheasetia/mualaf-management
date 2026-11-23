@@ -135,10 +135,12 @@ it('numbers registrations per office and year without gaps, even after a failed 
         ->toThrow(RuleViolation::class);
 
     $first = ($this->record)(($this->data)(['primaryDaiId' => $this->dai->id]));
-    $second = ($this->record)(($this->data)(['primaryDaiId' => $this->dai->id, 'identity' => new IdentifierData(IdentityType::Iqamah, saudiId('298765432'))]));
+    $second = ($this->record)(($this->data)(['primaryDaiId' => $this->dai->id, 'identity' => new IdentifierData(IdentityType::Iqamah, saudiId('298765432')),
+        'profile' => new ConvertProfileData('Maria Cruz', Gender::Female, $this->philippines->id)]));
     $riyadh = ($this->record)(($this->data)([
         'primaryDaiId' => inTenant($this->riyadh, fn () => Dai::factory()->create()->id),
         'identity' => new IdentifierData(IdentityType::Iqamah, saudiId('287654321')),
+        'profile' => new ConvertProfileData('Ravi Kumar', Gender::Male, $this->philippines->id),
     ]), $this->riyadh, grantRole(memberOf($this->riyadh), 'registration_officer', $this->riyadh));
 
     $year = now()->format('Y');
