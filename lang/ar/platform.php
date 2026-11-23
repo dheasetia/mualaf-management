@@ -33,4 +33,8 @@ return [
         'scholarly_media' => 'العلمي والإعلامي',
         'social' => 'الاجتماعي',
     ],
+    'genders' => [
+        'male' => 'ذكر',
+        'female' => 'أنثى',
+    ],
 ];

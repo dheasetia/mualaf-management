@@ -4,16 +4,24 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Dai\Actions\CreateDai;
+use App\Domain\Dai\Data\DaiData;
+use App\Domain\Dai\Enums\EmploymentStatus;
+use App\Domain\Dai\Enums\LanguageProficiency;
+use App\Domain\Dai\Models\Dai;
 use App\Domain\Identity\Actions\AssignRole;
 use App\Domain\Identity\Enums\RoleScope;
 use App\Domain\Identity\Models\Role;
+use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\City;
+use App\Domain\Platform\Models\Language;
 use App\Domain\Tenancy\Actions\ChangeTenantStatus;
 use App\Domain\Tenancy\Actions\CreateTenant;
 use App\Domain\Tenancy\Actions\GrantTenantMembership;
 use App\Domain\Tenancy\Enums\TenantStatus;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -34,6 +42,8 @@ final class DevelopmentSeeder extends Seeder
         ChangeTenantStatus $changeStatus,
         GrantTenantMembership $grant,
         AssignRole $assignRole,
+        CreateDai $createDai,
+        TenantContext $tenantContext,
     ): void {
         $password = config('app.dev_seed_password');
 
@@ -49,7 +59,11 @@ final class DevelopmentSeeder extends Seeder
         );
 
         foreach (self::TENANTS as $code => [$nameAr, $nameEn]) {
-            if (Tenant::query()->where('code', $code)->exists()) {
+            $existing = Tenant::query()->where('code', $code)->first();
+
+            if ($existing !== null) {
+                $this->seedDaisOnce($createDai, $tenantContext, $existing, $user);
+
                 continue;
             }
 
@@ -77,10 +91,62 @@ final class DevelopmentSeeder extends Seeder
                 $grant->handle($staff, $tenant);
                 $assignRole->handle($staff, $role, $tenant, null);
             }
+
+            $this->seedDaisOnce($createDai, $tenantContext, $tenant, $user);
         }
 
         if (! $user->roleAssignments()->whereNull('tenant_id')->exists()) {
             $assignRole->handle($user, Role::query()->where('code', 'super_admin')->sole(), null, null);
+        }
+    }
+
+    private function seedDaisOnce(CreateDai $createDai, TenantContext $tenantContext, Tenant $tenant, User $actor): void
+    {
+        $tenantContext->run($tenant, function () use ($createDai, $tenant, $actor): void {
+            if (! Dai::query()->exists()) {
+                $this->seedDais($createDai, $tenant->code, $actor);
+            }
+        });
+    }
+
+    /**
+     * A head of dawah supervising three da'i; the first two are linked to the
+     * synthetic Head of Dawah and Da'i users of the office.
+     */
+    private function seedDais(CreateDai $createDai, string $code, User $actor): void
+    {
+        $language = fn (string $languageCode): int => Language::query()->where('code', $languageCode)->value('id');
+        $userId = fn (string $role): ?int => User::query()
+            ->where('email', sprintf('%s.%s@muallaf.test', $role, strtolower($code)))->value('id');
+
+        $head = $createDai->handle(new DaiData(
+            employeeNumber: $code.'-D001',
+            fullName: 'Ahmad Al-Harbi',
+            fullNameAr: 'أحمد الحربي',
+            gender: Gender::Male,
+            employmentStatus: EmploymentStatus::FullTime,
+            specialties: ['Comparative religion'],
+            userId: $userId('head-of-dawah'),
+            languages: [$language('ar') => LanguageProficiency::Native, $language('en') => LanguageProficiency::Fluent],
+        ), $actor);
+
+        $team = [
+            ['D002', 'Yusuf Reyes', 'يوسف رييس', Gender::Male, $userId('dai'), ['tl' => LanguageProficiency::Native, 'en' => LanguageProficiency::Fluent]],
+            ['D003', 'Bilal Rahman', 'بلال رحمن', Gender::Male, null, ['bn' => LanguageProficiency::Native, 'ur' => LanguageProficiency::Working]],
+            ['D004', 'Maryam Dewi', 'مريم ديوي', Gender::Female, null, ['id' => LanguageProficiency::Native, 'ar' => LanguageProficiency::Working]],
+        ];
+
+        foreach ($team as [$number, $name, $nameAr, $gender, $linkedUser, $languages]) {
+            $createDai->handle(new DaiData(
+                employeeNumber: $code.'-'.$number,
+                fullName: $name,
+                fullNameAr: $nameAr,
+                gender: $gender,
+                employmentStatus: EmploymentStatus::FullTime,
+                supervisorDaiId: $head->id,
+                userId: $linkedUser,
+                languages: collect($languages)->mapWithKeys(fn (LanguageProficiency $level, string $languageCode): array => [$language($languageCode) => $level])->all(),
+            ), $actor);
         }
     }
 }
