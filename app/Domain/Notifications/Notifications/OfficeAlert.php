@@ -11,7 +11,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 /**
- * An in-panel notification for office staff (11 §11.3). Text is generic,
+ * An in-panel notification for office staff, or for platform staff in
+ * Central when tenantId is null (11 §11.3). Text is generic,
  * from notifications.{kind}.title/body in the recipient's language, with a
  * link; never identity numbers, previous religion or shahadah details.
  */
@@ -22,7 +23,7 @@ final class OfficeAlert extends Notification
     /** @param  array<string, string|int>  $parameters */
     public function __construct(
         public readonly string $kind,
-        public readonly int $tenantId,
+        public readonly ?int $tenantId,
         public readonly array $parameters = [],
         public readonly ?string $url = null,
     ) {}
