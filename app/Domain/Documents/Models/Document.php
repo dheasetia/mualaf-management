@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Documents\Models;
 
 use App\Domain\Documents\Enums\DocumentType;
+use App\Domain\Documents\Enums\ScanStatus;
 use App\Domain\Documents\Enums\VerificationStatus;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -30,6 +31,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $checksum
  * @property int $current_version
  * @property VerificationStatus $verification_status
+ * @property ScanStatus $scan_status
+ * @property CarbonImmutable|null $scanned_at
  * @property int $uploaded_by
  * @property int|null $verified_by
  * @property CarbonImmutable|null $verified_at
@@ -61,6 +64,8 @@ final class Document extends Model
             'file_size' => 'integer',
             'current_version' => 'integer',
             'verification_status' => VerificationStatus::class,
+            'scan_status' => ScanStatus::class,
+            'scanned_at' => 'immutable_datetime',
             'verified_at' => 'immutable_datetime',
         ];
     }

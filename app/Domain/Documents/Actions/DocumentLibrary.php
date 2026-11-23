@@ -12,6 +12,7 @@ use App\Domain\Documents\Exceptions\DocumentRuleViolation;
 use App\Domain\Documents\Models\Document;
 use App\Domain\Documents\Models\DocumentVersion;
 use App\Domain\Documents\Services\FileInspector;
+use App\Domain\Documents\Services\FileSafety;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Tenancy\TenantContext;
@@ -30,7 +31,7 @@ use Illuminate\Support\Str;
  */
 final readonly class DocumentLibrary
 {
-    public function __construct(private FileInspector $inspector, private AuditLogger $audit, private TenantContext $tenantContext) {}
+    public function __construct(private FileInspector $inspector, private FileSafety $safety, private AuditLogger $audit, private TenantContext $tenantContext) {}
 
     public function upload(Convert $convert, DocumentType $type, string $path, string $originalName, User $actor): Document
     {
@@ -47,7 +48,9 @@ final readonly class DocumentLibrary
             $document->uploaded_by = $actor->id;
             $document->verification_status = VerificationStatus::Pending;
             $this->store($document, $convert, $file, $originalName, 1);
+            $document->scan_status = $this->safety->initialStatus();
             $document->save();
+            $this->safety->queueScan($document);
 
             $this->version($document, $actor);
             $this->audit->record('document.uploaded', $convert, newValues: ['document_id' => $document->id, 'type' => $type->value], actor: $actor);
@@ -70,7 +73,10 @@ final readonly class DocumentLibrary
             $locked->verified_by = null;
             $locked->verified_at = null;
             $locked->rejection_reason = null;
+            $locked->scan_status = $this->safety->initialStatus();
+            $locked->scanned_at = null;
             $locked->save();
+            $this->safety->queueScan($locked);
 
             $this->version($locked, $actor);
             $this->audit->record('document.version_added', $convert, newValues: ['document_id' => $locked->id, 'version' => $locked->current_version], actor: $actor);
@@ -98,6 +104,11 @@ final readonly class DocumentLibrary
     {
         $convert = $this->owner($document);
         $this->authorize($actor, 'viewDocuments', $convert);
+
+        if (! $document->scan_status->isSafe()) {
+            throw DocumentRuleViolation::notScanned();
+        }
+
         $this->audit->record('document.downloaded', $convert, newValues: ['document_id' => $document->id, 'version' => $document->current_version], actor: $actor);
 
         return Storage::disk((string) config('documents.disk'))->temporaryUrl(
@@ -127,6 +138,10 @@ final readonly class DocumentLibrary
 
             if ($locked->verification_status !== VerificationStatus::Pending) {
                 throw DocumentRuleViolation::alreadyDecided();
+            }
+
+            if ($target === VerificationStatus::Verified && ! $locked->scan_status->isSafe()) {
+                throw DocumentRuleViolation::notScanned();
             }
 
             if ($locked->uploaded_by === $actor->id) {

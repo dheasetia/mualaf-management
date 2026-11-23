@@ -9,6 +9,8 @@ use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Services\ConvertAccess;
 use App\Domain\Documents\Actions\Attachments;
 use App\Domain\Documents\Enums\DocumentType;
+use App\Domain\Documents\Exceptions\DocumentRuleViolation;
+use App\Domain\Documents\Services\FileSafety;
 use App\Domain\Pilgrimage\Enums\ProgramStatus;
 use App\Domain\Pilgrimage\Enums\RegistrationStatus;
 use App\Domain\Pilgrimage\Enums\RequirementStatus;
@@ -42,6 +44,7 @@ final readonly class RegistrationWorkflow
     public function __construct(
         private EligibilityRules $rules,
         private Attachments $attachments,
+        private FileSafety $safety,
         private ManagePrograms $programs,
         private ConvertAccess $converts,
         private PilgrimageEvents $events,
@@ -199,6 +202,10 @@ final readonly class RegistrationWorkflow
     {
         if ($status === RequirementStatus::Fulfilled && $row->document_id === null) {
             throw PilgrimageRuleViolation::notEditable();
+        }
+
+        if ($status === RequirementStatus::Fulfilled && ! $this->safety->isSafe($row->document_id)) {
+            throw DocumentRuleViolation::notScanned();
         }
 
         $row->status = $status;

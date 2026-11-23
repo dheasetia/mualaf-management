@@ -7,9 +7,11 @@ namespace App\Domain\Documents\Actions;
 use App\Domain\Audit\Services\AuditLogger;
 use App\Domain\Documents\Enums\DocumentType;
 use App\Domain\Documents\Enums\VerificationStatus;
+use App\Domain\Documents\Exceptions\DocumentRuleViolation;
 use App\Domain\Documents\Models\Document;
 use App\Domain\Documents\Models\DocumentVersion;
 use App\Domain\Documents\Services\FileInspector;
+use App\Domain\Documents\Services\FileSafety;
 use App\Models\User;
 use App\Support\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
@@ -20,13 +22,13 @@ use Illuminate\Support\Str;
 
 /**
  * Files attached to records of other modules (dawah materials, later
- * receipts): the same content checks, EXIF removal and signed links as a
- * convert's documents. The calling module authorizes; other modules keep
+ * receipts): the same content checks, EXIF removal, antivirus scan and
+ * signed links as a convert's documents. The calling module authorizes; other modules keep
  * only the returned document id.
  */
 final readonly class Attachments
 {
-    public function __construct(private FileInspector $inspector, private AuditLogger $audit, private TenantContext $tenantContext) {}
+    public function __construct(private FileInspector $inspector, private FileSafety $safety, private AuditLogger $audit, private TenantContext $tenantContext) {}
 
     /** Stores the file under $folder and returns the document id. */
     public function store(Model $owner, DocumentType $type, string $folder, string $path, string $originalName, User $actor): int
@@ -46,10 +48,12 @@ final readonly class Attachments
             $document->file_size = strlen($file['bytes']);
             $document->checksum = hash('sha256', $file['bytes']);
             $document->verification_status = VerificationStatus::Verified;
+            $document->scan_status = $this->safety->initialStatus();
             $document->uploaded_by = $actor->id;
 
             Storage::disk((string) config('documents.disk'))->put($document->storage_path, $file['bytes']);
             $document->save();
+            $this->safety->queueScan($document);
 
             $version = new DocumentVersion;
             $version->document_id = $document->id;
@@ -72,6 +76,10 @@ final readonly class Attachments
             ->where('owner_type', $owner->getMorphClass())
             ->where('owner_id', $owner->getKey())
             ->findOrFail($documentId);
+
+        if (! $document->scan_status->isSafe()) {
+            throw DocumentRuleViolation::notScanned();
+        }
 
         $this->audit->record('document.downloaded', $owner, newValues: ['document_id' => $document->id], actor: $actor);
 

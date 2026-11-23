@@ -3,6 +3,17 @@
 declare(strict_types=1);
 
 return [
+    'new_device' => [
+        'subject' => 'New sign-in to your account',
+        'line' => 'Your account was signed in from a browser we have not seen recently, at :time.',
+        'details' => 'IP address: :ip — browser: :browser',
+    ],
+    'access_review' => [
+        'title' => 'Access review',
+        'help' => 'Staff of this center with their roles. Review it regularly: remove roles that are no longer needed and accounts that are not used.',
+        'name' => 'Name', 'email' => 'Email', 'roles' => 'Roles', 'mfa' => 'Authenticator', 'last_login' => 'Last sign-in', 'never' => 'Never',
+        'flags' => 'Attention', 'missing_mfa' => 'Privileged role without authenticator', 'stale' => 'Not used for :days days',
+    ],
     'locked' => [
         'message' => 'Sign-in for this account is temporarily blocked after repeated failed attempts. Try again in :minutes minutes.',
         'subject' => 'Sign-in to your account is temporarily blocked',
