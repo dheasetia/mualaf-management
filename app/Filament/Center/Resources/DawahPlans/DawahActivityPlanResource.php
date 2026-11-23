@@ -105,6 +105,9 @@ final class DawahActivityPlanResource extends Resource
                 IconEntry::make('transport_required')->label(__('dawah.fields.transport_required'))->boolean(),
                 IconEntry::make('material_required')->label(__('dawah.fields.material_required'))->boolean(),
                 TextEntry::make('expected_participants')->label(__('dawah.fields.expected_participants'))->placeholder('—'),
+                TextEntry::make('estimated_budget')->label(__('dawah.budget.total_estimated'))->numeric(2),
+                TextEntry::make('approved_budget')->label(__('dawah.budget.total_approved'))->numeric(2)->placeholder('—'),
+                TextEntry::make('actual_budget')->label(__('dawah.budget.total_actual'))->numeric(2)->placeholder('—'),
                 TextEntry::make('revision_note')->label(__('dawah.fields.revision_note'))->visible(fn (DawahActivityPlan $record): bool => $record->revision_note !== null)->columnSpanFull(),
                 TextEntry::make('rejection_reason')->label(__('dawah.fields.rejection_reason'))->visible(fn (DawahActivityPlan $record): bool => $record->rejection_reason !== null)->columnSpanFull(),
                 TextEntry::make('cancellation_reason')->label(__('dawah.fields.cancellation_reason'))->visible(fn (DawahActivityPlan $record): bool => $record->cancellation_reason !== null)->columnSpanFull(),
@@ -163,6 +166,7 @@ final class DawahActivityPlanResource extends Resource
     {
         return [
             RelationManagers\ParticipantsRelationManager::class,
+            RelationManagers\BudgetLinesRelationManager::class,
         ];
     }
 

@@ -85,6 +85,12 @@ final class DawahActivityPlan extends Model
         return $this->hasMany(ActivityParticipant::class, 'activity_plan_id');
     }
 
+    /** @return HasMany<DawahActivityBudget, $this> */
+    public function budgetLines(): HasMany
+    {
+        return $this->hasMany(DawahActivityBudget::class, 'activity_plan_id');
+    }
+
     /** @return HasOne<DawahActivityReport, $this> */
     public function report(): HasOne
     {

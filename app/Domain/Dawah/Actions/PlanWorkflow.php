@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Plan state machine (12 §12.5): the da'i submits; Head of Dawah reviews
  * (dawah.plans.review), returns for revision or rejects with a reason, and
- * approves (dawah.plans.approve, never their own proposal); the responsible
+ * approves (dawah.plans.approve, never their own proposal, and only once
+ * budget.approve has set every budget line's approved amount); the responsible
  * da'i or an approver schedules, starts (not before the planned day) and
  * completes. Cancelling needs a reason and is possible until it starts.
  * Reports are handled by ReportWorkflow.
@@ -75,9 +76,13 @@ final readonly class PlanWorkflow
         }
 
         return $this->move($plan, PlanStatus::Approved, $actor, function (DawahActivityPlan $locked) use ($actor): void {
+            if ($locked->budgetLines()->whereNull('approved_amount')->exists()) {
+                throw DawahRuleViolation::budgetNotApproved();
+            }
+
             $locked->approved_by = $actor->id;
             $locked->approved_at = CarbonImmutable::now();
-            $locked->approved_budget ??= $locked->estimated_budget;
+            $locked->approved_budget ??= '0.00';
         });
     }
 

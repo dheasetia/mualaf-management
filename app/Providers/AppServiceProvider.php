@@ -19,8 +19,12 @@ use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
 use App\Domain\Dawah\Models\DaiDailyActivity;
 use App\Domain\Dawah\Models\DawahActivityPlan;
+use App\Domain\Dawah\Models\DawahMaterial;
+use App\Domain\Dawah\Models\DawahMaterialDistribution;
 use App\Domain\Dawah\Policies\DaiDailyActivityPolicy;
 use App\Domain\Dawah\Policies\DawahActivityPlanPolicy;
+use App\Domain\Dawah\Policies\DawahMaterialDistributionPolicy;
+use App\Domain\Dawah\Policies\DawahMaterialPolicy;
 use App\Domain\Documents\Models\Document;
 use App\Domain\Documents\Models\DocumentTemplate;
 use App\Domain\Documents\Models\GeneratedDocument;
@@ -103,6 +107,7 @@ class AppServiceProvider extends ServiceProvider
             'generated_document' => GeneratedDocument::class,
             'dawah_plan' => DawahActivityPlan::class,
             'dai_activity' => DaiDailyActivity::class,
+            'dawah_material' => DawahMaterial::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -144,6 +149,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ProspectTransferRequest::class, ProspectTransferRequestPolicy::class);
         Gate::policy(DawahActivityPlan::class, DawahActivityPlanPolicy::class);
         Gate::policy(DaiDailyActivity::class, DaiDailyActivityPolicy::class);
+        Gate::policy(DawahMaterial::class, DawahMaterialPolicy::class);
+        Gate::policy(DawahMaterialDistribution::class, DawahMaterialDistributionPolicy::class);
 
         foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);

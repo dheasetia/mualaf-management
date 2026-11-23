@@ -79,6 +79,7 @@ final readonly class ReportWorkflow
 
             $report->status = ReportStatus::Submitted;
             $report->submitted_at = CarbonImmutable::now();
+            $report->actual_budget = DawahActivityPlan::query()->whereKey($plan->id)->value('actual_budget');
             $report->return_note = null;
             $report->save();
 
