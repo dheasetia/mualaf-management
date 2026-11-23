@@ -36,7 +36,7 @@ imports/{batch_uuid}/source.xlsx
 | Snapshot | Render hanya dari `snapshot_data`, tidak dari tabel live |
 | Tanggal | Masehi dan Hijriah (Umm al-Qura) via `IntlDateFormatter` `ar_SA@calendar=islamic-umalqura` |
 
-Template HTML dirender dengan Blade sandbox: variabel yang tersedia hanya isi snapshot, tanpa akses model/helper berbahaya. Template dibuat/diubah hanya oleh `documents.templates.manage` dan butuh approval sebelum aktif.
+Template HTML diisi oleh `TemplateRenderer` (langkah 17): hanya placeholder `{{ field }}` dari snapshot yang diganti dan di-escape, `{{ qr_code }}` satu-satunya sisipan mentah; tidak ada kode template yang dieksekusi (pengganti "Blade sandbox"). Renderer: Gotenberg 8 (`GOTENBERG_URL`). Font Arab belum di-bundle; sementara memakai font sistem Gotenberg. Template dibuat/diubah hanya oleh `documents.templates.manage` dan butuh approval sebelum aktif.
 
 ## 13.3 Queue
 

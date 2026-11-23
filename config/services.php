@@ -5,6 +5,15 @@ declare(strict_types=1);
 return [
 
     /*
+    | PDF rendering (13-infrastructure-security §13.2): Gotenberg on the internal
+    | network, never exposed publicly.
+    */
+    'gotenberg' => [
+        'url' => env('GOTENBERG_URL', 'http://127.0.0.1:3000'),
+        'timeout' => (int) env('GOTENBERG_TIMEOUT', 120),
+    ],
+
+    /*
     |--------------------------------------------------------------------------
     | Third Party Services
     |--------------------------------------------------------------------------
