@@ -169,3 +169,10 @@ Aturan:
 - Service menolak penugasan kendaraan/driver yang tumpang tindih waktunya.
 - Jumlah pickup per trip ≤ `vehicles.capacity`.
 - Lembar pickup untuk driver hanya berisi nama panggilan, titik pickup, dan nomor contact person; tidak berisi status agama atau keterangan syahadat.
+
+Implementasi (langkah 21):
+
+- `Dispatch` mengunci baris kendaraan dan driver lalu menolak trip yang tumpang tindih dengan trip `planned`/`in_progress` lain; trip back-to-back boleh. `returns_at` wajib (perlu untuk cek tumpang tindih). Kendaraan harus `available`, driver `active` dengan SIM berlaku sampai hari kembali. Pickup masuk trip hanya bila `pickup_at` di dalam jam trip dan kursi (`assigned` + `picked_up`) < kapasitas. Trip selesai hanya bila semua pickup sudah ditandai (yang `picked_up` menjadi `completed`); trip dibatalkan (dengan alasan) mengembalikan pickup ke antrean.
+- Pickup diminta oleh `transport.request` yang boleh melihat lokasi convert (`ConvertPolicy::viewLocations`). Titik jemput disalin saat permintaan dari residence convert itu, lokasi kerja saat ini, atau alamat/koordinat yang diketik. Contact person hanya yang `permission_to_contact`. Modul Transport membaca data convert lewat `Converts\Services\PickupDirectory`.
+- Lembar pickup (`PickupSheet`): jam, nama panggilan (nama Islam atau kata pertama nama), alamat/peta, nama dan telepon contact person; tujuan berupa lokasi kegiatan, bukan judulnya. Convert `high_confidentiality` tidak dicetak sampai pickup tersebut disetujui pemegang `converts.view_high_confidentiality` (`disclosure_approved_by`, kolom tambahan); jumlah yang ditahan ditampilkan ke dispatcher.
+- Transport kegiatan: diputuskan oleh `transport.approve` selain peminta (tolak dengan alasan, kolom `decision_reason`), menjadi `scheduled` saat trip dibuat untuknya, diselesaikan oleh dispatch.
