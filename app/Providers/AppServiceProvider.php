@@ -33,6 +33,9 @@ use App\Domain\Documents\Models\GeneratedDocument;
 use App\Domain\Documents\Policies\DocumentTemplatePolicy;
 use App\Domain\Examinations\Models\Exam;
 use App\Domain\Examinations\Policies\ExamPolicy;
+use App\Domain\FollowUp\Events\ConvertReturnedHome;
+use App\Domain\FollowUp\Listeners\ScheduleFollowUps;
+use App\Domain\Guidance\Events\EnrollmentCompleted;
 use App\Domain\Guidance\Listeners\CloseEnrollmentsOnTransfer;
 use App\Domain\Guidance\Models\Enrollment;
 use App\Domain\Guidance\Models\GuidanceClass;
@@ -43,6 +46,14 @@ use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
 use App\Domain\Identity\Rbac\Authorizer;
 use App\Domain\Identity\Rbac\PermissionCatalog;
+use App\Domain\International\Listeners\OpenChecklistOnReturnHome;
+use App\Domain\International\Models\ConsentRecord;
+use App\Domain\International\Models\ConvertHomeCountryContact;
+use App\Domain\International\Models\ConvertHomeLocation;
+use App\Domain\International\Models\ExternalIslamicOrganization;
+use App\Domain\International\Models\InternationalReferral;
+use App\Domain\International\Models\PreDepartureChecklist;
+use App\Domain\International\Policies\InternationalPolicy;
 use App\Domain\Pilgrimage\Models\PilgrimageProgram;
 use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
 use App\Domain\Pilgrimage\Policies\PilgrimagePolicy;
@@ -56,6 +67,7 @@ use App\Domain\Platform\Models\Religion;
 use App\Domain\Platform\Policies\MasterDataPolicy;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Policies\ProspectPolicy;
+use App\Domain\Registration\Events\ShahadahVerified;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\DuplicateReviewCase;
 use App\Domain\Registration\Policies\ConvertRegistrationPolicy;
@@ -127,6 +139,11 @@ class AppServiceProvider extends ServiceProvider
             'submission' => Submission::class,
             'pilgrimage_program' => PilgrimageProgram::class,
             'pilgrimage_registration' => PilgrimageRegistration::class,
+            'consent' => ConsentRecord::class,
+            'referral' => InternationalReferral::class,
+            'checklist' => PreDepartureChecklist::class,
+            'home_contact' => ConvertHomeCountryContact::class,
+            'home_location' => ConvertHomeLocation::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -171,6 +188,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DawahMaterial::class, DawahMaterialPolicy::class);
         Gate::policy(DawahMaterialDistribution::class, DawahMaterialDistributionPolicy::class);
         Gate::policy(Submission::class, SubmissionPolicy::class);
+
+        foreach ([InternationalReferral::class, PreDepartureChecklist::class, ExternalIslamicOrganization::class] as $internationalModel) {
+            Gate::policy($internationalModel, InternationalPolicy::class);
+        }
         Gate::policy(PilgrimageProgram::class, PilgrimagePolicy::class);
         Gate::policy(PilgrimageRegistration::class, PilgrimagePolicy::class);
 
@@ -186,5 +207,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, RecordSuccessfulLogin::class);
         Event::listen(TenantScopeBypassed::class, RecordTenantScopeBypass::class);
         Event::listen(TransferCompleted::class, CloseEnrollmentsOnTransfer::class);
+        Event::listen(ConvertReturnedHome::class, OpenChecklistOnReturnHome::class);
+        Event::listen([ShahadahVerified::class, EnrollmentCompleted::class, TransferCompleted::class, ConvertReturnedHome::class], ScheduleFollowUps::class);
     }
 }

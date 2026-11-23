@@ -11,6 +11,7 @@ use App\Domain\Guidance\Enums\EnrollmentStatus;
 use App\Domain\Guidance\Enums\GenderPolicy;
 use App\Domain\Guidance\Enums\ProgressSource;
 use App\Domain\Guidance\Enums\ProgressStatus;
+use App\Domain\Guidance\Events\EnrollmentCompleted;
 use App\Domain\Guidance\Exceptions\GuidanceRuleViolation;
 use App\Domain\Guidance\Models\Enrollment;
 use App\Domain\Guidance\Models\GuidanceClass;
@@ -119,6 +120,10 @@ final readonly class ManageEnrollments
             $this->audit->record('guidance.enrollment_status_changed', newValues: [
                 'enrollment_id' => $locked->id, 'from' => $from->value, 'to' => $target->value, 'reason' => $reason,
             ], actor: $actor);
+
+            if ($target === EnrollmentStatus::Completed) {
+                EnrollmentCompleted::dispatch($locked->id, $locked->convert_id, $locked->service_tenant_id);
+            }
 
             return $locked;
         });

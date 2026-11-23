@@ -14,10 +14,16 @@ use App\Domain\Documents\Models\GeneratedDocument;
 use App\Domain\Examinations\Models\Exam;
 use App\Domain\Examinations\Models\ExamAttempt;
 use App\Domain\Examinations\Models\ExamResult;
+use App\Domain\FollowUp\Models\ConvertFollowUpSchedule;
+use App\Domain\FollowUp\Models\ConvertFollowUpStatus;
+use App\Domain\FollowUp\Models\ConvertLongTermFollowUp;
 use App\Domain\Guidance\Models\Attendance;
 use App\Domain\Guidance\Models\ClassSession;
 use App\Domain\Guidance\Models\GuidanceClass;
 use App\Domain\Guidance\Models\LearningProgress;
+use App\Domain\International\Models\ConsentRecord;
+use App\Domain\International\Models\InternationalReferral;
+use App\Domain\International\Models\PreDepartureChecklist;
 use App\Domain\Pilgrimage\Models\PilgrimageProgram;
 use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
 use App\Domain\Prospects\Models\Prospect;
@@ -63,6 +69,12 @@ const TENANT_SCOPED_MODELS = [
     'submission' => Submission::class,
     'pilgrimage program' => PilgrimageProgram::class,
     'pilgrimage registration' => PilgrimageRegistration::class,
+    'follow-up status' => ConvertFollowUpStatus::class,
+    'follow-up schedule' => ConvertFollowUpSchedule::class,
+    'long-term follow-up' => ConvertLongTermFollowUp::class,
+    'consent' => ConsentRecord::class,
+    'international referral' => InternationalReferral::class,
+    'pre-departure checklist' => PreDepartureChecklist::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

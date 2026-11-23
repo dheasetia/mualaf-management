@@ -115,6 +115,8 @@ convert_follow_up_statuses       -- append-only; baris terbaru = status terkini
 
 `converts.current_follow_up_status_id` (didefinisikan di [06-data-model-core.md](06-data-model-core.md)) menunjuk baris terbaru agar daftar convert tidak perlu subquery. Service yang menulis status baru memperbaruinya dalam transaksi yang sama.
 
+Implementasi (langkah 24a, `FollowUp\Actions\RecordFollowUpStatus`): ditulis oleh yang boleh mencatat follow-up convert (`ConvertPolicy::recordFollowUp`), append-only (trigger + grant), `converts.current_follow_up_status_id` diperbarui dalam transaksi yang sama (FK ditambahkan). Riwayat status dan catatan dibaca lintas kantor untuk convert yang sudah boleh dilihat, sehingga ikut berpindah setelah transfer. Berubah ke `returned_home` memicu `ConvertReturnedHome` (sekali per perubahan).
+
 Aturan PRD §31: sistem tidak pernah menetapkan status murtad atau mengubah `converts.status` berdasarkan ketidakhadiran atau tidak dapat dihubungi. Job otomatis hanya boleh menyarankan `needs_follow_up` / `temporarily_unreachable` sebagai tugas untuk da'i, bukan menulis status.
 
 ## 10.4 Jadwal follow-up
@@ -136,6 +138,8 @@ convert_follow_up_schedules
 ```
 
 Event `ShahadahVerified`, `EnrollmentCompleted`, `ConvertReturnedHome` membuat jadwal dari template. Jadwal terlambat = `status = scheduled AND scheduled_at < now()`; tampil di dashboard da'i dan Head of Dawah.
+
+Implementasi (langkah 24a): listener `ScheduleFollowUps` untuk `ShahadahVerified`, `EnrollmentCompleted` (event baru dari Guidance), `TransferCompleted` (kantor baru) dan `ConvertReturnedHome`; template kantor didahulukan dari nasional (seed: setelah syahadat 7/30/90/180/365 hari, setelah pembinaan 30/90/180, setelah pulang 7/30/90/180/365, setelah transfer 7/30), jam 09.00, untuk Primary Da'i, tanpa duplikat. Layar "Jadwal follow-up": da'i melihat miliknya, pemegang `converts.view` seluruh kantor; catat kontak (menyelesaikan jadwal dan bisa menjadwalkan berikutnya), lewat, jadwal ulang (tidak ke masa lalu), batal dengan alasan. `php artisan followups:flag-quiet` (harian 03.00) hanya membuat jadwal `check_in` prioritas tinggi untuk convert aktif tanpa kontak jangka panjang selama `FOLLOW_UP_QUIET_DAYS` (90) dan tanpa jadwal terbuka; tidak pernah menulis status follow-up atau `converts.status`. Catatan `confidential` hanya untuk `followups.view_confidential` dan penulisnya.
 
 ## 10.5 Catatan follow-up jangka panjang
 
@@ -227,3 +231,12 @@ consent_records
 ```
 
 Consent ditarik → referral yang bergantung berubah `closed` dengan alasan `consent_withdrawn`, dan notifikasi ke Primary Da'i.
+
+Implementasi (langkah 24b, `International\Actions`):
+
+- Kontak dan lokasi negara asal, serta consent, dicatat oleh yang boleh mencatat follow-up convert (`ConvertPolicy::recordFollowUp`). Kontak baru: `permission_to_contact = false`, `disclosure_scope = none`; satu `is_primary` per convert. Consent lisan butuh saksi selain pencatat; consent `international_sharing` wajib `scope.fields` (subset `SharedField`), opsional `scope.destination_country_id`.
+- Referral (`international.referrals.create` + akses follow-up): `ready` hanya bila ada consent `international_sharing` aktif (tidak ditarik, belum kedaluwarsa) yang mencakup semua field `information_scope` dan negara tujuan bila consent menyebutnya; selain itu `pending_consent`. `send` (`international.referrals.send`) memeriksa ulang consent. `ReferralPacket` hanya berisi field dalam scope; kontak hanya yang `permission_to_contact`. `tenant_id` = kantor perujuk (`referring_tenant_id` di TDD).
+- Consent ditarik menutup referral terkait (`consent_withdrawn`) dalam transaksi yang sama; notifikasi ke Primary Da'i belum ada (menunggu modul notifikasi).
+- Checklist: dibuka otomatis oleh `ConvertReturnedHome` (bila belum ada yang terbuka) atau manual; 8 item `pending`; referral `sent`/`acknowledged` mencentang `referral_sent`/`acknowledgment_received` dan menautkan `referral_id`; selesai hanya bila tak ada item `pending`.
+- Direktori `external_islamic_organizations` di Central (`international.organizations.manage`), verifikasi/nonaktif lewat aksi; organisasi `inactive` tidak dapat dipilih untuk referral.
+- `pilgrimage_registrations.consent_record_id` kini ber-FK ke `consent_records`.

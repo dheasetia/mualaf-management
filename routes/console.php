@@ -12,3 +12,6 @@ Artisan::command('inspire', function () {
 
 // 12-transactions-state-machines §12.3: unanswered convert transfers go to Central.
 Schedule::command('transfers:escalate')->hourly()->withoutOverlapping()->onOneServer();
+
+// PRD §31: suggest follow-ups (never statuses) for converts nobody has contacted for a while.
+Schedule::command('followups:flag-quiet')->dailyAt('03:00')->withoutOverlapping()->onOneServer();

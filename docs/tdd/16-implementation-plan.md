@@ -27,7 +27,7 @@
 | 21 | Transport (selesai 23-11-2026) | 6 | Armada, transport kegiatan, pickup, trip tanpa tumpang tindih dan dalam kapasitas, lembar pickup tanpa data agama (critical test #14) |
 | 22 | Submissions (selesai 23-11-2026) | 7 | Jenis (seed), workflow lengkap, lampiran per persyaratan milik submission, approval bertahap, penerbitan surat saat selesai. Sisa: pengelolaan jenis di Central, notifikasi SLA |
 | 23 | Pilgrimage (selesai 23-11-2026) | 7 | Program, persyaratan, eligibility, registrasi, kuota terkunci + waitlist, grup. Sisa: consent (langkah 24), transport via kegiatan |
-| 24 | Long-term follow-up | 8 | Status follow-up, jadwal template, catatan, negara asal, referral internasional, consent |
+| 24 | Long-term follow-up (selesai 23-11-2026) | 8 | Status follow-up append-only, jadwal dari template + saran otomatis (PRD §31), catatan, negara asal, consent, referral internasional berbasis consent, checklist pra-kepulangan, direktori organisasi (Central). Sisa: notifikasi ke Primary Da'i |
 | 25 | Reporting | 9 | Tabel agregat, dashboard kantor dan nasional, export |
 | 26 | Security hardening | 10 | Pentest, CSP, review akses, load test, runbook |
 
