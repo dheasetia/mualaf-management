@@ -65,6 +65,8 @@ Isi notifikasi tidak memuat nomor identitas, agama sebelumnya, atau detail syaha
 
 Implementasi: notifikasi database Filament (lonceng di panel Center dan Central, polling 60 detik) lewat `OfficeAlert` (teks dari `lang/*/notifications.php` dalam bahasa penerima + tautan ke panel kantor penerima). `tenant_id` diisi dari data notifikasi atau TenantContext; `User::notifications()` hanya menampilkan notifikasi kantor dalam konteks (Central: tanpa kantor), sehingga staf beberapa kantor tidak melihat notifikasi campur. Penerima dihitung `OfficeRecipients` dari role aktif yang memegang permission di kantor tersebut. Tautan dibuat lapisan UI lewat kontrak `OfficeLinks`.
 
+WhatsApp (open question #9): `OfficeAlert` juga memakai `WhatsAppChannel` bila `WHATSAPP_ENABLED` dan kredensial terisi, dan penerima sendiri menyalakan opt-in di profil (`users.phone_encrypted` + `users.whatsapp_opt_in_at`; perubahan opt-in diaudit `account.whatsapp_opt_in_changed`). Pesan memakai satu template Meta yang disetujui (`office_alert`, bahasa sesuai `users.locale`) dengan satu parameter: judul notifikasi, teks umum tanpa data pribadi. Job `SendWhatsAppMessage` membawa id pengguna, bukan nomor, dan membaca nomor serta opt-in saat mengirim; kegagalan WhatsApp tidak mengulang notifikasi panel. Nomor telepon dikirim ke Meta (pemroses di luar Saudi) hanya untuk pengguna yang opt-in; dicatat untuk penilaian PDPL §16.5.
+
 ## 11.4 Privileged access
 
 ```
@@ -108,6 +110,7 @@ integration_logs
   endpoint_reference · request_reference? · response_code? · status
   error_message? · created_at
   -- tidak menyimpan secret atau payload sensitif lengkap
+  -- implementasi: append-only; dipakai WhatsApp (endpoint `messages:<template>`, reference = wamid)
 
 background_job_logs
   id pk · tenant_id? · job_type · reference_type? · reference_id?

@@ -3,6 +3,12 @@
 declare(strict_types=1);
 
 return [
+    'profile' => [
+        'phone' => 'Mobile number',
+        'whatsapp_opt_in' => 'Send my alerts on WhatsApp too',
+        'whatsapp_help' => 'Short alerts without personal data (for example "New transfer request"), in your language. Details stay in the platform.',
+        'invalid_phone' => 'Enter a valid mobile number.',
+    ],
     'new_device' => [
         'subject' => 'New sign-in to your account',
         'line' => 'Your account was signed in from a browser we have not seen recently, at :time.',

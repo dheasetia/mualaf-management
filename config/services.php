@@ -14,6 +14,23 @@ return [
     ],
 
     /*
+    | WhatsApp Business Platform (Cloud API), open question #9. Off until the
+    | Meta account, phone number and approved message template exist. The
+    | template takes one body parameter: the alert title, generic text with
+    | no personal data. Languages map the user's locale to Meta's codes.
+    */
+    'whatsapp' => [
+        'enabled' => (bool) env('WHATSAPP_ENABLED', false),
+        'base_url' => env('WHATSAPP_BASE_URL', 'https://graph.facebook.com'),
+        'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'access_token' => env('WHATSAPP_ACCESS_TOKEN'),
+        'template' => env('WHATSAPP_TEMPLATE', 'office_alert'),
+        'languages' => ['ar' => 'ar', 'en' => 'en'],
+        'timeout' => (int) env('WHATSAPP_TIMEOUT', 15),
+    ],
+
+    /*
     |--------------------------------------------------------------------------
     | Third Party Services
     |--------------------------------------------------------------------------

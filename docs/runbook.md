@@ -27,6 +27,7 @@ Panduan menjalankan, memelihara, dan menangani insiden aplikasi manajemen mualaf
 | `CERTIFICATES_DISK`, `DOCUMENTS_DISK`, `REPORTS_DISK` | Disk privat |
 | `TRANSFER_SLA_DAYS` (7), `FOLLOW_UP_QUIET_DAYS` (90), `DAWAH_VARIANCE_NOTE_THRESHOLD` (0.10) | Aturan bisnis |
 | `EXPORT_RETENTION_HOURS` (24), `KNOWN_DEVICE_DAYS` (90), `STALE_ACCOUNT_DAYS` (90) | Keamanan |
+| `WHATSAPP_ENABLED` (false), `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_TEMPLATE` (`office_alert`) | Tembusan notifikasi ke WhatsApp; lihat §12 |
 | `CSP_FONT_HOST` | Host font Filament yang diizinkan CSP (default Bunny Fonts) |
 
 ## 3. Deploy
@@ -117,3 +118,17 @@ Agregasi ulang manual: `php artisan reports:aggregate --date=2026-11-01` atau `-
 - [ ] `CLAMAV_ENABLED=true`, Gotenberg berjalan, HTTPS + HSTS aktif, `APP_DEBUG=false`.
 - [ ] Uji restore backup terakhir lulus.
 - [ ] Review akses dilakukan untuk kantor yang masuk gelombang.
+
+## 12. WhatsApp
+
+Tembusan notifikasi panel ke WhatsApp (open question #9) lewat WhatsApp Business Platform (Cloud API). Mati sampai semua langkah ini selesai:
+
+1. Akun WhatsApp Business di Meta Business Manager, nomor pengirim terverifikasi; catat **Phone number ID**.
+2. Token akses permanen dari *system user* dengan izin `whatsapp_business_messaging`; simpan di `WHATSAPP_ACCESS_TOKEN` (rahasia, jangan di repo).
+3. Ajukan template kategori *Utility* bernama `office_alert` dalam bahasa **ar** dan **en**, satu parameter isi `{{1}}` (judul notifikasi, teks umum tanpa data pribadi). Contoh isi:
+   - ar: `منصة رعاية المهتدين: {{1}}. سجّل الدخول إلى المنصة لعرض التفاصيل.`
+   - en: `Convert care platform: {{1}}. Sign in to the platform to see the details.`
+4. Setelah template disetujui: isi `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_ENABLED=true`, lalu `php artisan config:cache` dan `php artisan queue:restart`.
+
+Pengguna mengisi nomor dan menyalakan "kirim tanggapan lewat WhatsApp" sendiri di halaman profil; tanpa persetujuan itu tidak ada pesan. Pesan dikirim job `SendWhatsAppMessage` di antrean `default` (4 percobaan untuk 429/5xx/koneksi). Hasil setiap pengiriman ada di tabel `integration_logs` (`integration_name = whatsapp`, status `sent`/`rejected`/`failed`, tanpa nomor dan isi). Status `rejected` berulang biasanya berarti template belum disetujui untuk bahasa itu atau nomor tidak terdaftar di WhatsApp. Biaya dihitung Meta per percakapan.
+
