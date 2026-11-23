@@ -15,3 +15,7 @@ Schedule::command('transfers:escalate')->hourly()->withoutOverlapping()->onOneSe
 
 // PRD §31: suggest follow-ups (never statuses) for converts nobody has contacted for a while.
 Schedule::command('followups:flag-quiet')->dailyAt('03:00')->withoutOverlapping()->onOneServer();
+
+// 11 §11.8 and §11.5: nightly statistics, and export files removed after they expire.
+Schedule::command('reports:aggregate')->dailyAt('01:30')->withoutOverlapping()->onOneServer();
+Schedule::command('exports:purge')->hourly()->withoutOverlapping()->onOneServer();

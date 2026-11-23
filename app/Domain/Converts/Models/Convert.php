@@ -202,10 +202,14 @@ final class Convert extends Model implements AssignableSubject
         return $this->belongsTo(Religion::class, 'previous_religion_id');
     }
 
-    /** Shown instead of the name where the convert must not be identifiable. */
+    /**
+     * Shown instead of the name where the convert must not be identifiable.
+     * Taken from the random end of the UUIDv7: its start is a timestamp
+     * shared by converts registered around the same time.
+     */
     public function alias(): string
     {
-        return __('converts.alias', ['code' => strtoupper(substr(str_replace('-', '', $this->uuid), 0, 6))]);
+        return __('converts.alias', ['code' => strtoupper(substr(str_replace('-', '', $this->uuid), -6))]);
     }
 
     /** @return HasMany<ConvertIdentifier, $this> */

@@ -138,3 +138,11 @@ it('stores contacts encrypted and normalised, with one primary', function (): vo
     app(RemoveConvertContact::class)->handle($second, $this->head);
     expect(ConvertContact::query()->where('active', true)->pluck('id')->all())->toBe([$first->id]);
 });
+
+it('gives converts registered at the same moment different aliases', function (): void {
+    $tenant = Tenant::factory()->active()->create();
+
+    $aliases = inTenant($tenant, fn () => Convert::factory()->count(5)->create()->map(fn ($convert) => $convert->alias())->unique());
+
+    expect($aliases)->toHaveCount(5);
+});
