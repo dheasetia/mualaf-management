@@ -23,8 +23,9 @@ use Illuminate\Support\Facades\DB;
  * Office dawah materials (08 §8.4): drafted by materials.create, sent for
  * review, approved by materials.approve (not the author) or returned with a
  * note. Approved materials are not edited: a change is a new version, and
- * approving it retires the version it replaces. National materials are
- * read-only for offices.
+ * approving it retires the version it replaces. National materials
+ * (tenant_id NULL) follow the same flow in Central and are read-only for
+ * offices; they carry no stock, which belongs to an office.
  */
 final readonly class ManageMaterials
 {
@@ -38,7 +39,7 @@ final readonly class ManageMaterials
         $this->require($actor, 'materials.create');
 
         if ($material !== null) {
-            $this->requireOwnOffice($material);
+            $this->requireOwnScope($material);
 
             if ($material->status !== MaterialStatus::Draft) {
                 throw DawahRuleViolation::notEditable();
@@ -57,11 +58,11 @@ final readonly class ManageMaterials
 
         $material->material_type = MaterialType::from((string) $data['material_type']);
         $material->language_id = (int) $data['language_id'];
-        $material->stock_quantity = blank($data['stock_quantity'] ?? null) ? null : max(0, (int) $data['stock_quantity']);
+        $material->stock_quantity = blank($data['stock_quantity'] ?? null) || ! $this->tenantContext->has() ? null : max(0, (int) $data['stock_quantity']);
         $material->version = (string) ($material->version ?? '1');
 
         if (! $material->exists) {
-            $material->tenant_id = $this->tenantContext->requireId();
+            $material->tenant_id = $this->tenantContext->id();
             $material->status = MaterialStatus::Draft;
             $material->created_by = $actor->id;
         }
@@ -75,14 +76,15 @@ final readonly class ManageMaterials
     public function attachFile(DawahMaterial $material, string $path, string $originalName, User $actor): DawahMaterial
     {
         $this->require($actor, 'materials.create');
-        $this->requireOwnOffice($material);
+        $this->requireOwnScope($material);
 
         if ($material->status !== MaterialStatus::Draft) {
             throw DawahRuleViolation::notEditable();
         }
 
-        $tenant = Tenant::query()->findOrFail($this->tenantContext->requireId());
-        $material->file_document_id = $this->attachments->store($material, DocumentType::DawahMaterial, "tenants/{$tenant->uuid}/dawah/materials/{$material->uuid}", $path, $originalName, $actor);
+        $tenantId = $this->tenantContext->id();
+        $folder = $tenantId === null ? 'national' : 'tenants/'.Tenant::query()->findOrFail($tenantId)->uuid;
+        $material->file_document_id = $this->attachments->store($material, DocumentType::DawahMaterial, "{$folder}/dawah/materials/{$material->uuid}", $path, $originalName, $actor);
         $material->save();
 
         return $material;
@@ -98,7 +100,7 @@ final readonly class ManageMaterials
     public function submitForReview(DawahMaterial $material, User $actor): DawahMaterial
     {
         $this->require($actor, 'materials.create');
-        $this->requireOwnOffice($material);
+        $this->requireOwnScope($material);
 
         if ($material->file_document_id === null && blank($material->external_url)) {
             throw DawahRuleViolation::materialSourceRequired();
@@ -110,7 +112,7 @@ final readonly class ManageMaterials
     public function approve(DawahMaterial $material, User $actor): DawahMaterial
     {
         $this->require($actor, 'materials.approve');
-        $this->requireOwnOffice($material);
+        $this->requireOwnScope($material);
 
         if ($material->created_by === $actor->id) {
             throw DawahRuleViolation::selfReview();
@@ -130,7 +132,7 @@ final readonly class ManageMaterials
     public function returnToDraft(DawahMaterial $material, User $actor, ?string $note): DawahMaterial
     {
         $this->require($actor, 'materials.approve');
-        $this->requireOwnOffice($material);
+        $this->requireOwnScope($material);
         $note = blank($note) ? throw DawahRuleViolation::reasonRequired() : trim((string) $note);
 
         return $this->move($material, MaterialStatus::InReview, MaterialStatus::Draft, $actor, fn (DawahMaterial $locked) => $locked->review_note = $note);
@@ -139,7 +141,7 @@ final readonly class ManageMaterials
     public function retire(DawahMaterial $material, User $actor): DawahMaterial
     {
         $this->require($actor, 'materials.approve');
-        $this->requireOwnOffice($material);
+        $this->requireOwnScope($material);
 
         return $this->move($material, MaterialStatus::Approved, MaterialStatus::Retired, $actor);
     }
@@ -148,7 +150,7 @@ final readonly class ManageMaterials
     public function newVersion(DawahMaterial $material, string $version, User $actor): DawahMaterial
     {
         $this->require($actor, 'materials.create');
-        $this->requireOwnOffice($material);
+        $this->requireOwnScope($material);
 
         if ($material->status !== MaterialStatus::Approved) {
             throw DawahRuleViolation::notEditable();
@@ -169,9 +171,9 @@ final readonly class ManageMaterials
     public function addStock(DawahMaterial $material, int $quantity, User $actor): DawahMaterial
     {
         $this->require($actor, 'materials.create');
-        $this->requireOwnOffice($material);
+        $this->requireOwnScope($material);
 
-        if ($quantity <= 0) {
+        if ($quantity <= 0 || $material->isNational()) {
             throw DawahRuleViolation::invalidAmount();
         }
 
@@ -209,9 +211,10 @@ final readonly class ManageMaterials
         });
     }
 
-    private function requireOwnOffice(DawahMaterial $material): void
+    /** An office changes only its own materials; Central (no office) only national ones. */
+    private function requireOwnScope(DawahMaterial $material): void
     {
-        if ($material->tenant_id === null || $material->tenant_id !== $this->tenantContext->id()) {
+        if ($material->tenant_id !== $this->tenantContext->id()) {
             throw new AuthorizationException;
         }
     }

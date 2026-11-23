@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Center\Resources\DawahMaterials\Pages;
 
 use App\Filament\Center\Resources\DawahMaterials\DawahMaterialResource;
+use App\Filament\Schemas\DawahMaterialSchema;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 
@@ -15,7 +16,7 @@ final class ManageDawahMaterials extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->using(fn (array $data) => DawahMaterialResource::save(null, $data)),
+            CreateAction::make()->using(fn (array $data) => DawahMaterialSchema::save(null, $data)),
         ];
     }
 }

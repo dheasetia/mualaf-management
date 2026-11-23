@@ -11,7 +11,8 @@ use App\Support\Tenancy\TenantContext;
 
 /**
  * Materials are read with materials.view (or distribute); an office edits
- * only its own drafts. ManageMaterials checks every step.
+ * only its own drafts, Central only national ones. ManageMaterials checks
+ * every step.
  */
 final readonly class DawahMaterialPolicy
 {
@@ -29,7 +30,7 @@ final readonly class DawahMaterialPolicy
 
     public function create(User $user): bool
     {
-        return $this->tenantContext->has() && $user->hasPermission('materials.create');
+        return $user->hasPermission('materials.create');
     }
 
     public function update(User $user, DawahMaterial $material): bool
