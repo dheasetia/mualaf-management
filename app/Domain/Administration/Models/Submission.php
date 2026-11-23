@@ -34,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $approved_at
  * @property CarbonImmutable|null $completed_at
  * @property CarbonImmutable|null $due_at
+ * @property CarbonImmutable|null $escalated_at
  * @property int $created_by
  * @property-read SubmissionType $type
  */
@@ -88,6 +89,7 @@ final class Submission extends Model
             'approved_at' => 'immutable_datetime',
             'completed_at' => 'immutable_datetime',
             'due_at' => 'immutable_datetime',
+            'escalated_at' => 'immutable_datetime',
         ];
     }
 }

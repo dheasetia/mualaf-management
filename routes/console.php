@@ -17,6 +17,9 @@ Schedule::command('transfers:escalate')->hourly()->withoutOverlapping()->onOneSe
 Schedule::command('followups:flag-quiet')->dailyAt('03:00')->withoutOverlapping()->onOneServer();
 Schedule::command('followups:notify-overdue')->dailyAt('07:00')->withoutOverlapping()->onOneServer();
 
+// 10 §10.1: submissions past their SLA.
+Schedule::command('submissions:notify-overdue')->dailyAt('07:15')->withoutOverlapping()->onOneServer();
+
 // 11 §11.8 and §11.5: nightly statistics, and export files removed after they expire.
 Schedule::command('reports:aggregate')->dailyAt('01:30')->withoutOverlapping()->onOneServer();
 Schedule::command('exports:purge')->hourly()->withoutOverlapping()->onOneServer();
