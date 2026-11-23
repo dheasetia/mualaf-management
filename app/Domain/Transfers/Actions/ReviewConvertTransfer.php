@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Transfers\Actions;
 
 use App\Domain\Transfers\Enums\TransferStatus;
+use App\Domain\Transfers\Events\TransferApproved;
 use App\Domain\Transfers\Exceptions\TransferRuleViolation;
 use App\Domain\Transfers\Models\ConvertTransferRequest;
 use App\Domain\Transfers\Services\TransferTimeline;
@@ -62,6 +63,10 @@ final readonly class ReviewConvertTransfer
             }
 
             $this->timeline->move($locked, $target, $actor, $auditAction, array_filter(['note' => $locked->review_note]));
+
+            if ($target === TransferStatus::Approved) {
+                TransferApproved::dispatch($locked->id, $locked->from_tenant_id, $locked->to_tenant_id);
+            }
 
             return $locked;
         });

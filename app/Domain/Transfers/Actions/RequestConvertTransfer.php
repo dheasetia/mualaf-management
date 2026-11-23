@@ -7,6 +7,7 @@ namespace App\Domain\Transfers\Actions;
 use App\Domain\Converts\Data\IdentifierData;
 use App\Domain\Converts\Services\IdentityRegistry;
 use App\Domain\Transfers\Enums\TransferStatus;
+use App\Domain\Transfers\Events\TransferRequested;
 use App\Domain\Transfers\Exceptions\TransferRuleViolation;
 use App\Domain\Transfers\Models\ConvertTransferRequest;
 use App\Domain\Transfers\Services\TransferTimeline;
@@ -72,6 +73,7 @@ final readonly class RequestConvertTransfer
 
                 $this->timeline->record($request, null, TransferStatus::Pending, $actor, 'requested', ['reason' => $request->reason]);
                 $this->timeline->audit($request, 'transfer.requested', $actor);
+                TransferRequested::dispatch($request->id, $request->from_tenant_id, $request->to_tenant_id);
 
                 return $request;
             });

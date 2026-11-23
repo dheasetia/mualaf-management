@@ -63,6 +63,8 @@ notifications                    -- skema standar Laravel
 
 Isi notifikasi tidak memuat nomor identitas, agama sebelumnya, atau detail syahadat; cukup referensi (`uuid`) dan teks umum ("ada permintaan transfer baru").
 
+Implementasi: notifikasi database Filament (lonceng di panel Center dan Central, polling 60 detik) lewat `OfficeAlert` (teks dari `lang/*/notifications.php` dalam bahasa penerima + tautan ke panel kantor penerima). `tenant_id` diisi dari data notifikasi atau TenantContext; `User::notifications()` hanya menampilkan notifikasi kantor dalam konteks (Central: tanpa kantor), sehingga staf beberapa kantor tidak melihat notifikasi campur. Penerima dihitung `OfficeRecipients` dari role aktif yang memegang permission di kantor tersebut. Tautan dibuat lapisan UI lewat kontrak `OfficeLinks`.
+
 ## 11.4 Privileged access
 
 ```

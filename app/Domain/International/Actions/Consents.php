@@ -10,6 +10,7 @@ use App\Domain\International\Enums\ConsentMethod;
 use App\Domain\International\Enums\ConsentType;
 use App\Domain\International\Enums\ReferralStatus;
 use App\Domain\International\Enums\SharedField;
+use App\Domain\International\Events\ConsentWithdrawn;
 use App\Domain\International\Exceptions\InternationalRuleViolation;
 use App\Domain\International\Models\ConsentRecord;
 use App\Domain\International\Models\InternationalReferral;
@@ -94,6 +95,7 @@ final readonly class Consents
                 ->update(['status' => ReferralStatus::Closed, 'closed_at' => CarbonImmutable::now(), 'close_reason' => 'consent_withdrawn', 'updated_at' => now()]);
 
             $this->audit->record('consent.withdrawn', $convert, newValues: ['consent_id' => $consent->id, 'reason' => $reason, 'referrals_closed' => $closed], actor: $actor);
+            ConsentWithdrawn::dispatch($consent->id, $convert->id, $consent->tenant_id, $closed);
 
             return $consent;
         });
