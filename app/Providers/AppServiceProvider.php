@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Administration\Models\Submission;
+use App\Domain\Administration\Policies\SubmissionPolicy;
 use App\Domain\Audit\Listeners\RecordTenantScopeBypass;
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Policies\AuditLogPolicy;
@@ -119,6 +121,7 @@ class AppServiceProvider extends ServiceProvider
             'activity_transport' => ActivityTransportRequest::class,
             'pickup' => TransportRequest::class,
             'trip' => TransportTrip::class,
+            'submission' => Submission::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -162,6 +165,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DaiDailyActivity::class, DaiDailyActivityPolicy::class);
         Gate::policy(DawahMaterial::class, DawahMaterialPolicy::class);
         Gate::policy(DawahMaterialDistribution::class, DawahMaterialDistributionPolicy::class);
+        Gate::policy(Submission::class, SubmissionPolicy::class);
 
         foreach ([Vehicle::class, Driver::class, ActivityTransportRequest::class, TransportRequest::class, TransportTrip::class] as $transportModel) {
             Gate::policy($transportModel, TransportPolicy::class);

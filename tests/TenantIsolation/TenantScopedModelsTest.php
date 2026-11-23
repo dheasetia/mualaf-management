@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Administration\Models\Submission;
 use App\Domain\Certificates\Models\Certificate;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Models\DaiAssignment;
@@ -57,6 +58,7 @@ const TENANT_SCOPED_MODELS = [
     'activity transport' => ActivityTransportRequest::class,
     'transport trip' => TransportTrip::class,
     'pickup' => TransportRequest::class,
+    'submission' => Submission::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

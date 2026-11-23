@@ -40,6 +40,15 @@ submission_assignments
   assigned_at · completed_at?
 ```
 
+Implementasi (langkah 22, `Administration\Actions\SubmissionWorkflow`):
+
+- Dibuat dan dilengkapi oleh `submissions.create` untuk convert yang dapat dilihatnya; diajukan setelah semua dokumen `required` terlampir; lampiran hanya dapat diubah saat `draft`/`needs_correction` (lampiran baru untuk persyaratan yang sama menggantikan baris sebelumnya, filenya tetap tersimpan). `due_at` = pengajuan pertama + `workflow_config.sla_days`.
+- File disimpan lewat `Documents\Attachments` dengan pemilik **submission** (bukan convert) di `tenants/{uuid}/submissions/{uuid}/`, sehingga tidak muncul di tab dokumen convert dan hanya diunduh dengan `submissions.view` (dokumen medis khitan).
+- Verifikasi per dokumen oleh `submissions.verify` (tolak wajib catatan); koreksi dengan catatan (`correction_note`, kolom tambahan) kembali ke `needs_correction`.
+- Approval oleh `submissions.approve` sebanyak `workflow_config.approval_stages`, setiap tahap orang berbeda dan bukan pembuat, hanya bila semua dokumen terlampir sudah diverifikasi. Approval dihitung per siklus pengajuan (sejak `submitted_at` terakhir), karena itu `uq(submission_id, approval_stage)` diganti indeks dan dijaga di bawah lock.
+- Selesai (`submissions.process`) menerbitkan surat jenis `generates_document_template_code` lewat `LetterWorkflow` (kolom tambahan `generated_document_id`); aturan surat tetap berlaku (shahadah terverifikasi, khitan untuk laki-laki).
+- Tolak/batal wajib alasan; pembuat dapat membatalkan sebelum verifikasi, approver sampai sebelum `processing`. Setiap langkah dicatat di `submission_events` (append-only) dan audit.
+
 Jenis seed: pengajuan data mualaf baru, surat khitan, surat pembaruan data agama, surat lain. Submission khitan menyimpan dokumen medis hanya sebagai lampiran dengan akses `submissions.view`.
 
 ## 10.2 Umrah dan haji
