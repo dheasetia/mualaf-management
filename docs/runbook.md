@@ -46,7 +46,7 @@ Rollback: deploy rilis sebelumnya. Migrasi tidak di-rollback di produksi (bebera
 
 | Antrean | Isi | Worker | Timeout |
 | --- | --- | --- | --- |
-| `critical` | Audit async, notifikasi penting | 2 | 60 s |
+| `critical` | Audit async, notifikasi panel (`NotifyOfficeStaff`) | 2 | 60 s |
 | `pdf` | `GenerateCertificatePdf`, `GenerateLetterPdf` | 2 | 180 s |
 | `default` | Email notifikasi (lockout, perangkat baru) | 2 | 60 s |
 | `exports` | `GenerateExport` (payload terenkripsi) | 1 | 900 s |
@@ -63,6 +63,7 @@ Job gagal: `php artisan queue:failed`, periksa, lalu `queue:retry {id}`. Jangan 
 | --- | --- | --- |
 | `transfers:escalate` | tiap jam | Eskalasi transfer convert melewati SLA |
 | `followups:flag-quiet` | 03.00 | Saran follow-up (bukan status) untuk convert lama tak dihubungi (PRD §31) |
+| `followups:notify-overdue` | 07.00 | Pengingat follow-up terlambat ke da'i, eskalasi > 7 hari ke Head of Dawah |
 | `reports:aggregate` | 01.30 | Statistik harian, mengulang 7 hari terakhir |
 | `exports:purge` | tiap jam | Hapus file export kedaluwarsa |
 | `access:review` | tanggal 1, 06.00 | Ringkasan review akses ke audit log |

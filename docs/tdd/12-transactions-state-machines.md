@@ -217,3 +217,5 @@ Status follow-up (`convert_follow_up_statuses`) bebas berpindah antar nilai oleh
 | `ConsentWithdrawn` | Tutup referral terkait |
 
 Listener yang menulis data berjalan *after commit* (`ShouldHandleEventsAfterCommit`) dan di queue dengan tenant context.
+
+Notifikasi (`NotifyOfficeStaff`, antrean `critical`, event `ShouldDispatchAfterCommit` membawa id kantor): `ShahadahRecorded` → pemegang `shahadah.verify`; `ShahadahVerified` dan `EnrollmentCompleted` → pemegang `certificates.request`; `TransferRequested` (baru) → `converts.review_transfer` kantor lama; `TransferApproved` (baru) → `converts.transfer` kantor tujuan; `TransferCompleted` → kedua kantor dan da'i baru; `ConsentWithdrawn` (baru) → Primary Da'i. `FollowUpOverdue` dijalankan `php artisan followups:notify-overdue` (07.00): satu ringkasan per da'i per hari, eskalasi sekali ke pemegang `followups.view_confidential` untuk follow-up terlambat > 7 hari (`convert_follow_up_schedules.escalated_at`).

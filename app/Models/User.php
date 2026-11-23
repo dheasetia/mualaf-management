@@ -10,6 +10,7 @@ use App\Domain\Tenancy\Enums\MembershipStatus;
 use App\Domain\Tenancy\Enums\TenantStatus;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\UserTenantMembership;
+use App\Support\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
@@ -25,7 +26,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\Notifiable;
 
 /**
@@ -104,6 +107,20 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     public function hasPermission(string $permission): bool
     {
         return app(Authorizer::class)->check($this, $permission);
+    }
+
+    /**
+     * Notifications of the office in context (or platform ones in Central),
+     * so staff of several offices only see each office's alerts there.
+     *
+     * @return MorphMany<DatabaseNotification, $this>
+     */
+    public function notifications(): MorphMany
+    {
+        $tenantId = app(TenantContext::class)->id();
+
+        return $this->morphMany(DatabaseNotification::class, 'notifiable')->latest()
+            ->where(fn ($query) => $tenantId === null ? $query->whereNull('tenant_id') : $query->where('tenant_id', $tenantId));
     }
 
     /** @return HasMany<UserRoleAssignment, $this> */

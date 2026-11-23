@@ -46,6 +46,7 @@ use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
 use App\Domain\Identity\Rbac\Authorizer;
 use App\Domain\Identity\Rbac\PermissionCatalog;
+use App\Domain\International\Events\ConsentWithdrawn;
 use App\Domain\International\Listeners\OpenChecklistOnReturnHome;
 use App\Domain\International\Models\ConsentRecord;
 use App\Domain\International\Models\ConvertHomeCountryContact;
@@ -54,6 +55,8 @@ use App\Domain\International\Models\ExternalIslamicOrganization;
 use App\Domain\International\Models\InternationalReferral;
 use App\Domain\International\Models\PreDepartureChecklist;
 use App\Domain\International\Policies\InternationalPolicy;
+use App\Domain\Notifications\Contracts\OfficeLinks;
+use App\Domain\Notifications\Listeners\NotifyOfficeStaff;
 use App\Domain\Pilgrimage\Models\PilgrimageProgram;
 use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
 use App\Domain\Pilgrimage\Policies\PilgrimagePolicy;
@@ -67,6 +70,7 @@ use App\Domain\Platform\Models\Religion;
 use App\Domain\Platform\Policies\MasterDataPolicy;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Policies\ProspectPolicy;
+use App\Domain\Registration\Events\ShahadahRecorded;
 use App\Domain\Registration\Events\ShahadahVerified;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\DuplicateReviewCase;
@@ -75,7 +79,9 @@ use App\Domain\Registration\Policies\DuplicateReviewCasePolicy;
 use App\Domain\Reporting\Models\ExportJob;
 use App\Domain\Reporting\Policies\ExportJobPolicy;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Domain\Transfers\Events\TransferApproved;
 use App\Domain\Transfers\Events\TransferCompleted;
+use App\Domain\Transfers\Events\TransferRequested;
 use App\Domain\Transfers\Models\ConvertTransferRequest;
 use App\Domain\Transfers\Models\ProspectTransferRequest;
 use App\Domain\Transfers\Policies\ConvertTransferRequestPolicy;
@@ -86,6 +92,7 @@ use App\Domain\Transport\Models\TransportRequest;
 use App\Domain\Transport\Models\TransportTrip;
 use App\Domain\Transport\Models\Vehicle;
 use App\Domain\Transport\Policies\TransportPolicy;
+use App\Filament\Center\Support\CenterOfficeLinks;
 use App\Models\User;
 use App\Support\Antivirus\ClamAvScanner;
 use App\Support\Antivirus\FileScanner;
@@ -99,6 +106,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
@@ -114,6 +122,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TeacherRoster::class, GuidanceTeacherRoster::class);
         $this->app->bind(PdfRenderer::class, GotenbergPdfRenderer::class);
         $this->app->bind(FileScanner::class, ClamAvScanner::class);
+        $this->app->bind(OfficeLinks::class, CenterOfficeLinks::class);
     }
 
     public function boot(): void
@@ -215,6 +224,15 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(TenantScopeBypassed::class, RecordTenantScopeBypass::class);
         Event::listen(TransferCompleted::class, CloseEnrollmentsOnTransfer::class);
         Event::listen(ConvertReturnedHome::class, OpenChecklistOnReturnHome::class);
+        Event::listen([
+            ShahadahRecorded::class, ShahadahVerified::class, TransferRequested::class, TransferApproved::class,
+            TransferCompleted::class, EnrollmentCompleted::class, ConsentWithdrawn::class,
+        ], NotifyOfficeStaff::class);
+
+        // 11 §11.3: database notifications carry the office they belong to.
+        DatabaseNotification::creating(function (DatabaseNotification $notification): void {
+            $notification->setAttribute('tenant_id', $notification->data['tenant_id'] ?? app(TenantContext::class)->id());
+        });
         Event::listen([ShahadahVerified::class, EnrollmentCompleted::class, TransferCompleted::class, ConvertReturnedHome::class], ScheduleFollowUps::class);
     }
 }

@@ -32,6 +32,8 @@ class CentralPanelProvider extends PanelProvider
             ->id('central')
             ->path('central')
             ->login(Login::class)
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('60s')
             ->passwordReset()
             ->profile()
             ->multiFactorAuthentication([

@@ -34,6 +34,8 @@ class CenterPanelProvider extends PanelProvider
             ->id('center')
             ->path('center')
             ->login(Login::class)
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('60s')
             ->passwordReset()
             ->profile()
             ->multiFactorAuthentication([
