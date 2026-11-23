@@ -231,3 +231,12 @@ consent_records
 ```
 
 Consent ditarik → referral yang bergantung berubah `closed` dengan alasan `consent_withdrawn`, dan notifikasi ke Primary Da'i.
+
+Implementasi (langkah 24b, `International\Actions`):
+
+- Kontak dan lokasi negara asal, serta consent, dicatat oleh yang boleh mencatat follow-up convert (`ConvertPolicy::recordFollowUp`). Kontak baru: `permission_to_contact = false`, `disclosure_scope = none`; satu `is_primary` per convert. Consent lisan butuh saksi selain pencatat; consent `international_sharing` wajib `scope.fields` (subset `SharedField`), opsional `scope.destination_country_id`.
+- Referral (`international.referrals.create` + akses follow-up): `ready` hanya bila ada consent `international_sharing` aktif (tidak ditarik, belum kedaluwarsa) yang mencakup semua field `information_scope` dan negara tujuan bila consent menyebutnya; selain itu `pending_consent`. `send` (`international.referrals.send`) memeriksa ulang consent. `ReferralPacket` hanya berisi field dalam scope; kontak hanya yang `permission_to_contact`. `tenant_id` = kantor perujuk (`referring_tenant_id` di TDD).
+- Consent ditarik menutup referral terkait (`consent_withdrawn`) dalam transaksi yang sama; notifikasi ke Primary Da'i belum ada (menunggu modul notifikasi).
+- Checklist: dibuka otomatis oleh `ConvertReturnedHome` (bila belum ada yang terbuka) atau manual; 8 item `pending`; referral `sent`/`acknowledged` mencentang `referral_sent`/`acknowledgment_received` dan menautkan `referral_id`; selesai hanya bila tak ada item `pending`.
+- Direktori `external_islamic_organizations` di Central (`international.organizations.manage`), verifikasi/nonaktif lewat aksi; organisasi `inactive` tidak dapat dipilih untuk referral.
+- `pilgrimage_registrations.consent_record_id` kini ber-FK ke `consent_records`.

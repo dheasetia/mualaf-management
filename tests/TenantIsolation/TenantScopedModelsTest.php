@@ -21,6 +21,9 @@ use App\Domain\Guidance\Models\Attendance;
 use App\Domain\Guidance\Models\ClassSession;
 use App\Domain\Guidance\Models\GuidanceClass;
 use App\Domain\Guidance\Models\LearningProgress;
+use App\Domain\International\Models\ConsentRecord;
+use App\Domain\International\Models\InternationalReferral;
+use App\Domain\International\Models\PreDepartureChecklist;
 use App\Domain\Pilgrimage\Models\PilgrimageProgram;
 use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
 use App\Domain\Prospects\Models\Prospect;
@@ -69,6 +72,9 @@ const TENANT_SCOPED_MODELS = [
     'follow-up status' => ConvertFollowUpStatus::class,
     'follow-up schedule' => ConvertFollowUpSchedule::class,
     'long-term follow-up' => ConvertLongTermFollowUp::class,
+    'consent' => ConsentRecord::class,
+    'international referral' => InternationalReferral::class,
+    'pre-departure checklist' => PreDepartureChecklist::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

@@ -13,6 +13,9 @@ use App\Domain\Documents\Models\Document;
 use App\Domain\Documents\Models\GeneratedDocument;
 use App\Domain\FollowUp\Models\ConvertFollowUpStatus;
 use App\Domain\FollowUp\Models\ConvertLongTermFollowUp;
+use App\Domain\International\Models\ConsentRecord;
+use App\Domain\International\Models\ConvertHomeCountryContact;
+use App\Domain\International\Models\ConvertHomeLocation;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\Country;
 use App\Domain\Platform\Models\Language;
@@ -241,6 +244,24 @@ final class Convert extends Model implements AssignableSubject
     public function longTermFollowUps(): HasMany
     {
         return $this->hasMany(ConvertLongTermFollowUp::class)->latest('follow_up_at');
+    }
+
+    /** @return HasMany<ConsentRecord, $this> */
+    public function consents(): HasMany
+    {
+        return $this->hasMany(ConsentRecord::class)->latest('given_at');
+    }
+
+    /** @return HasMany<ConvertHomeCountryContact, $this> */
+    public function homeContacts(): HasMany
+    {
+        return $this->hasMany(ConvertHomeCountryContact::class);
+    }
+
+    /** @return HasMany<ConvertHomeLocation, $this> */
+    public function homeLocations(): HasMany
+    {
+        return $this->hasMany(ConvertHomeLocation::class);
     }
 
     /** @return array<string, string> */
