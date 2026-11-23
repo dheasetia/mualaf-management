@@ -7,7 +7,7 @@
 | 1 | Project foundation (selesai 21-11-2026) | 1 | Laravel + Filament, Pint, Larastan, Pest, CI, `.run/` PhpStorm, README |
 | 2 | Tenancy (selesai 21-11-2026) | 1 | `tenants`, `tenant_settings`, `user_tenant_memberships`, `TenantContext`, `BelongsToTenant`, `SetTenantContext`, test isolasi dasar |
 | 3 | Authentication (selesai 22-11-2026) | 1 | Login dua panel, MFA (wajib di Central; di Center menunggu role pada langkah 4), lockout per akun, session idle 30 menit + absolut 12 jam, tanpa remember-me |
-| 4 | RBAC | 1 | Tabel RBAC, seeder role/permission, resolver, policies dasar, matriks disetujui |
+| 4 | RBAC (selesai 22-11-2026, matriks menunggu persetujuan) | 1 | Tabel RBAC, `PermissionCatalog`/`RoleCatalog` + `RbacSeeder`, `Authorizer` + Gate, assign/revoke, MFA per role, `rbac:grant-super-admin` |
 | 5 | Audit | 1 | `audit_logs`, `AuditRedactor`, append-only grant + trigger |
 | 6 | Master data | 1 | Region, kota, negara, bahasa, agama, kategori, jenis aktivitas + Filament Central |
 | 7 | Da'i | 2 | `dais`, `dai_languages`, supervisor, workload view |
@@ -66,7 +66,7 @@ Langkah 1 (project foundation) dapat dimulai sebelum gate penuh karena tidak ber
 | 2 | Apakah syahadat wajib mencatat saksi (nama, kontak)? | Tabel `shahadah_witnesses`, form registrasi | Kepala Bagian Dakwah |
 | 3 | Apakah gender convert membatasi da'i/guru yang dapat ditugaskan? | Validasi assignment, `guidance_classes.gender_policy` | Kepala Bagian Dakwah |
 | 4 | SLA respons kantor lama untuk transfer sebelum eskalasi otomatis (usulan 7 hari)? | Scheduler eskalasi | Islamic Center Dammam |
-| 5 | Siapa yang menyetujui privileged access darurat bila Super Admin satu-satunya yang tersedia? | Break-glass policy | Security administration |
+| 5 | ~~Siapa yang menyetujui privileged access darurat bila Super Admin satu-satunya yang tersedia?~~ Diputuskan 22-11-2026: Central Auditor juga memegang `privileged.approve`; tanpa self-approval. | Break-glass policy | Security administration |
 | 6 | Kebijakan retensi resmi per kategori data | `data_retention_rules` | Legal / kebijakan |
 | 7 | Hosting: cloud region di Saudi (misal penyedia lokal) atau on-premise? | Infrastruktur, kepatuhan PDPL | Islamic Center Dammam |
 | 8 | Apakah ada integrasi resmi dengan instansi pemerintah (Absher, Muqeem) di masa depan? | Integration logs, identitas terverifikasi | Islamic Center Dammam |

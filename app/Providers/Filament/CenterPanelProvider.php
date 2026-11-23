@@ -7,6 +7,7 @@ namespace App\Providers\Filament;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Auth\Login;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
+use App\Http\Middleware\RequireMfaForPrivilegedRoles;
 use App\Http\Middleware\SetTenantContext;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
@@ -68,6 +69,7 @@ class CenterPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 EnforceAbsoluteSessionLifetime::class,
+                RequireMfaForPrivilegedRoles::class,
             ]);
     }
 }

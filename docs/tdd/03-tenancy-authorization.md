@@ -97,7 +97,7 @@ Hasil di-cache per request (bukan global): kunci `tenant:{tenant_id}:user:{user_
 
 ## 3.6 Katalog permission
 
-Format `module.action` atau `module.resource.action`.
+Format `module.action` atau `module.resource.action`. Sumber kebenaran adalah `app/Domain/Identity/Rbac/PermissionCatalog.php`; tabel di bawah adalah ringkasannya. `RbacSeeder` menyinkronkan katalog ke database pada setiap deploy.
 
 | Modul | Permission |
 | --- | --- |
@@ -106,21 +106,21 @@ Format `module.action` atau `module.resource.action`.
 | master | `master.manage` |
 | dais | `dais.view`, `dais.create`, `dais.update`, `dais.view_workload` |
 | prospects | `prospects.view`, `prospects.view_own`, `prospects.create`, `prospects.update`, `prospects.assign_dai`, `prospects.change_status`, `prospects.transfer` |
-| converts | `converts.view`, `converts.view_own`, `converts.create`, `converts.update`, `converts.view_sensitive`, `converts.assign_dai`, `converts.set_disclosure`, `converts.transfer`, `converts.review_transfer`, `converts.correct_origin` |
+| converts | `converts.view`, `converts.view_own`, `converts.view_class`, `converts.create`, `converts.update`, `converts.view_sensitive`, `converts.assign_dai`, `converts.set_disclosure`, `converts.transfer`, `converts.review_transfer`, `converts.correct_origin` |
 | identity | `identity.national_search`, `identity.verify`, `identity.reveal` |
 | shahadah | `shahadah.record`, `shahadah.verify` |
 | duplicates | `duplicates.review` |
 | followups | `followups.view`, `followups.create`, `followups.view_confidential` |
-| dawah | `dawah.activities.create`, `dawah.activities.verify`, `dawah.plans.create`, `dawah.plans.submit`, `dawah.plans.review`, `dawah.plans.approve`, `dawah.reports.submit`, `dawah.reports.verify` |
+| dawah | `dawah.activities.create`, `dawah.activities.verify`, `dawah.plans.view`, `dawah.plans.create`, `dawah.plans.submit`, `dawah.plans.review`, `dawah.plans.approve`, `dawah.reports.submit`, `dawah.reports.verify` |
 | budget | `budget.view`, `budget.approve`, `budget.record_actual` |
 | materials | `materials.view`, `materials.create`, `materials.approve`, `materials.distribute` |
-| guidance | `guidance.programs.manage`, `guidance.classes.manage`, `guidance.enroll`, `guidance.attendance.record`, `guidance.progress.record` |
-| exams | `exams.manage`, `exams.grade`, `exams.finalize` |
+| guidance | `guidance.view`, `guidance.programs.manage`, `guidance.classes.manage`, `guidance.enroll`, `guidance.attendance.record`, `guidance.progress.record` |
+| exams | `exams.view`, `exams.manage`, `exams.grade`, `exams.finalize` |
 | certificates | `certificates.view`, `certificates.request`, `certificates.approve`, `certificates.issue`, `certificates.revoke` |
 | documents | `documents.view`, `documents.upload`, `documents.verify`, `documents.generate`, `documents.templates.manage` |
 | submissions | `submissions.view`, `submissions.create`, `submissions.verify`, `submissions.approve`, `submissions.process` |
 | transport | `transport.view`, `transport.request`, `transport.approve`, `transport.dispatch`, `transport.fleet.manage` |
-| pilgrimage | `pilgrimage.programs.manage`, `pilgrimage.register`, `pilgrimage.check_eligibility`, `pilgrimage.approve` |
+| pilgrimage | `pilgrimage.view`, `pilgrimage.programs.manage`, `pilgrimage.register`, `pilgrimage.check_eligibility`, `pilgrimage.approve` |
 | international | `international.referrals.create`, `international.referrals.send`, `international.organizations.manage` |
 | reports | `reports.view_office`, `reports.view_national`, `reports.export` |
 | audit | `audit.view_office`, `audit.view_national` |
@@ -143,7 +143,7 @@ Legenda: **F** = penuh di modul, **O** = hanya subjek sendiri (own), **R** = bac
 | Registration Officer | R | create + update | national search, record | – | – | – | – | – | – | – | – | – | – |
 | Shahadah Verifier | R | R | verify, `identity.reveal` | – | – | – | – | – | – | – | – | – | – |
 | Guidance Coordinator | – | R | – | R | – | F | R | request | – | request | – | R | – |
-| Teacher | – | R (kelas sendiri) | – | – | – | attendance + progress (kelas sendiri) | grade (kelas sendiri) | – | – | – | – | – | – |
+| Teacher | – | R kelas sendiri (`converts.view_class`) | – | – | – | attendance + progress (kelas sendiri) | grade (kelas sendiri) | – | – | – | – | – | – |
 | Examination Officer | – | R | – | – | – | R | F + finalize | request | – | – | – | – | – |
 | Certificate Officer | – | R | – | – | – | R | R | issue | – | – | – | – | – |
 | Administrative Officer | – | R | – | – | – | – | – | – | create + process | – | – | – | – |
@@ -157,4 +157,8 @@ Catatan:
 - Role platform tidak punya akses data individual kantor secara default; akses hanya via privileged access grant (§4.8 di [04-identity-privacy.md](04-identity-privacy.md)).
 - Support Officer hanya mengelola tiket teknis dan impersonation-less troubleshooting; tidak ada impersonation user.
 - Segregation of duties: user yang mencatat syahadat tidak boleh memverifikasinya; pengusul plan tidak boleh menyetujui plan sendiri; pengaju transfer tidak boleh me-review di kantor lama (berbeda tenant secara alami).
-- Matriks final lengkap per permission dikelola sebagai seeder `RolePermissionSeeder` dan harus disetujui sebelum Phase 1 selesai.
+- Matriks lengkap per permission ada di `app/Domain/Identity/Rbac/RoleCatalog.php` (disinkronkan oleh `RbacSeeder`) dan harus disetujui Islamic Center Dammam. Perubahan role sistem hanya lewat file ini.
+- Role platform hanya berlaku tanpa tenant context; role kantor hanya berlaku di tenant tempat role dipegang, selama membership dan tenant aktif.
+- Role wajib MFA bila berscope platform, atau memegang permission dengan aksi `assign_roles`, `approve`, `verify`, `reveal`, `review_transfer`, `finalize`, `issue`, `revoke`, `set_disclosure`, `view_sensitive`, `view_confidential`, atau `correct_origin`. Panel Central mewajibkan MFA untuk semua pengguna; panel Center mengarahkan pemegang role wajib-MFA ke halaman profil sampai authenticator aktif (`RequireMfaForPrivilegedRoles`).
+- Keputusan review matriks (22-11-2026): role wajib-MFA tetap mencakup Administrative Officer dan Transportation Officer; Teacher memakai `converts.view_class` (hanya peserta kelasnya); `budget.approve` dan `certificates.revoke` tetap hanya pada Approver (terpisah dari pengusul/penerbit); Center Admin boleh memberikan semua role kantor di kantornya, termasuk role sensitif (setiap pemberian tercatat di audit log mulai langkah 5); Central Auditor ikut memegang `privileged.approve`.
+- Role pertama (Super Admin) diberikan lewat `php artisan rbac:grant-super-admin {email}`; selanjutnya hanya pemegang `users.assign_roles`, dan tidak ada yang dapat mengubah role-nya sendiri.

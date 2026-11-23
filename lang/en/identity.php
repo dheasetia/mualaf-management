@@ -10,4 +10,8 @@ return [
         'ip' => 'IP address of the last attempt: :ip',
         'advice' => 'If this was not you, change your password and inform your center administrator.',
     ],
+    'mfa_required' => [
+        'title' => 'Two-factor authentication required',
+        'body' => 'Your role in this center requires two-factor authentication. Enable an authenticator app on your profile page to continue.',
+    ],
 ];
