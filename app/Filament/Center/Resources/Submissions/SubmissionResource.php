@@ -12,6 +12,7 @@ use App\Domain\Converts\Services\ConvertAccess;
 use App\Filament\Center\Resources\Submissions\Pages\ListSubmissions;
 use App\Filament\Center\Resources\Submissions\Pages\ViewSubmission;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -68,7 +69,7 @@ final class SubmissionResource extends Resource
                 TextEntry::make('reference_no')->label(__('submissions.fields.reference_no')),
                 TextEntry::make('status')->label(__('submissions.fields.status'))->badge()
                     ->formatStateUsing(fn (SubmissionStatus $state): string => $state->label())->color(fn (SubmissionStatus $state): string => $state->color()),
-                TextEntry::make('type.name_ar')->label(__('submissions.fields.type')),
+                TextEntry::make('type.name_ar')->formatStateUsing(fn (Submission $record): ?string => LocalizedName::of($record->type))->label(__('submissions.fields.type')),
                 TextEntry::make('convert')->label(__('submissions.fields.convert'))->state(fn (Submission $record): string => self::convertName($record->convert_id)),
                 TextEntry::make('submitted_at')->label(__('submissions.fields.submitted_at'))->dateTime('Y-m-d H:i', $timezone)->placeholder('—'),
                 TextEntry::make('due_at')->label(__('submissions.fields.due_at'))->date('Y-m-d', $timezone)->placeholder('—'),
@@ -94,7 +95,7 @@ final class SubmissionResource extends Resource
             ->modifyQueryUsing(fn ($query) => $query->with('type'))
             ->columns([
                 TextColumn::make('reference_no')->label(__('submissions.fields.reference_no'))->searchable()->fontFamily('mono'),
-                TextColumn::make('type.name_ar')->label(__('submissions.fields.type')),
+                TextColumn::make('type.name_ar')->formatStateUsing(fn (Submission $record): ?string => LocalizedName::of($record->type))->label(__('submissions.fields.type')),
                 TextColumn::make('convert')->label(__('submissions.fields.convert'))->state(fn (Submission $record): string => self::convertName($record->convert_id)),
                 TextColumn::make('status')->label(__('submissions.fields.status'))->badge()
                     ->formatStateUsing(fn (SubmissionStatus $state): string => $state->label())->color(fn (SubmissionStatus $state): string => $state->color()),

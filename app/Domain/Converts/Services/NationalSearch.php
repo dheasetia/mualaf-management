@@ -10,6 +10,7 @@ use App\Domain\Converts\Data\NationalSearchResult;
 use App\Domain\Converts\Enums\DisclosureLevel;
 use App\Domain\Converts\Exceptions\IdentityRuleViolation;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\RateLimiter;
@@ -70,7 +71,7 @@ final readonly class NationalSearch
             found: true,
             inOwnOffice: $inOwnOffice,
             officeCode: $convert->currentTenant->code,
-            officeName: $convert->currentTenant->name_ar,
+            officeName: (string) LocalizedName::of($convert->currentTenant),
             displayName: $fullName ? $convert->full_name : $convert->initials(),
         );
     }

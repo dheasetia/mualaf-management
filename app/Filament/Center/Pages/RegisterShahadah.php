@@ -21,6 +21,7 @@ use App\Domain\Registration\Models\ConvertRegistration;
 use App\Filament\Center\Resources\Converts\ConvertResource;
 use App\Filament\Concerns\ResolvesActor;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -118,7 +119,7 @@ final class RegisterShahadah extends Page implements HasForms
                 Select::make('identity_type')->label(__('converts.search.identity_type'))->required()->live()
                     ->options($options(IdentityType::cases())),
                 Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()->required()
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all())
+                    ->options(fn (): array => LocalizedName::options(Country::query()))
                     ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false),
                 TextInput::make('identity_number')->label(__('converts.search.identity_number'))->required()->maxLength(40)
                     ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr']),
@@ -130,18 +131,18 @@ final class RegisterShahadah extends Page implements HasForms
                 Select::make('gender')->label(__('converts.fields.gender'))->required()->options($options(Gender::cases())),
                 DatePicker::make('date_of_birth')->label(__('converts.fields.date_of_birth'))->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
                 Select::make('nationality_id')->label(__('converts.fields.nationality'))->required()->searchable()
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Country::query())),
                 Select::make('native_language_id')->label(__('converts.fields.native_language'))->searchable()
-                    ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Language::query())),
                 Select::make('previous_religion_id')->label(__('converts.fields.previous_religion'))
-                    ->options(fn (): array => Religion::query()->where('active', true)->orderBy('sort_order')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Religion::query()->where('active', true)->orderBy('sort_order'), sortByName: false)),
             ]),
             Section::make(__('registration.sections.shahadah'))->columns(2)->columnSpanFull()->schema([
                 DatePicker::make('shahadah_date')->label(__('registration.fields.shahadah_date'))->required()->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
                 TimePicker::make('shahadah_time')->label(__('registration.fields.shahadah_time'))->seconds(false),
                 TextInput::make('location')->label(__('registration.fields.location'))->required()->maxLength(255),
                 Select::make('city_id')->label(__('registration.fields.city'))->searchable()
-                    ->options(fn (): array => City::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(City::query())),
                 Select::make('preacher_dai_id')->label(__('registration.fields.preacher'))->searchable()
                     ->options(fn (): array => app(DaiDirectory::class)->activeOptions()),
                 Textarea::make('notes')->label(__('registration.fields.notes'))->maxLength(2000)->columnSpanFull(),

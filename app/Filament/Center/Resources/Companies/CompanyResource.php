@@ -7,6 +7,7 @@ namespace App\Filament\Center\Resources\Companies;
 use App\Domain\Companies\Models\Company;
 use App\Filament\Center\Resources\Companies\Pages\ManageCompanies;
 use App\Filament\Schemas\CompanySchema;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
@@ -26,6 +27,11 @@ final class CompanyResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
 
     protected static ?string $recordTitleAttribute = 'name_ar';
+
+    public static function getRecordTitle(?Model $record): string
+    {
+        return LocalizedName::of($record) ?? self::getModelLabel();
+    }
 
     protected static ?int $navigationSort = 30;
 

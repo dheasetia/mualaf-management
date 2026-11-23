@@ -16,6 +16,7 @@ use App\Filament\Central\Resources\PrivilegedAccess\Pages\ListPrivilegedAccess;
 use App\Filament\Central\Resources\PrivilegedAccess\Pages\ViewPrivilegedAccess;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -79,7 +80,7 @@ final class PrivilegedAccessResource extends Resource
                 Select::make('identity_type')->label(__('privileged.fields.identity_type'))->required()->live()
                     ->options(collect(IdentityType::cases())->mapWithKeys(fn (IdentityType $type): array => [$type->value => $type->label()])->all()),
                 Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all())
+                    ->options(fn (): array => LocalizedName::options(Country::query()))
                     ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false),
                 TextInput::make('identity_number')->label(__('privileged.fields.identity_number'))->required()->maxLength(40)->extraInputAttributes(['dir' => 'ltr']),
                 Textarea::make('reason')->label(__('privileged.fields.reason'))->required()->maxLength(2000),
@@ -111,7 +112,7 @@ final class PrivilegedAccessResource extends Resource
                 TextColumn::make('requester')->label(__('privileged.fields.requested_by'))
                     ->state(fn (PrivilegedAccessRequest $record): string => (string) User::query()->whereKey($record->requested_by)->value('name')),
                 TextColumn::make('office')->label(__('privileged.fields.office'))
-                    ->state(fn (PrivilegedAccessRequest $record): string => (string) Tenant::query()->whereKey($record->tenant_id)->value('name_ar')),
+                    ->state(fn (PrivilegedAccessRequest $record): string => (string) LocalizedName::of(Tenant::query()->find($record->tenant_id))),
                 TextColumn::make('reason')->label(__('privileged.fields.reason'))->limit(50),
                 TextColumn::make('scopes')->label(__('privileged.fields.scope'))
                     ->state(fn (PrivilegedAccessRequest $record): string => collect($record->requested_scope)->map(fn (string $scope): string => PrivilegedScope::tryFrom($scope)?->label() ?? $scope)->implode('، ')),

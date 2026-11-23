@@ -6,6 +6,7 @@ namespace App\Domain\Identity\Services;
 
 use App\Domain\Identity\Models\UserRoleAssignment;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Carbon\CarbonImmutable;
 
 /**
@@ -40,7 +41,7 @@ final class AccessReview
                 'user_id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => array_values($userAssignments->map(fn (UserRoleAssignment $assignment): string => $assignment->role->name_ar)->all()),
+                'roles' => array_values($userAssignments->map(fn (UserRoleAssignment $assignment): string => (string) LocalizedName::of($assignment->role))->all()),
                 'mfa' => $mfa,
                 'last_login_at' => $lastLogin,
                 'missing_mfa' => ! $mfa && $userAssignments->contains(fn (UserRoleAssignment $assignment): bool => $assignment->role->requires_mfa),

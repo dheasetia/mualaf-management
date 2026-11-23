@@ -12,6 +12,7 @@ use App\Domain\International\Models\ConvertHomeCountryContact;
 use App\Domain\Platform\Models\Country;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -60,7 +61,7 @@ final class HomeContactsRelationManager extends RelationManager
     {
         $form = [
             Select::make('country_id')->label(__('international.fields.country'))->required()->searchable()
-                ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Country::query())),
             TextInput::make('contact_name')->label(__('international.fields.contact_name'))->required()->maxLength(255),
             Select::make('relationship')->label(__('international.fields.relationship'))->required()->options(collect(HomeRelationship::cases())->mapWithKeys(fn (HomeRelationship $case): array => [$case->value => $case->label()])->all()),
             TextInput::make('phone')->label(__('international.fields.phone'))->tel()->maxLength(30),

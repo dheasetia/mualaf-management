@@ -7,6 +7,7 @@ namespace App\Filament\Central\Resources\AuditLogs;
 use App\Domain\Audit\Enums\ActorType;
 use App\Domain\Audit\Models\AuditLog;
 use App\Filament\Central\Resources\AuditLogs\Pages\ManageAuditLogs;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\ViewAction;
@@ -74,7 +75,7 @@ class AuditLogResource extends Resource
                 TextEntry::make('action')->label(__('audit.fields.action'))->badge(),
                 TextEntry::make('actor.name')->label(__('audit.fields.actor'))
                     ->placeholder(fn (AuditLog $record): string => __('audit.actor_types.'.$record->actor_type->value)),
-                TextEntry::make('tenant.name_ar')->label(__('audit.fields.tenant'))
+                TextEntry::make('tenant.'.LocalizedName::column())->label(__('audit.fields.tenant'))
                     ->placeholder(__('audit.platform'))
                     ->visible(static::$showsTenant),
                 TextEntry::make('subject_type')->label(__('audit.fields.subject'))
@@ -104,7 +105,7 @@ class AuditLogResource extends Resource
                 TextColumn::make('action')->label(__('audit.fields.action'))->badge(),
                 TextColumn::make('actor.name')->label(__('audit.fields.actor'))
                     ->placeholder(fn (AuditLog $record): string => __('audit.actor_types.'.$record->actor_type->value)),
-                TextColumn::make('tenant.name_ar')->label(__('audit.fields.tenant'))
+                TextColumn::make('tenant.'.LocalizedName::column())->label(__('audit.fields.tenant'))
                     ->placeholder(__('audit.platform'))
                     ->visible(static::$showsTenant),
                 TextColumn::make('subject_type')->label(__('audit.fields.subject'))
@@ -131,7 +132,7 @@ class AuditLogResource extends Resource
                         fn (ActorType $type): array => [$type->value => __('audit.actor_types.'.$type->value)],
                     )->all()),
                 SelectFilter::make('tenant')->label(__('audit.fields.tenant'))
-                    ->relationship('tenant', 'name_ar')
+                    ->relationship('tenant', LocalizedName::column())
                     ->searchable()
                     ->preload()
                     ->visible(static::$showsTenant),

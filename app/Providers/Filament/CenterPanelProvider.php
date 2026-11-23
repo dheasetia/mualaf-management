@@ -6,8 +6,10 @@ namespace App\Providers\Filament;
 
 use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Auth\Login;
+use App\Filament\Support\LocaleSwitcher;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\RequireMfaForPrivilegedRoles;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetTenantContext;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
@@ -18,6 +20,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -34,6 +37,8 @@ class CenterPanelProvider extends PanelProvider
             ->id('center')
             ->path('center')
             ->login(Login::class)
+            ->userMenuItems([LocaleSwitcher::userMenuItem()])
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn (): string => view('filament.auth.locale-switcher')->render())
             ->databaseNotifications()
             ->databaseNotificationsPolling('60s')
             ->passwordReset()
@@ -62,6 +67,7 @@ class CenterPanelProvider extends PanelProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
+                SetLocale::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,
                 SubstituteBindings::class,

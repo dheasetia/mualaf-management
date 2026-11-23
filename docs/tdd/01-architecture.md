@@ -104,6 +104,7 @@ app/Domain/Transfers/
 - `User::getTenants()` mengembalikan tenant dari membership aktif saja; `canAccessTenant()` memverifikasi ulang di setiap request.
 - URL tenant hanya *memilih* konteks. Middleware `SetTenantContext` mengisi `TenantContext` setelah verifikasi membership; model dan query membaca tenant dari `TenantContext`, tidak pernah dari input form.
 - Filament diatur `->font('IBM Plex Sans Arabic')` (atau Noto Kufi Arabic), locale default `ar`, arah RTL otomatis dari locale.
+- Dua bahasa antarmuka, Arab dan Inggris (`Locales`). Middleware `SetLocale` (grup `web` dan kedua panel) memakai `users.locale`, lalu pilihan sesi (halaman login), lalu `APP_LOCALE`. Pengguna mengganti bahasa dari menu pengguna atau tautan di halaman login (`POST /locale/{ar|en}`); pilihan disimpan di akun sehingga berlaku di perangkat lain. Nama master data, kantor, role, perusahaan, program, dan jenis pengajuan tampil lewat `LocalizedName` (`name_en` dengan cadangan `name_ar` bila kosong). Tetap berbahasa Arab: nama pribadi berbahasa Arab, sertifikat dan surat PDF (snapshot), dan kolom input `name_ar`.
 - MFA wajib untuk semua role di panel Central dan untuk Center Admin, Head of Dawah, Approver (fitur MFA bawaan Filament: app authentication + recovery codes).
 
 ## 1.4 Konvensi kode

@@ -21,6 +21,7 @@ use App\Filament\Center\Pages\RegisterShahadah;
 use App\Filament\Center\Resources\Prospects\ProspectResource;
 use App\Filament\Concerns\ResolvesActor;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -99,8 +100,8 @@ final class ViewProspect extends ViewRecord
                 ->authorize(fn (): bool => auth()->user()?->can('transfer', $this->record) ?? false)
                 ->schema([
                     Select::make('to_tenant_id')->label(__('transfers.fields.destination'))->required()->searchable()
-                        ->options(fn (): array => Tenant::query()->where('status', TenantStatus::Active)
-                            ->whereKeyNot($this->record->tenant_id)->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                        ->options(fn (): array => LocalizedName::options(Tenant::query()->where('status', TenantStatus::Active)
+                            ->whereKeyNot($this->record->tenant_id))),
                     Textarea::make('reason')->label(__('transfers.fields.reason'))->required()->maxLength(1000),
                 ])
                 ->action($this->run(fn (array $data) => app(ProspectTransfers::class)

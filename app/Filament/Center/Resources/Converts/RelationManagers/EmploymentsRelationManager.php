@@ -9,6 +9,7 @@ use App\Domain\Converts\Enums\JobStatus;
 use App\Domain\Converts\Models\ConvertEmployment;
 use App\Domain\Platform\Models\City;
 use App\Support\Geo\GoogleMapsLink;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -38,7 +39,7 @@ final class EmploymentsRelationManager extends LocationRelationManager
     {
         return $schema->columns(2)->components([
             Select::make('company_id')->label(__('converts.locations.company'))->searchable()
-                ->options(fn (): array => Company::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Company::query())),
             TextInput::make('company_name_free')->label(__('converts.locations.company_name_free'))->maxLength(255),
             TextInput::make('occupation')->label(__('converts.locations.occupation'))->maxLength(255),
             TextInput::make('department')->label(__('converts.locations.department'))->maxLength(255),
@@ -46,7 +47,7 @@ final class EmploymentsRelationManager extends LocationRelationManager
             TextInput::make('work_phone_encrypted')->label(__('converts.locations.work_phone'))->tel()->maxLength(30),
             TextInput::make('work_location_description')->label(__('converts.locations.work_location'))->maxLength(255),
             Select::make('work_city_id')->label(__('converts.locations.work_city'))->searchable()
-                ->options(fn (): array => City::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(City::query())),
             TextInput::make('work_google_maps_url')->label(__('converts.locations.google_maps_url'))->url()->maxLength(500)
                 ->helperText(__('companies.help.google_maps_url'))->columnSpanFull(),
             TextInput::make('work_latitude')->label(__('converts.locations.latitude'))->numeric()->minValue(-90)->maxValue(90),
@@ -66,7 +67,7 @@ final class EmploymentsRelationManager extends LocationRelationManager
             ->defaultSort('is_current', 'desc')
             ->columns([
                 TextColumn::make('company_label')->label(__('converts.locations.company'))
-                    ->state(fn (ConvertEmployment $record): string => $record->company->name_ar ?? $record->company_name_free ?? '—'),
+                    ->state(fn (ConvertEmployment $record): string => LocalizedName::of($record->company) ?? $record->company_name_free ?? '—'),
                 TextColumn::make('occupation')->label(__('converts.locations.occupation'))->placeholder('—'),
                 TextColumn::make('employment_status')->label(__('converts.locations.employment_status'))->badge()
                     ->formatStateUsing(fn (JobStatus $state): string => $state->label()),

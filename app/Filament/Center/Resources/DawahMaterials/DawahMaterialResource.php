@@ -15,6 +15,7 @@ use App\Filament\Center\Resources\DawahMaterials\Pages\ManageDawahMaterials;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantContext;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -71,7 +72,7 @@ final class DawahMaterialResource extends Resource
             Select::make('material_type')->label(__('dawah.material_fields.material_type'))->required()
                 ->options(collect(MaterialType::cases())->mapWithKeys(fn (MaterialType $type): array => [$type->value => $type->label()])->all()),
             Select::make('language_id')->label(__('dawah.material_fields.language'))->required()->searchable()
-                ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Language::query())),
             TextInput::make('topic')->label(__('dawah.material_fields.topic'))->maxLength(255),
             TextInput::make('target_audience')->label(__('dawah.material_fields.target_audience'))->maxLength(255),
             TextInput::make('external_url')->label(__('dawah.material_fields.external_url'))->url()->maxLength(500),
@@ -93,7 +94,7 @@ final class DawahMaterialResource extends Resource
             ->columns([
                 TextColumn::make('title')->label(__('dawah.material_fields.title'))->searchable()->limit(40),
                 TextColumn::make('material_type')->label(__('dawah.material_fields.material_type'))->formatStateUsing(fn (MaterialType $state): string => $state->label()),
-                TextColumn::make('language.name_ar')->label(__('dawah.material_fields.language')),
+                TextColumn::make('language.'.LocalizedName::column())->label(__('dawah.material_fields.language')),
                 TextColumn::make('version')->label(__('dawah.material_fields.version')),
                 TextColumn::make('scope')->label(__('dawah.material_fields.scope'))
                     ->state(fn (DawahMaterial $record): string => (string) __($record->isNational() ? 'dawah.material_fields.national' : 'dawah.material_fields.office')),
@@ -105,7 +106,7 @@ final class DawahMaterialResource extends Resource
                 SelectFilter::make('status')->label(__('dawah.material_fields.status'))
                     ->options(collect(MaterialStatus::cases())->mapWithKeys(fn (MaterialStatus $status): array => [$status->value => $status->label()])->all()),
                 SelectFilter::make('language_id')->label(__('dawah.material_fields.language'))
-                    ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Language::query())),
             ])
             ->recordActions([
                 EditAction::make()->using(fn (Model $record, array $data): Model => $record instanceof DawahMaterial ? self::save($record, $data) : $record),

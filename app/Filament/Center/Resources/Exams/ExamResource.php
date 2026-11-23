@@ -17,6 +17,7 @@ use App\Filament\Center\Resources\Exams\Pages\ListExams;
 use App\Filament\Center\Resources\Exams\Pages\ViewExam;
 use App\Models\User;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
@@ -79,7 +80,7 @@ final class ExamResource extends Resource
             TextInput::make('title')->label(__('exams.fields.title'))->required()->maxLength(255),
             Select::make('exam_type')->label(__('exams.fields.exam_type'))->required()->options(collect(ExamType::cases())->mapWithKeys(fn (ExamType $case): array => [$case->value => $case->label()])->all()),
             Select::make('program_id')->label(__('exams.fields.program'))->required()->live()
-                ->options(fn (): array => GuidanceProgram::query()->where('active', true)->orderBy('code')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(GuidanceProgram::query()->where('active', true)->orderBy('code'), sortByName: false)),
             Select::make('class_id')->label(__('exams.fields.class'))
                 ->options(fn (Get $get): array => GuidanceClass::query()->where('program_id', $get('program_id'))->orderBy('code')->pluck('name', 'id')->all()),
             TextInput::make('maximum_score')->label(__('exams.fields.maximum_score'))->numeric()->minValue(1)->maxValue(1000)->default(100)->required(),

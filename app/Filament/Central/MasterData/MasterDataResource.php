@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Central\MasterData;
 
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
@@ -17,6 +18,7 @@ use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -28,6 +30,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 abstract class MasterDataResource extends Resource
 {
     protected static ?string $recordTitleAttribute = 'name_ar';
+
+    public static function getRecordTitle(?Model $record): string
+    {
+        return LocalizedName::of($record) ?? static::getModelLabel();
+    }
 
     /** Key under lang/{locale}/platform.php, such as "regions". */
     abstract protected static function translationKey(): string;

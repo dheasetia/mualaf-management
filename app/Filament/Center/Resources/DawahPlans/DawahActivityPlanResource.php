@@ -16,6 +16,7 @@ use App\Filament\Center\Resources\DawahPlans\Pages\ListDawahActivityPlans;
 use App\Filament\Center\Resources\DawahPlans\Pages\ViewDawahActivityPlan;
 use App\Models\User;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -69,7 +70,7 @@ final class DawahActivityPlanResource extends Resource
         return $schema->columns(2)->components([
             TextInput::make('title')->label(__('dawah.fields.title'))->required()->maxLength(255)->columnSpanFull(),
             Select::make('activity_type_id')->label(__('dawah.fields.activity_type'))->required()->searchable()
-                ->options(fn (): array => DaiActivityType::query()->where('active', true)->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(DaiActivityType::query()->where('active', true))),
             Select::make('responsible_dai_id')->label(__('dawah.fields.responsible_dai'))->searchable()
                 ->options(fn (): array => app(DaiDirectory::class)->activeOptions()),
             Textarea::make('objective')->label(__('dawah.fields.objective'))->required()->maxLength(5000)->columnSpanFull(),
@@ -78,7 +79,7 @@ final class DawahActivityPlanResource extends Resource
             TextInput::make('expected_participants')->label(__('dawah.fields.expected_participants'))->integer()->minValue(1)->maxValue(100000),
             DatePicker::make('planned_date')->label(__('dawah.fields.planned_date'))->required(),
             Select::make('city_id')->label(__('dawah.fields.city'))->searchable()
-                ->options(fn (): array => City::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(City::query())),
             TimePicker::make('start_time')->label(__('dawah.fields.start_time'))->seconds(false),
             TimePicker::make('end_time')->label(__('dawah.fields.end_time'))->seconds(false),
             TextInput::make('location')->label(__('dawah.fields.location'))->maxLength(255),
@@ -96,7 +97,7 @@ final class DawahActivityPlanResource extends Resource
                 TextEntry::make('plan_number')->label(__('dawah.fields.plan_number')),
                 TextEntry::make('status')->label(__('dawah.fields.status'))->badge()
                     ->formatStateUsing(fn (PlanStatus $state): string => $state->label())->color(fn (PlanStatus $state): string => $state->color()),
-                TextEntry::make('activityType.name_ar')->label(__('dawah.fields.activity_type')),
+                TextEntry::make('activityType.'.LocalizedName::column())->label(__('dawah.fields.activity_type')),
                 TextEntry::make('planned_date')->label(__('dawah.fields.planned_date'))->date('Y-m-d'),
                 TextEntry::make('responsible')->label(__('dawah.fields.responsible_dai'))
                     ->state(fn (DawahActivityPlan $record): string => app(DaiDirectory::class)->names([$record->responsible_dai_id])[$record->responsible_dai_id] ?? '—'),
@@ -135,7 +136,7 @@ final class DawahActivityPlanResource extends Resource
             ->columns([
                 TextColumn::make('plan_number')->label(__('dawah.fields.plan_number'))->searchable()->fontFamily('mono'),
                 TextColumn::make('title')->label(__('dawah.fields.title'))->searchable()->limit(40),
-                TextColumn::make('activityType.name_ar')->label(__('dawah.fields.activity_type')),
+                TextColumn::make('activityType.'.LocalizedName::column())->label(__('dawah.fields.activity_type')),
                 TextColumn::make('planned_date')->label(__('dawah.fields.planned_date'))->date('Y-m-d')->sortable(),
                 TextColumn::make('status')->label(__('dawah.fields.status'))->badge()
                     ->formatStateUsing(fn (PlanStatus $state): string => $state->label())->color(fn (PlanStatus $state): string => $state->color()),

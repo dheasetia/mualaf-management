@@ -14,6 +14,7 @@ use App\Domain\Privileged\Enums\PrivilegedScope;
 use App\Domain\Privileged\Models\PrivilegedAccessRequest;
 use App\Domain\Registration\Services\ShahadahDirectory;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantContext;
 
 /**
@@ -39,10 +40,10 @@ final readonly class PrivilegedConvertView
                     'full_name' => $convert->full_name,
                     'islamic_name' => $convert->islamic_name,
                     'gender' => $convert->gender->label(),
-                    'nationality' => (string) $convert->nationality?->getAttribute('name_ar'),
+                    'nationality' => (string) LocalizedName::of($convert->nationality),
                     'status' => $convert->status->label(),
-                    'office' => (string) Tenant::query()->whereKey($tenantId)->value('name_ar'),
-                    'disclosure' => $convert->disclosure_risk_level->value,
+                    'office' => (string) LocalizedName::of(Tenant::query()->find($tenantId)),
+                    'disclosure' => $convert->disclosure_risk_level->label(),
                     'primary_dai' => $this->dais->names([$convert->primary_dai_id])[$convert->primary_dai_id] ?? null,
                 ];
             }

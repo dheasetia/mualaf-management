@@ -11,6 +11,7 @@ use App\Domain\Registration\Services\ShahadahDirectory;
 use App\Domain\Reporting\Enums\ExportType;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -53,7 +54,7 @@ final readonly class ExportBuilder
                     $convert->alias(),
                     $this->access->displayName($requester, $convert),
                     $convert->gender->label(),
-                    (string) $convert->nationality?->getAttribute('name_ar'),
+                    (string) LocalizedName::of($convert->nationality),
                     $convert->status->label(),
                     $shahadah === null ? null : $shahadah['date']->toDateString(),
                     $convert->disclosure_risk_level->value,
@@ -71,7 +72,7 @@ final readonly class ExportBuilder
     {
         $from = CarbonImmutable::parse((string) ($filters['from'] ?? CarbonImmutable::now()->startOfYear()->toDateString()));
         $to = CarbonImmutable::parse((string) ($filters['to'] ?? CarbonImmutable::now()->toDateString()));
-        $offices = Tenant::query()->pluck('name_ar', 'id');
+        $offices = collect(LocalizedName::map(Tenant::query()));
 
         $rows = DB::table('report_daily_tenant_stats')->where('metric', 'shahadah_verified')
             ->whereBetween('stat_date', [$from->toDateString(), $to->toDateString()])

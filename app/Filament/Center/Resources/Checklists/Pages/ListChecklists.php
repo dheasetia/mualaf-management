@@ -11,6 +11,7 @@ use App\Domain\Platform\Models\Country;
 use App\Filament\Center\Resources\Checklists\ChecklistResource;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -33,7 +34,7 @@ final class ListChecklists extends ListRecords
                         ->options(fn (): array => ($user = auth()->user()) instanceof User ? app(ConvertAccess::class)->visible(Convert::query(), $user)->orderBy('full_name')->limit(500)->get()
                             ->mapWithKeys(fn (Convert $convert): array => [$convert->id => app(ConvertAccess::class)->displayName($user, $convert)])->all() : []),
                     Select::make('destination_country_id')->label(__('international.fields.destination_country'))->searchable()
-                        ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                        ->options(fn (): array => LocalizedName::options(Country::query())),
                     DatePicker::make('expected_departure_on')->label(__('international.fields.expected_departure_on')),
                 ])
                 ->action(self::domainAction(fn (mixed $record, array $data, User $user) => app(Checklists::class)->open(

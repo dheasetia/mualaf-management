@@ -10,6 +10,7 @@ use App\Domain\International\Models\ConvertHomeLocation;
 use App\Domain\Platform\Models\Country;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -58,7 +59,7 @@ final class HomeLocationsRelationManager extends RelationManager
     {
         $form = [
             Select::make('country_id')->label(__('international.fields.country'))->required()->searchable()
-                ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Country::query())),
             TextInput::make('province_state')->label(__('international.fields.province_state'))->maxLength(255),
             TextInput::make('city')->label(__('international.fields.city'))->maxLength(255),
             TextInput::make('district')->label(__('international.fields.district'))->maxLength(255),

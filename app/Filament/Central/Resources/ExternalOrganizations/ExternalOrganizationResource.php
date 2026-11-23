@@ -10,6 +10,7 @@ use App\Domain\International\Models\ExternalIslamicOrganization;
 use App\Domain\Platform\Models\Country;
 use App\Filament\Central\Resources\ExternalOrganizations\Pages\ManageExternalOrganizations;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -64,7 +65,7 @@ final class ExternalOrganizationResource extends Resource
             Select::make('organization_type')->label(__('international.fields.organization_type'))->required()
                 ->options(collect(OrganizationType::cases())->mapWithKeys(fn (OrganizationType $case): array => [$case->value => $case->label()])->all()),
             Select::make('country_id')->label(__('international.fields.country'))->required()->searchable()
-                ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Country::query())),
             TextInput::make('city')->label(__('international.fields.city'))->required()->maxLength(255),
             TextInput::make('contact_person')->label(__('international.fields.contact_person'))->maxLength(255),
             TextInput::make('phone')->label(__('international.fields.phone'))->tel()->maxLength(40),
@@ -99,7 +100,7 @@ final class ExternalOrganizationResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('country_id')->label(__('international.fields.country'))->searchable()
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Country::query())),
             ])
             ->recordActions([
                 EditAction::make(),

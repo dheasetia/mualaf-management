@@ -12,6 +12,7 @@ use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Models\ConvertContactPerson;
 use App\Domain\Platform\Models\Language;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -45,12 +46,12 @@ final class ContactPersonsRelationManager extends LocationRelationManager
             Select::make('contact_role')->label(__('converts.locations.contact_role'))->required()
                 ->options(collect(ContactRole::cases())->mapWithKeys(fn (ContactRole $case): array => [$case->value => $case->label()])->all()),
             Select::make('company_id')->label(__('converts.locations.company'))->searchable()
-                ->options(fn (): array => Company::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Company::query())),
             TextInput::make('phone_encrypted')->label(__('converts.locations.phone'))->tel()->maxLength(30),
             TextInput::make('alternate_phone_encrypted')->label(__('converts.locations.alternate_phone'))->tel()->maxLength(30),
             TextInput::make('email')->label(__('converts.locations.email'))->email()->maxLength(255),
             Select::make('preferred_language_id')->label(__('converts.locations.preferred_language'))->searchable()
-                ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Language::query())),
             Toggle::make('permission_to_contact')->label(__('converts.locations.permission_to_contact')),
             Select::make('disclosure_scope')->label(__('converts.locations.disclosure_scope'))->required()
                 ->options(collect(DisclosureScope::cases())->mapWithKeys(fn (DisclosureScope $case): array => [$case->value => $case->label()])->all())->default(DisclosureScope::None->value),

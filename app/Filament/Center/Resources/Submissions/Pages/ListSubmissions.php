@@ -11,6 +11,7 @@ use App\Domain\Converts\Services\ConvertAccess;
 use App\Filament\Center\Resources\Submissions\SubmissionResource;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -36,7 +37,7 @@ final class ListSubmissions extends ListRecords
                                 ->mapWithKeys(fn (Convert $convert): array => [$convert->id => app(ConvertAccess::class)->displayName($user, $convert)])->all() : [];
                         }),
                     Select::make('submission_type_id')->label(__('submissions.fields.type'))->required()
-                        ->options(fn (): array => SubmissionType::query()->where('active', true)->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                        ->options(fn (): array => LocalizedName::options(SubmissionType::query()->where('active', true))),
                     Textarea::make('notes')->label(__('submissions.fields.notes'))->maxLength(2000),
                 ])
                 ->action(self::domainAction(function (mixed $record, array $data, User $user): void {

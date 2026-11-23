@@ -7,6 +7,7 @@ namespace App\Domain\Tenancy\Models;
 use App\Domain\Platform\Models\City;
 use App\Domain\Platform\Models\Region;
 use App\Domain\Tenancy\Enums\TenantStatus;
+use App\Support\Localization\LocalizedName;
 use Carbon\CarbonImmutable;
 use Database\Factories\Tenancy\TenantFactory;
 use Filament\Models\Contracts\HasName;
@@ -56,7 +57,7 @@ final class Tenant extends Model implements HasName
 
     public function getFilamentName(): string
     {
-        return $this->name_ar;
+        return (string) LocalizedName::of($this);
     }
 
     public function isActive(): bool

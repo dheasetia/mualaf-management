@@ -14,6 +14,7 @@ use App\Domain\Platform\Models\Country;
 use App\Domain\Tenancy\Models\UserTenantMembership;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantContext;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -83,7 +84,7 @@ final class ConsentsRelationManager extends RelationManager
                             ->options(collect(SharedField::cases())->mapWithKeys(fn (SharedField $case): array => [$case->value => $case->label()])->all()),
                         Select::make('destination_country_id')->label(__('international.fields.destination_country'))->searchable()
                             ->visible(fn (Get $get): bool => $get('consent_type') === ConsentType::InternationalSharing->value)
-                            ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                            ->options(fn (): array => LocalizedName::options(Country::query())),
                         Select::make('method')->label(__('international.fields.method'))->required()->live()->options(collect(ConsentMethod::cases())->mapWithKeys(fn (ConsentMethod $case): array => [$case->value => $case->label()])->all()),
                         Select::make('witnessed_by')->label(__('international.fields.witnessed_by'))->searchable()
                             ->visible(fn (Get $get): bool => $get('method') === ConsentMethod::VerbalWitnessed->value)

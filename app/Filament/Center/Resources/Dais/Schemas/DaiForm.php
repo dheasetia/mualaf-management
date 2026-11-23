@@ -13,6 +13,7 @@ use App\Domain\Platform\Models\Country;
 use App\Domain\Platform\Models\Language;
 use App\Domain\Tenancy\Enums\MembershipStatus;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantContext;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -45,7 +46,7 @@ final class DaiForm
                 Select::make('gender')->label(__('dai.fields.gender'))->required()
                     ->options(self::options(Gender::cases())),
                 Select::make('nationality_id')->label(__('dai.fields.nationality'))
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all())
+                    ->options(fn (): array => LocalizedName::options(Country::query()))
                     ->searchable(),
                 TextInput::make('education')->label(__('dai.fields.education'))->maxLength(255),
                 TagsInput::make('specialties')->label(__('dai.fields.specialties'))->columnSpanFull(),
@@ -77,7 +78,7 @@ final class DaiForm
                 Repeater::make('language_rows')->hiddenLabel()
                     ->schema([
                         Select::make('language_id')->label(__('dai.fields.language'))->required()
-                            ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all())
+                            ->options(fn (): array => LocalizedName::options(Language::query()))
                             ->searchable()
                             ->distinct()
                             ->disableOptionsWhenSelectedInSiblingRepeaterItems(),

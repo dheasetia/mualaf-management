@@ -14,6 +14,7 @@ use App\Domain\FollowUp\Models\ConvertLongTermFollowUp;
 use App\Domain\Platform\Models\Country;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantScope;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
@@ -64,7 +65,7 @@ final class LongTermFollowUpsRelationManager extends RelationManager
             Select::make('contacted_person_type')->label(__('followup.fields.contacted_person_type'))->required()->default(ContactedPerson::Convert->value)->options(collect(ContactedPerson::cases())->mapWithKeys(fn (ContactedPerson $case): array => [$case->value => $case->label()])->all()),
             Select::make('contact_result')->label(__('followup.fields.contact_result'))->required()->options(collect(ContactResult::cases())->mapWithKeys(fn (ContactResult $case): array => [$case->value => $case->label()])->all()),
             Select::make('current_country_id')->label(__('followup.fields.current_country'))->searchable()
-                ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Country::query())),
             TextInput::make('current_city')->label(__('followup.fields.current_city'))->maxLength(255),
             TextInput::make('mosque_or_center_name')->label(__('followup.fields.mosque_or_center_name'))->maxLength(255),
             TextInput::make('local_dai_name')->label(__('followup.fields.local_dai_name'))->maxLength(255),
