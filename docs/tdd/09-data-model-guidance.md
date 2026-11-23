@@ -131,6 +131,13 @@ exam_results
 
 Hasil `finalized` immutable; perubahan memakai status `amended` dengan alasan dan audit. Teacher hanya dapat menilai ujian untuk kelas yang ditugaskan; finalisasi oleh Examination Officer.
 
+Implementasi (langkah 16, `app/Domain/Examinations`; memakai Guidance hanya lewat `EnrollmentDirectory` dan `TeacherAssignments`, dijaga arch test):
+
+- `exams.manage`: ujian dengan minimal satu komponen (`passing_score ≤ maximum_score`; kelas harus milik program ujian), hanya dapat diubah selama `scheduled`; kandidat = enrollment program (dan kelas) tanpa attempt terbuka dan belum lulus pada hasil final; nomor attempt berurutan.
+- Nilai akhir = Σ(skor/max × bobot) / Σ bobot × `maximum_score` (`ScoreCalculator`), lulus bila ≥ `passing_score`. `exams.grade` mengisi semua komponen dalam batasnya; Teacher hanya untuk kandidat kelas yang ia ajar. Ujian otomatis `graded` bila tidak ada attempt yang tersisa.
+- `graded → pending_finalization` (`exams.grade`), `pending_finalization → finalized` atau kembali ke `graded` (`exams.finalize`). Finalisasi membuat hasil `finalized` (model menolak perubahan berikutnya), attempt `finalized`, dan menyalin nilai final terbaik ke `enrollments.final_score`. Amandemen: `exams.finalize`, alasan wajib, audit `exams.result_amended`.
+- Teacher (pemegang `exams.grade` tanpa `exams.view`/`exams.manage`) hanya melihat ujian kelasnya.
+
 ## 9.6 Sertifikat
 
 ```

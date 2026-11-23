@@ -34,3 +34,7 @@ arch('the registration module does not use prospect or da\'i models')
 arch('the converts module does not depend on the registration module')
     ->expect('App\Domain\Converts')
     ->not->toUse('App\Domain\Registration');
+
+arch('the examinations module uses guidance through its services only')
+    ->expect('App\Domain\Examinations')
+    ->not->toUse('App\Domain\Guidance\Models');
