@@ -28,7 +28,7 @@
 | 22 | Submissions (selesai 23-11-2026) | 7 | Jenis (seed), workflow lengkap, lampiran per persyaratan milik submission, approval bertahap, penerbitan surat saat selesai. Sisa: pengelolaan jenis di Central, notifikasi SLA |
 | 23 | Pilgrimage (selesai 23-11-2026) | 7 | Program, persyaratan, eligibility, registrasi, kuota terkunci + waitlist, grup. Sisa: consent (langkah 24), transport via kegiatan |
 | 24 | Long-term follow-up (selesai 23-11-2026) | 8 | Status follow-up append-only, jadwal dari template + saran otomatis (PRD §31), catatan, negara asal, consent, referral internasional berbasis consent, checklist pra-kepulangan, direktori organisasi (Central). Sisa: notifikasi ke Primary Da'i |
-| 25 | Reporting | 9 | Tabel agregat, dashboard kantor dan nasional, export |
+| 25 | Reporting (selesai 23-11-2026) | 9 | Agregasi harian `reports:aggregate`, dashboard kantor (Center) dan nasional (Central) dari tabel agregat, export terenkripsi AES-256 24 jam. Sisa: import, read replica |
 | 26 | Security hardening | 10 | Pentest, CSP, review akses, load test, runbook |
 
 ## 16.2 Definition of Done per modul

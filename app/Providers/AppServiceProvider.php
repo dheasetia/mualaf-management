@@ -72,6 +72,8 @@ use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\DuplicateReviewCase;
 use App\Domain\Registration\Policies\ConvertRegistrationPolicy;
 use App\Domain\Registration\Policies\DuplicateReviewCasePolicy;
+use App\Domain\Reporting\Models\ExportJob;
+use App\Domain\Reporting\Policies\ExportJobPolicy;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Transfers\Events\TransferCompleted;
 use App\Domain\Transfers\Models\ConvertTransferRequest;
@@ -140,6 +142,7 @@ class AppServiceProvider extends ServiceProvider
             'pilgrimage_program' => PilgrimageProgram::class,
             'pilgrimage_registration' => PilgrimageRegistration::class,
             'consent' => ConsentRecord::class,
+            'export' => ExportJob::class,
             'referral' => InternationalReferral::class,
             'checklist' => PreDepartureChecklist::class,
             'home_contact' => ConvertHomeCountryContact::class,
@@ -188,6 +191,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DawahMaterial::class, DawahMaterialPolicy::class);
         Gate::policy(DawahMaterialDistribution::class, DawahMaterialDistributionPolicy::class);
         Gate::policy(Submission::class, SubmissionPolicy::class);
+        Gate::policy(ExportJob::class, ExportJobPolicy::class);
 
         foreach ([InternationalReferral::class, PreDepartureChecklist::class, ExternalIslamicOrganization::class] as $internationalModel) {
             Gate::policy($internationalModel, InternationalPolicy::class);
