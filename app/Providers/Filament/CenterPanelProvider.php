@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Domain\Tenancy\Models\Tenant;
+use App\Filament\Auth\Login;
+use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\SetTenantContext;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,7 +32,12 @@ class CenterPanelProvider extends PanelProvider
         return $panel
             ->id('center')
             ->path('center')
-            ->login()
+            ->login(Login::class)
+            ->passwordReset()
+            ->profile()
+            ->multiFactorAuthentication([
+                AppAuthentication::make()->recoverable(),
+            ], isRequired: false)
             ->tenant(Tenant::class, slugAttribute: 'code')
             ->tenantMiddleware([
                 SetTenantContext::class,
@@ -59,6 +67,7 @@ class CenterPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnforceAbsoluteSessionLifetime::class,
             ]);
     }
 }
