@@ -38,7 +38,7 @@ Aturan:
 
 - `shahadah_records.tenant_id` = kantor asal (sama dengan `converts.origin_tenant_id` untuk syahadat pertama).
 - `verified_by` harus berbeda dari `recorded_by` (segregation of duties, ditegakkan service).
-- Setiap syahadat dicatat bersama saksinya dalam transaksi yang sama: minimal `SHAHADAH_MIN_WITNESSES` (default 2, jumlah resmi belum diputuskan), maksimal 5, masing-masing nama dan nomor telepon valid (disimpan ternormalisasi `+digit`, terenkripsi), tanpa telepon ganda; `identity_last4` bila diisi harus 4 digit. Nama saksi tampil di antrean verifikasi dan di scope `shahadah` akses istimewa; telepon tidak ditampilkan.
+- Setiap syahadat dicatat bersama saksinya dalam transaksi yang sama: minimal 2 saksi (diputuskan 23-11-2026; `SHAHADAH_MIN_WITNESSES`), maksimal 5, masing-masing nama dan nomor telepon valid (disimpan ternormalisasi `+digit`, terenkripsi), tanpa telepon ganda; `identity_last4` bila diisi harus 4 digit. Nama saksi tampil di antrean verifikasi dan di scope `shahadah` akses istimewa; telepon tidak ditampilkan.
 - Record `voided` hanya melalui Head of Dawah + Central approval (koreksi data), tercatat di audit; tidak pernah dihapus.
 
 ## 7.2 Duplicate review
