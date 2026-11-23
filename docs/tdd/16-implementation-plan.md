@@ -62,15 +62,15 @@ Langkah 1 (project foundation) dapat dimulai sebelum gate penuh karena tidak ber
 
 | # | Pertanyaan | Dampak | Pemilik |
 | --- | --- | --- | --- |
-| 1 | Apakah sertifikat dan surat wajib menampilkan tanggal Hijriah (Umm al-Qura) di samping Masehi? | Template PDF, snapshot | Islamic Center Dammam |
-| 2 | Apakah syahadat wajib mencatat saksi (nama, kontak)? | Tabel `shahadah_witnesses`, form registrasi | Kepala Bagian Dakwah |
-| 3 | Apakah gender convert membatasi da'i/guru yang dapat ditugaskan? | Validasi assignment, `guidance_classes.gender_policy` | Kepala Bagian Dakwah |
+| 1 | ~~Apakah sertifikat dan surat wajib menampilkan tanggal Hijriah (Umm al-Qura) di samping Masehi?~~ Diputuskan 23-11-2026: **wajib** di sertifikat. | Template PDF, snapshot | Islamic Center Dammam |
+| 2 | ~~Apakah syahadat wajib mencatat saksi (nama, kontak)?~~ Diputuskan 23-11-2026: **wajib** dicatat. | Tabel `shahadah_witnesses`, form registrasi | Kepala Bagian Dakwah |
+| 3 | ~~Apakah gender convert membatasi da'i/guru yang dapat ditugaskan?~~ Diputuskan 23-11-2026: **tidak membatasi** penugasan da'i (sesuai implementasi; `gender_policy` kelas tetap mengatur komposisi kelas). | Validasi assignment, `guidance_classes.gender_policy` | Kepala Bagian Dakwah |
 | 4 | SLA respons kantor lama untuk transfer sebelum eskalasi otomatis (usulan 7 hari)? | Scheduler eskalasi | Islamic Center Dammam |
 | 5 | ~~Siapa yang menyetujui privileged access darurat bila Super Admin satu-satunya yang tersedia?~~ Diputuskan 22-11-2026: Central Auditor juga memegang `privileged.approve`; tanpa self-approval. | Break-glass policy | Security administration |
 | 6 | Kebijakan retensi resmi per kategori data | `data_retention_rules` | Legal / kebijakan |
-| 7 | Hosting: cloud region di Saudi (misal penyedia lokal) atau on-premise? | Infrastruktur, kepatuhan PDPL | Islamic Center Dammam |
+| 7 | ~~Hosting: cloud region di Saudi (misal penyedia lokal) atau on-premise?~~ Diputuskan 23-11-2026: **Hostinger**. Perlu VPS (Gotenberg, ClamAV, Redis, worker, scheduler); lokasi pusat data di luar Saudi berarti transfer data lintas negara menurut PDPL — wajib dikonfirmasi pihak legal sebelum pilot. | Infrastruktur, kepatuhan PDPL | Islamic Center Dammam |
 | 8 | Apakah ada integrasi resmi dengan instansi pemerintah (Absher, Muqeem) di masa depan? | Integration logs, identitas terverifikasi | Islamic Center Dammam |
-| 9 | Kanal notifikasi selain email (SMS, WhatsApp Business API)? | Notification channels, biaya | Islamic Center Dammam |
+| 9 | ~~Kanal notifikasi selain email (SMS, WhatsApp Business API)?~~ Diputuskan 23-11-2026: **WhatsApp** (WhatsApp Business Platform / Cloud API: template pesan disetujui Meta, biaya per percakapan; isi tetap generik tanpa data pribadi). | Notification channels, biaya | Islamic Center Dammam |
 | 10 | Ambang skor fuzzy duplicate (usulan 0,85) dan field yang dipakai — diterapkan sementara: 0,85 via `DUPLICATE_MATCH_THRESHOLD`, bobot di 04 §4.4 | Duplicate review volume | Tim teknis + admin pilot |
 
 ## 16.5 Kepatuhan
