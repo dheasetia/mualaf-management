@@ -25,6 +25,7 @@ final class RoleCatalog
                 'tenants.view', 'tenants.create', 'tenants.update', 'tenants.activate', 'tenants.suspend',
                 'users.view', 'users.create', 'users.update', 'users.deactivate', 'users.assign_roles',
                 'master.manage', 'documents.templates.manage', 'international.organizations.manage',
+                'materials.view', 'materials.create', 'materials.approve',
                 'reports.view_national', 'reports.export', 'audit.view_national',
                 'privileged.request', 'privileged.approve',
             ]),
@@ -32,6 +33,7 @@ final class RoleCatalog
                 'tenants.view', 'tenants.create', 'tenants.update', 'tenants.activate', 'tenants.suspend',
                 'users.view', 'users.create', 'users.update', 'users.deactivate', 'users.assign_roles',
                 'master.manage', 'documents.templates.manage', 'international.organizations.manage',
+                'materials.view', 'materials.create', 'materials.approve',
                 'converts.correct_origin', 'shahadah.approve_void', 'reports.view_national', 'audit.view_national', 'privileged.request',
             ]),
             // Also approves privileged access, so requests do not stall on a single

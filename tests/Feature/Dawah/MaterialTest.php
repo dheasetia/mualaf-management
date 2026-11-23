@@ -11,8 +11,14 @@ use App\Domain\Dawah\Models\DawahMaterial;
 use App\Domain\Dawah\Models\DawahMaterialDistribution;
 use App\Domain\Platform\Models\Language;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Filament\Central\Resources\DawahMaterials\Pages\ManageDawahMaterials as CentralMaterials;
+use App\Models\User;
+use App\Support\Exceptions\RuleViolation;
+use App\Support\Tenancy\TenantContext;
+use Filament\Facades\Filament;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 
 beforeEach(function (): void {
     seedRbac();
@@ -109,4 +115,44 @@ it('shows national materials to every office and office materials only to their 
         app(DistributeMaterial::class)->handle($national, ['quantity' => 3], $this->daiUser);
         expect($national->refresh()->stock_quantity)->toBeNull();
     });
+});
+
+it('lets Central draft, review and approve national materials that offices read but do not change', function (): void {
+    $author = grantRole(User::factory()->create(), 'central_admin');
+    $reviewer = grantRole(User::factory()->create(), 'super_admin');
+    app(TenantContext::class)->clear();
+
+    $material = ($this->materials)()->save(null, [
+        'title' => 'Prayer guide', 'material_type' => 'leaflet', 'language_id' => $this->language->id,
+        'external_url' => 'https://example.org/prayer', 'stock_quantity' => 40,
+    ], $author);
+    expect($material)->tenant_id->toBeNull()->stock_quantity->toBeNull();
+
+    ($this->materials)()->submitForReview($material, $author);
+    expect(fn () => ($this->materials)()->approve($material, $author))->toThrow(RuleViolation::class);
+    ($this->materials)()->approve($material, $reviewer);
+    expect(fn () => ($this->materials)()->addStock($material->refresh(), 10, $author))->toThrow(RuleViolation::class);
+
+    ($this->in)(function () use ($material): void {
+        expect(DawahMaterial::query()->whereKey($material->id)->sole()->status)->toBe(MaterialStatus::Approved)
+            ->and(fn () => ($this->materials)()->newVersion($material, '2', $this->head))->toThrow(AuthorizationException::class);
+    });
+
+    // An office material stays out of Central's reach.
+    $office = ($this->draft)();
+    app(TenantContext::class)->clear();
+    expect(DawahMaterial::query()->whereKey($office->id)->exists())->toBeFalse()
+        ->and(fn () => ($this->materials)()->submitForReview($office, $author))->toThrow(AuthorizationException::class);
+});
+
+it('manages national materials from the Central panel', function (): void {
+    $admin = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
+    $this->actingAs($admin);
+    Filament::setCurrentPanel(Filament::getPanel('central'));
+
+    Livewire::test(CentralMaterials::class)
+        ->callAction('create', ['title' => 'Prayer guide', 'material_type' => 'leaflet', 'language_id' => $this->language->id, 'external_url' => 'https://example.org/prayer'])
+        ->assertHasNoActionErrors();
+
+    expect(DawahMaterial::query()->sole())->tenant_id->toBeNull()->title->toBe('Prayer guide');
 });

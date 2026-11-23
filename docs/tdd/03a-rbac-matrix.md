@@ -10,8 +10,8 @@ Dasar: [03-tenancy-authorization.md](03-tenancy-authorization.md) §3.5–3.7.
 
 | Kode | Role | Nama Arab | Scope | Wajib MFA | Jumlah permission |
 | --- | --- | --- | --- | --- | --- |
-| SA | Super Admin | المشرف العام | Platform | Ya | 18 |
-| CA | Central Admin | مسؤول المنصة | Platform | Ya | 18 |
+| SA | Super Admin | المشرف العام | Platform | Ya | 21 |
+| CA | Central Admin | مسؤول المنصة | Platform | Ya | 21 |
 | CAu | Central Auditor | المدقق المركزي | Platform | Ya | 5 |
 | CR | Central Reporting | التقارير المركزية | Platform | Ya | 3 |
 | SO | Support Officer | مسؤول الدعم الفني | Platform | Ya | 2 |
@@ -159,9 +159,9 @@ Role wajib MFA bila berscope platform, atau memegang permission dengan aksi: `as
 
 | Permission | SA | CA | CAu | CR | SO | CtA | HoD | Dai | Reg | SV | GC | Tch | EO | CO | AO | Apr | TO | PO | LA |
 | --- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| `materials.view` |  |  |  |  |  | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  | ✓ |
-| `materials.create` |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |
-| `materials.approve` |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
+| `materials.view` | ✓ | ✓ |  |  |  | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  | ✓ |
+| `materials.create` | ✓ | ✓ |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |
+| `materials.approve` | ✓ | ✓ |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
 | `materials.distribute` |  |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |
 
 ### guidance
