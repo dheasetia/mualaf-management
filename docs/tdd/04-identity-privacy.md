@@ -28,8 +28,10 @@ fingerprint = HMAC-SHA256(IDENTITY_HMAC_KEY[v], type || '|' || issuing_country_i
 
 - Disimpan sebagai `BINARY(32)` di kolom `identity_fingerprint`, beserta `fingerprint_key_version`.
 - Nomor asli dienkripsi dengan Laravel `encrypted` cast (`APP_KEY`; rotasi via `APP_PREVIOUS_KEYS`) di `identity_number_encrypted`.
-- Tampilan default memakai mask: `2•••••••45`. Nomor penuh hanya dengan `identity.reveal` dan tercatat di audit.
+- Tampilan default memakai mask dari `identity_last4` tanpa dekripsi: `••••••4512`. Nomor penuh hanya dengan `identity.reveal` (`IdentityRegistry::reveal`) dan tercatat di audit (`identity.revealed`, via queue `audit`).
 - Rotasi HMAC key: job `RehashIdentifiers` menghitung fingerprint versi baru ke kolom sementara, lalu swap; selama rotasi pencarian memeriksa kedua versi.
+
+Implementasi (langkah 9, `app/Domain/Converts`): `IdentityNumber::normalize` (Luhn standar untuk national ID/Iqamah, paspor `[A-Z0-9]{5,20}`, GCC ID dan nomor perbatasan 6–15 digit, `other` `[A-Z0-9]{3,30}`); fingerprint = `HMAC(key, type|iso2|normalized)` lewat `App\Support\Identity\Fingerprint`. Untuk `national_id`, `iqamah`, `border_number` negara penerbit selalu SA (input negara diabaikan); jenis lain wajib memilih negara.
 
 ## 4.3 Aturan uniqueness
 
@@ -43,7 +45,7 @@ fingerprint = HMAC-SHA256(IDENTITY_HMAC_KEY[v], type || '|' || issuing_country_i
 
 1. **Pre-check (UX)**: Registration Officer memasukkan identitas → sistem menghitung fingerprint → `SELECT` pada `convert_identifiers`. Bila ada: tampilkan hasil terbatas (§3.4 di [03-tenancy-authorization.md](03-tenancy-authorization.md)) dan tombol *Ajukan Transfer*. Registrasi diblokir.
 2. **Fuzzy check**: bila tidak ada exact match, cari kandidat berdasarkan nama ternormalisasi + tanggal lahir + kewarganegaraan (+ gender). Skor ≥ ambang (konfigurasi, default 0,85) → buat `duplicate_review_cases` dan registrasi menunggu keputusan `duplicates.review`.
-3. **Insert (penjaga)**: dalam transaksi syahadat (lihat [12-transactions-state-machines.md](12-transactions-state-machines.md)), insert identifier. Pelanggaran unique (`SQLSTATE 23000`, error 1062) ditangkap dan diubah menjadi `ConvertAlreadyRegistered`; transaksi di-rollback dan kasus dicatat di audit.
+3. **Insert (penjaga)**: dalam transaksi syahadat (lihat [12-transactions-state-machines.md](12-transactions-state-machines.md)), `IdentityRegistry::add` meng-insert identifier. Pelanggaran unique pada `uq_convert_identifiers_active_fingerprint` ditangkap dan diubah menjadi `ConvertAlreadyRegistered`; transaksi di-rollback. Audit kasus ini ditulis oleh pemanggil **setelah** rollback (audit di dalam transaksi ikut hilang).
 4. Tidak memakai `SELECT ... FOR UPDATE` pada baris yang belum ada (gap lock → deadlock pada beban tinggi).
 
 ### Normalisasi nama untuk fuzzy match

@@ -197,6 +197,8 @@ converts
   idx(primary_dai_id, status) · idx(name_search_key)
 ```
 
+Tabel inti `converts` dibuat pada langkah 9 (dibutuhkan FK `convert_identifiers` dan pencarian nasional); `photo_document_id` dan `current_follow_up_status_id` tanpa FK sampai tabelnya ada (langkah 18 dan 24). `origin_tenant_id` dan `current_tenant_id` diisi dari tenant context saat insert; perubahan lewat save biasa melempar `ConvertTenantImmutable`.
+
 Perubahan dari v1.0:
 
 - `phone` dan `email` dihapus; kontak hanya di `convert_contacts` (terenkripsi).

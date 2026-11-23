@@ -33,7 +33,7 @@ Aturan:
 | Subject history | `shahadah_records`, `dai_follow_ups`, `convert_long_term_follow_ups`, `convert_status_histories`, `enrollments`, `certificates` | Aturan 3.3 |
 | Platform | `audit_logs`, `privileged_access_requests`, `export_jobs` | Central, atau tenant sendiri untuk baris `tenant_id` miliknya |
 
-Model convert child menggunakan trait `ScopedThroughConvert` yang menambahkan global scope `whereHas('convert')`. Query langsung tanpa scope hanya diizinkan di dalam domain service yang sudah memverifikasi akses (dengan `withoutGlobalScope` yang dibungkus helper `TenantContext::bypass(reason)` dan tercatat di audit).
+Model convert child menggunakan trait `ScopedThroughConvert` yang menambahkan global scope `whereHas('convert')`. Query lintas kantor hanya diizinkan di dalam domain service yang sudah memverifikasi akses, lewat `TenantContext::bypass(reason, callback)`: selama callback, `ConvertScope` dan `ScopedThroughConvert` tidak membatasi (scope `BelongsToTenant` tetap berlaku). Setiap bypass memicu event `TenantScopeBypassed` yang dicatat modul Audit (`tenancy.bypassed`, dengan alasan).
 
 ## 3.3 Subject-scoped history
 
@@ -59,7 +59,7 @@ Pencarian identitas lintas tenant (duplicate check dan pengajuan transfer) adala
 | Nama convert | Inisial saja (misal "A. R.") kecuali disclosure `normal` dan pencari punya `converts.transfer` |
 | Tanggal syahadat, kontak, alamat, agama sebelumnya | Tidak |
 
-Setiap pencarian nasional dicatat di `audit_logs` (action `identity.national_search`) dan di-rate-limit 30/jam per user.
+Setiap pencarian nasional dicatat di `audit_logs` (action `identity.national_search`, tanpa nomor identitas, dengan hasil ditemukan/tidak) dan di-rate-limit 30/jam per user; nomor yang tidak valid ditolak sebelum dihitung. Untuk `high_confidentiality` hasilnya hanya "terdaftar di kantor lain, hubungi admin pusat" (kantor dan nama tidak ditampilkan). Implementasi: `App\Domain\Converts\Services\NationalSearch`, halaman Center *National identity search*; nomor dihapus dari form setelah pencarian.
 
 ## 3.5 RBAC
 

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Audit\Listeners\RecordTenantScopeBypass;
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Policies\AuditLogPolicy;
+use App\Domain\Converts\Models\Convert;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
 use App\Domain\Identity\Listeners\RecordFailedLogin;
@@ -24,6 +26,7 @@ use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Policies\ProspectPolicy;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
+use App\Support\Tenancy\Events\TenantScopeBypassed;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -53,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
             'tenant' => Tenant::class,
             'dai' => Dai::class,
             'prospect' => Prospect::class,
+            'convert' => Convert::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -83,5 +87,6 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(Failed::class, RecordFailedLogin::class);
         Event::listen(Login::class, RecordSuccessfulLogin::class);
+        Event::listen(TenantScopeBypassed::class, RecordTenantScopeBypass::class);
     }
 }

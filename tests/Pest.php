@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Converts\Services\IdentityNumber;
 use App\Domain\Identity\Actions\AssignRole;
 use App\Domain\Identity\Models\Role;
 use App\Domain\Tenancy\Enums\MembershipStatus;
@@ -78,4 +79,18 @@ function inCenterPanel(Tenant $tenant, User $user): User
     app(TenantContext::class)->set($tenant);
 
     return $user;
+}
+
+/**
+ * A valid Saudi ID number (Luhn) from its first nine digits.
+ */
+function saudiId(string $firstNine): string
+{
+    foreach (range(0, 9) as $check) {
+        if (IdentityNumber::passesLuhn($firstNine.$check)) {
+            return $firstNine.$check;
+        }
+    }
+
+    throw new LogicException('unreachable');
 }
