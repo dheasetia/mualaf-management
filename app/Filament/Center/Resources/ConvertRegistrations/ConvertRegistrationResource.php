@@ -67,7 +67,7 @@ final class ConvertRegistrationResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('tenant_id', app(TenantContext::class)->requireId())
-            ->with(['convert', 'registeredBy']);
+            ->with(['convert', 'registeredBy', 'shahadah.witnesses']);
     }
 
     public static function table(Table $table): Table
@@ -83,6 +83,8 @@ final class ConvertRegistrationResource extends Resource
                     ->formatStateUsing(fn (RegistrationStatus $state): string => $state->label())
                     ->color(fn (RegistrationStatus $state): string => $state === RegistrationStatus::Verified ? 'success' : 'warning'),
                 TextColumn::make('registeredBy.name')->label(__('registration.fields.registered_by')),
+                TextColumn::make('witnesses')->label(__('registration.fields.witnesses'))->listWithLineBreaks()
+                    ->state(fn (ConvertRegistration $record): array => $record->shahadah?->witnesses->pluck('name')->all() ?? []),
             ])
             ->filters([
                 SelectFilter::make('status')->label(__('registration.fields.status'))
@@ -92,6 +94,8 @@ final class ConvertRegistrationResource extends Resource
             ->recordActions([
                 Action::make('verify')->label(__('registration.actions.verify'))->icon('heroicon-o-check-badge')->color('success')
                     ->requiresConfirmation()
+                    ->modalDescription(fn (ConvertRegistration $record): string => __('registration.fields.witnesses').': '
+                        .($record->shahadah?->witnesses->pluck('name')->join('، ') ?? ''))
                     ->authorize(fn (ConvertRegistration $record): bool => auth()->user()?->can('verify', $record) ?? false)
                     ->action(function (ConvertRegistration $record, Action $action): void {
                         $user = auth()->user();

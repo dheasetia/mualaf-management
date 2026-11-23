@@ -27,5 +27,7 @@ final readonly class ShahadahRegistrationData
         public ?string $notes = null,
         public ?string $phone = null,
         public ?string $email = null,
+        /** @var list<ShahadahWitnessData> */
+        public array $witnesses = [],
     ) {}
 }

@@ -16,6 +16,7 @@ use App\Domain\Platform\Models\Religion;
 use App\Domain\Prospects\Services\ProspectConversion;
 use App\Domain\Registration\Actions\RecordShahadah;
 use App\Domain\Registration\Data\ShahadahRegistrationData;
+use App\Domain\Registration\Data\ShahadahWitnessData;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Filament\Center\Resources\Converts\ConvertResource;
 use App\Filament\Concerns\ResolvesActor;
@@ -24,6 +25,7 @@ use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -89,6 +91,7 @@ final class RegisterShahadah extends Page implements HasForms
             'identity_type' => IdentityType::Iqamah->value,
             'shahadah_date' => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString(),
             'prospect_id' => $this->prospect,
+            'witnesses' => array_fill(0, (int) config('registration.shahadah_min_witnesses'), []),
         ]);
 
         if ($this->prospect !== null) {
@@ -143,6 +146,24 @@ final class RegisterShahadah extends Page implements HasForms
                     ->options(fn (): array => app(DaiDirectory::class)->activeOptions()),
                 Textarea::make('notes')->label(__('registration.fields.notes'))->maxLength(2000)->columnSpanFull(),
             ]),
+            Section::make(__('registration.sections.witnesses'))->columnSpanFull()
+                ->description(__('registration.help.witnesses'))
+                ->schema([
+                    Repeater::make('witnesses')->hiddenLabel()
+                        ->schema([
+                            TextInput::make('name')->label(__('registration.fields.witness_name'))->required()->maxLength(255),
+                            TextInput::make('phone')->label(__('registration.fields.witness_phone'))->tel()->required()->maxLength(30)
+                                ->extraInputAttributes(['dir' => 'ltr']),
+                            TextInput::make('identity_last4')->label(__('registration.fields.witness_identity_last4'))->length(4)
+                                ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr']),
+                            TextInput::make('relationship')->label(__('registration.fields.witness_relationship'))->maxLength(100),
+                        ])
+                        ->columns(4)
+                        ->defaultItems((int) config('registration.shahadah_min_witnesses'))
+                        ->minItems((int) config('registration.shahadah_min_witnesses'))
+                        ->maxItems((int) config('registration.shahadah_max_witnesses'))
+                        ->addActionLabel(__('registration.actions.add_witness')),
+                ]),
             Section::make(__('registration.sections.contact'))->columns(2)->columnSpanFull()
                 ->hidden(fn (Get $get): bool => filled($get('prospect_id')))
                 ->schema([
@@ -188,6 +209,7 @@ final class RegisterShahadah extends Page implements HasForms
                 notes: $text($state['notes'] ?? null),
                 phone: $text($state['phone'] ?? null),
                 email: $text($state['email'] ?? null),
+                witnesses: array_values(array_map(ShahadahWitnessData::fromForm(...), $state['witnesses'] ?? [])),
             ), $this->actor());
         } catch (RuleViolation $violation) {
             throw ValidationException::withMessages(['data.'.$violation->field => $violation->getMessage()]);

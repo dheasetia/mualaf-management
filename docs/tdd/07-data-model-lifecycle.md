@@ -26,8 +26,9 @@ shahadah_records
   notes?
   active_first_key gen uq       -- IF(record_type='first' AND status<>'voided', convert_id, NULL)
 
-shahadah_witnesses              -- opsional, menunggu keputusan open question
-  id pk · shahadah_record_id fk · name · phone_encrypted? enc · identity_last4? · relationship?
+shahadah_witnesses              -- wajib (open question #2, diputuskan 23-11-2026)
+  id pk · shahadah_record_id fk · convert_id fk · name · phone_encrypted enc · identity_last4? · relationship?
+  created_by fk → users
 
 convert_status_histories        -- append-only
   id pk · convert_id fk · tenant_id fk · from_status? · to_status · reason? · changed_by fk → users · created_at
@@ -37,6 +38,7 @@ Aturan:
 
 - `shahadah_records.tenant_id` = kantor asal (sama dengan `converts.origin_tenant_id` untuk syahadat pertama).
 - `verified_by` harus berbeda dari `recorded_by` (segregation of duties, ditegakkan service).
+- Setiap syahadat dicatat bersama saksinya dalam transaksi yang sama: minimal `SHAHADAH_MIN_WITNESSES` (default 2, jumlah resmi belum diputuskan), maksimal 5, masing-masing nama dan nomor telepon valid (disimpan ternormalisasi `+digit`, terenkripsi), tanpa telepon ganda; `identity_last4` bila diisi harus 4 digit. Nama saksi tampil di antrean verifikasi dan di scope `shahadah` akses istimewa; telepon tidak ditampilkan.
 - Record `voided` hanya melalui Head of Dawah + Central approval (koreksi data), tercatat di audit; tidak pernah dihapus.
 
 ## 7.2 Duplicate review

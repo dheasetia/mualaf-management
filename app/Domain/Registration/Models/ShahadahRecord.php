@@ -8,8 +8,10 @@ use App\Domain\Converts\Scopes\ScopedThroughConvert;
 use App\Domain\Registration\Enums\ShahadahRecordType;
 use App\Domain\Registration\Enums\ShahadahStatus;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Sensitive (04 §4.5): shown only with converts.view_sensitive.
@@ -30,6 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property CarbonImmutable|null $verified_at
  * @property ShahadahStatus $status
  * @property string|null $notes
+ * @property-read Collection<int, ShahadahWitness> $witnesses
  */
 final class ShahadahRecord extends Model
 {
@@ -40,6 +43,12 @@ final class ShahadahRecord extends Model
 
     /** Generated column: never written by the application. */
     protected $guarded = ['active_first_key'];
+
+    /** @return HasMany<ShahadahWitness, $this> */
+    public function witnesses(): HasMany
+    {
+        return $this->hasMany(ShahadahWitness::class);
+    }
 
     /** @return list<string> */
     public function uniqueIds(): array
