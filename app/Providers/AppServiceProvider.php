@@ -21,6 +21,7 @@ use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
 use App\Domain\Dawah\Models\DaiDailyActivity;
+use App\Domain\Dawah\Models\DawahActivityBudget;
 use App\Domain\Dawah\Models\DawahActivityPlan;
 use App\Domain\Dawah\Models\DawahMaterial;
 use App\Domain\Dawah\Models\DawahMaterialDistribution;
@@ -146,6 +147,7 @@ class AppServiceProvider extends ServiceProvider
             'dawah_plan' => DawahActivityPlan::class,
             'dai_activity' => DaiDailyActivity::class,
             'dawah_material' => DawahMaterial::class,
+            'dawah_budget' => DawahActivityBudget::class,
             'vehicle' => Vehicle::class,
             'driver' => Driver::class,
             'activity_transport' => ActivityTransportRequest::class,

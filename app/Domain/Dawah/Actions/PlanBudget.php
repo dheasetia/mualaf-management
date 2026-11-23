@@ -11,7 +11,10 @@ use App\Domain\Dawah\Models\DawahActivityBudget;
 use App\Domain\Dawah\Models\DawahActivityPlan;
 use App\Domain\Dawah\Services\BudgetVariance;
 use App\Domain\Dawah\Services\DawahActors;
+use App\Domain\Documents\Actions\Attachments;
+use App\Domain\Documents\Enums\DocumentType;
 use App\Domain\Platform\Models\BudgetCategory;
+use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +28,8 @@ use Illuminate\Support\Facades\DB;
  *   every line has one, and the total is copied to the plan;
  * - actuals are recorded by budget.record_actual or by the responsible
  *   da'i while reporting, from the start of the activity until the report
- *   is submitted; a variance beyond the threshold needs a note.
+ *   is submitted; a variance beyond the threshold needs a note, and a
+ *   receipt can be attached to the line (antivirus-scanned like any upload).
  */
 final readonly class PlanBudget
 {
@@ -33,7 +37,7 @@ final readonly class PlanBudget
 
     private const array ACTUALS_OPEN = [PlanStatus::InProgress, PlanStatus::Completed];
 
-    public function __construct(private DawahActors $actors, private AuditLogger $audit) {}
+    public function __construct(private DawahActors $actors, private Attachments $attachments, private AuditLogger $audit) {}
 
     /** @param  array{budget_category_id: int|string, description: string, quantity: string|int|float, unit_cost: string|int|float, notes?: string|null}  $data */
     public function saveLine(DawahActivityPlan $plan, ?DawahActivityBudget $line, array $data, User $actor): DawahActivityBudget
@@ -124,11 +128,7 @@ final readonly class PlanBudget
     public function recordActual(DawahActivityBudget $line, string|int|float $amount, ?string $note, User $actor): DawahActivityBudget
     {
         $plan = $this->freshPlan($line->plan()->firstOrFail());
-        $reporting = $actor->hasPermission('dawah.reports.submit') && $this->actors->isResponsible($actor, $plan);
-
-        if (! $actor->hasPermission('budget.record_actual') && ! $reporting) {
-            throw new AuthorizationException;
-        }
+        $this->requireActualsRecorder($plan, $actor);
 
         if (! in_array($plan->status, self::ACTUALS_OPEN, true)) {
             throw DawahRuleViolation::budgetClosed();
@@ -159,6 +159,39 @@ final readonly class PlanBudget
         });
     }
 
+    /** Attaches a receipt to a line, by those who record actuals, during the same phase. */
+    public function attachReceipt(DawahActivityBudget $line, string $path, string $originalName, User $actor): DawahActivityBudget
+    {
+        $plan = $this->freshPlan($line->plan()->firstOrFail());
+        $this->requireActualsRecorder($plan, $actor);
+
+        if (! in_array($plan->status, self::ACTUALS_OPEN, true)) {
+            throw DawahRuleViolation::budgetClosed();
+        }
+
+        $tenant = Tenant::query()->findOrFail($plan->tenant_id);
+        $line->setAttribute('receipt_document_id', $this->attachments->store(
+            $line, DocumentType::Receipt, "tenants/{$tenant->uuid}/dawah/plans/{$plan->uuid}/receipts", $path, $originalName, $actor,
+        ));
+        $line->save();
+
+        return $line;
+    }
+
+    /** Signed link to a line's receipt for budget.view holders and the plan's da'i. */
+    public function receiptUrl(DawahActivityBudget $line, User $actor): string
+    {
+        $plan = $this->freshPlan($line->plan()->firstOrFail());
+
+        if (! $actor->hasPermission('budget.view') && ! $this->actors->isPlanDai($actor, $plan)) {
+            throw new AuthorizationException;
+        }
+
+        $documentId = $line->getAttribute('receipt_document_id');
+
+        return $this->attachments->downloadUrl($line, is_numeric($documentId) ? (int) $documentId : abort(404), $actor);
+    }
+
     /** Whether every line has an approved amount (a plan without lines needs none). */
     public function isApproved(DawahActivityPlan $plan): bool
     {
@@ -179,6 +212,15 @@ final readonly class PlanBudget
     private function freshPlan(DawahActivityPlan $plan): DawahActivityPlan
     {
         return DawahActivityPlan::query()->findOrFail($plan->id);
+    }
+
+    private function requireActualsRecorder(DawahActivityPlan $plan, User $actor): void
+    {
+        $reporting = $actor->hasPermission('dawah.reports.submit') && $this->actors->isResponsible($actor, $plan);
+
+        if (! $actor->hasPermission('budget.record_actual') && ! $reporting) {
+            throw new AuthorizationException;
+        }
     }
 
     private function requirePlanDai(DawahActivityPlan $plan, User $actor): void

@@ -13,14 +13,17 @@ use App\Domain\Platform\Models\BudgetCategory;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
  * Budget lines of a plan: estimates by its da'i, approved amounts by
@@ -85,6 +88,8 @@ final class BudgetLinesRelationManager extends RelationManager
                 $money('estimated_amount', 'estimated_amount')->summarize(Sum::make()->numeric(2)),
                 $money('approved_amount', 'approved_amount')->summarize(Sum::make()->numeric(2)),
                 $money('actual_amount', 'actual_amount')->summarize(Sum::make()->numeric(2)),
+                IconColumn::make('receipt')->label(__('dawah.budget_fields.receipt'))->boolean()
+                    ->state(fn (DawahActivityBudget $record): bool => $record->receipt_document_id !== null),
                 $money('variance_amount', 'variance_amount')
                     ->color(fn (DawahActivityBudget $record): string => (float) $record->variance_amount > 0 && $record->actual_amount !== null ? 'danger' : 'gray'),
             ])
@@ -103,6 +108,23 @@ final class BudgetLinesRelationManager extends RelationManager
                     ->fillForm(fn (DawahActivityBudget $record): array => ['amount' => $record->approved_amount ?? $record->estimated_amount])
                     ->schema([TextInput::make('amount')->label(__('dawah.budget_fields.approved_amount'))->required()->numeric()->minValue(0)])
                     ->action(self::domainAction(fn (DawahActivityBudget $record, array $data, User $actor) => $budget()->approveLine($record, (string) $data['amount'], $actor), 'dawah.notifications.saved')),
+                Action::make('attachReceipt')->label(__('dawah.budget_actions.attach_receipt'))->icon('heroicon-o-paper-clip')
+                    ->visible(fn (): bool => in_array($status(), [PlanStatus::InProgress, PlanStatus::Completed], true)
+                        && (($user()?->hasPermission('budget.record_actual') ?? false) || (($u = $user()) !== null && $plan instanceof DawahActivityPlan && $u->hasPermission('dawah.reports.submit') && app(DawahActors::class)->isResponsible($u, $plan))))
+                    ->schema([
+                        FileUpload::make('file')->label(__('dawah.budget_fields.receipt'))->required()->storeFiles(false)
+                            ->maxSize((int) (config('documents.max_bytes') / 1024))
+                            ->acceptedFileTypes(array_keys((array) config('documents.allowed_mime_types'))),
+                    ])
+                    ->action(self::domainAction(function (DawahActivityBudget $record, array $data, User $actor) use ($budget): void {
+                        $file = $data['file'] ?? null;
+                        $file instanceof TemporaryUploadedFile ? $budget()->attachReceipt($record, $file->getRealPath(), $file->getClientOriginalName(), $actor) : abort(422);
+                    }, 'dawah.notifications.saved')),
+                Action::make('downloadReceipt')->label(__('dawah.budget_actions.download_receipt'))->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn (DawahActivityBudget $record): bool => $record->receipt_document_id !== null)
+                    ->action(function (DawahActivityBudget $record) use ($budget, $user): void {
+                        $this->redirect($budget()->receiptUrl($record, $user() ?? abort(403)));
+                    }),
                 Action::make('recordActual')->label(__('dawah.budget_actions.record_actual'))
                     ->visible(fn (): bool => in_array($status(), [PlanStatus::InProgress, PlanStatus::Completed], true)
                         && (($user()?->hasPermission('budget.record_actual') ?? false) || (($u = $user()) !== null && $plan instanceof DawahActivityPlan && $u->hasPermission('dawah.reports.submit') && app(DawahActors::class)->isResponsible($u, $plan))))

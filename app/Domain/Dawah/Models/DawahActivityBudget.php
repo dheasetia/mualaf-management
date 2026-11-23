@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $actual_amount
  * @property string $variance_amount
  * @property string|null $notes
+ * @property int|null $receipt_document_id
  * @property-read BudgetCategory $category
  */
 final class DawahActivityBudget extends Model

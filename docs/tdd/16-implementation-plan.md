@@ -23,7 +23,7 @@
 | 17 | Certificates (selesai 22-11-2026) | 5 | Template berversi (placeholder ter-escape, bukan Blade), request/approve/issue/revoke, nomor + snapshot + token hash, PDF via Gotenberg, QR, verifikasi publik |
 | 18 | Documents (selesai 22-11-2026) | 5 | Unggahan berversi (cek isi, hapus EXIF, link bertanda tangan 5 menit), verifikasi, surat bernomor dari template berversi dengan snapshot beku, template nasional di Central. Sisa: scan ClamAV (langkah 26) |
 | 19 | Dawah planning (selesai 23-11-2026) | 6 | Aktivitas harian dengan verifikasi, plan dengan state machine penuh, peserta, laporan. Baris budget menyusul di langkah 20 |
-| 20 | Budget / material (selesai 23-11-2026) | 6 | Baris budget (estimasi, approved, aktual, variance + catatan), syarat persetujuan plan; materi berversi dengan review, lampiran file, stok, distribusi. Sisa: unggah kuitansi, materi nasional dari Central |
+| 20 | Budget / material (selesai 23-11-2026) | 6 | Baris budget (estimasi, approved, aktual, variance + catatan), syarat persetujuan plan; materi berversi dengan review, lampiran file, stok, distribusi. Kuitansi per baris (tindak lanjut). Sisa: materi nasional dari Central |
 | 21 | Transport (selesai 23-11-2026) | 6 | Armada, transport kegiatan, pickup, trip tanpa tumpang tindih dan dalam kapasitas, lembar pickup tanpa data agama (critical test #14) |
 | 22 | Submissions (selesai 23-11-2026) | 7 | Jenis (seed), workflow lengkap, lampiran per persyaratan milik submission, approval bertahap, penerbitan surat saat selesai. Sisa: pengelolaan jenis di Central, notifikasi SLA |
 | 23 | Pilgrimage (selesai 23-11-2026) | 7 | Program, persyaratan, eligibility, registrasi, kuota terkunci + waitlist, grup. Sisa: consent (langkah 24), transport via kegiatan |
