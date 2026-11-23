@@ -18,6 +18,8 @@ use App\Domain\Guidance\Models\Attendance;
 use App\Domain\Guidance\Models\ClassSession;
 use App\Domain\Guidance\Models\GuidanceClass;
 use App\Domain\Guidance\Models\LearningProgress;
+use App\Domain\Pilgrimage\Models\PilgrimageProgram;
+use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Models\ProspectStatusHistory;
 use App\Domain\Registration\Models\DuplicateReviewCase;
@@ -59,6 +61,8 @@ const TENANT_SCOPED_MODELS = [
     'transport trip' => TransportTrip::class,
     'pickup' => TransportRequest::class,
     'submission' => Submission::class,
+    'pilgrimage program' => PilgrimageProgram::class,
+    'pilgrimage registration' => PilgrimageRegistration::class,
 ];
 
 dataset('tenant_scoped_models', array_map(

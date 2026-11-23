@@ -86,7 +86,16 @@ pilgrimage_events                -- append-only
   id pk · program_id fk · registration_id? fk · actor_id fk · event_type · metadata json · created_at
 ```
 
-Kuota: approval memeriksa jumlah `approved/confirmed` < `capacity` dengan lock pada `pilgrimage_programs`. Transportasi memakai `activity_transport_requests` yang ditautkan ke program melalui kegiatan.
+Kuota: approval memeriksa jumlah `approved/confirmed` < `capacity` dengan lock pada `pilgrimage_programs`.
+
+Implementasi (langkah 23, `Pilgrimage\Actions`):
+
+- Program (`pilgrimage.programs.manage`): diedit saat `draft`/`open`; berakhir setelah mulai, batas registrasi sebelum mulai; kapasitas tidak boleh di bawah kursi terisi. Aturan eligibility: `min_months_since_shahadah` (dihitung sampai `starts_on`) dan `require_completed_guidance`; selain itu record convert harus aktif dan shahadah terverifikasi. `in_progress` memindahkan `confirmed` → `departed`; `completed` memindahkan `departed` → `completed`.
+- Registrasi (`pilgrimage.register`) hanya saat program `open` dan sebelum batas; baris persyaratan dibuat untuk setiap persyaratan program (juga saat persyaratan ditambah kemudian). Dokumen disimpan lewat `Documents\Attachments` dengan pemilik registrasi.
+- Cek eligibility (`pilgrimage.check_eligibility`): aturan gagal → `ineligible` dengan catatan; aturan lolos tetapi persyaratan wajib masih `pending` → `eligibility_checked` (ditampilkan "dokumen belum lengkap"); semua terpenuhi/dikecualikan → `eligible`. Pengecualian (`waived`) wajib catatan.
+- Approval (`pilgrimage.approve`, bukan yang mendaftarkan): kursi dihitung (`approved`, `confirmed`, `departed`, `completed`) di bawah lock program; penuh → `waitlisted`. Mundur wajib alasan, membebaskan kursi, dan mengeluarkan dari grup; tidak ada promosi otomatis dari waitlist. Test konkurensi `tests/Concurrency/PilgrimageQuotaTest.php`.
+- Grup: pemimpin harus pengguna kantor dengan `pilgrimage.view`; anggota hanya registrasi `approved`/`confirmed` program yang sama, dalam kapasitas grup (lock baris grup).
+- `consent_record_id` belum terisi (consent di langkah 24). Kolom tambahan: `withdrawal_reason`, `registered_by`, `pilgrimage_registration_requirements.note`. Transportasi memakai `activity_transport_requests` yang ditautkan ke program melalui kegiatan.
 
 ## 10.3 Status follow-up jangka panjang
 

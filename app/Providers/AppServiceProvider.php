@@ -43,6 +43,9 @@ use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
 use App\Domain\Identity\Rbac\Authorizer;
 use App\Domain\Identity\Rbac\PermissionCatalog;
+use App\Domain\Pilgrimage\Models\PilgrimageProgram;
+use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
+use App\Domain\Pilgrimage\Policies\PilgrimagePolicy;
 use App\Domain\Platform\Models\BudgetCategory;
 use App\Domain\Platform\Models\City;
 use App\Domain\Platform\Models\Country;
@@ -122,6 +125,8 @@ class AppServiceProvider extends ServiceProvider
             'pickup' => TransportRequest::class,
             'trip' => TransportTrip::class,
             'submission' => Submission::class,
+            'pilgrimage_program' => PilgrimageProgram::class,
+            'pilgrimage_registration' => PilgrimageRegistration::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -166,6 +171,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DawahMaterial::class, DawahMaterialPolicy::class);
         Gate::policy(DawahMaterialDistribution::class, DawahMaterialDistributionPolicy::class);
         Gate::policy(Submission::class, SubmissionPolicy::class);
+        Gate::policy(PilgrimageProgram::class, PilgrimagePolicy::class);
+        Gate::policy(PilgrimageRegistration::class, PilgrimagePolicy::class);
 
         foreach ([Vehicle::class, Driver::class, ActivityTransportRequest::class, TransportRequest::class, TransportTrip::class] as $transportModel) {
             Gate::policy($transportModel, TransportPolicy::class);

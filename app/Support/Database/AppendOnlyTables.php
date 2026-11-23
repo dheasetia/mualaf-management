@@ -23,6 +23,7 @@ final class AppendOnlyTables
         'certificate_events',
         'document_versions',
         'submission_events',
+        'pilgrimage_events',
     ];
 
     public static function contains(string $table): bool
