@@ -15,6 +15,7 @@ use App\Filament\Center\Resources\DaiActivities\Pages\ManageDaiDailyActivities;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -80,7 +81,7 @@ final class DaiDailyActivityResource extends Resource
         return $schema->columns(2)->components([
             DatePicker::make('activity_date')->label(__('dawah.fields.activity_date'))->required()->default(now()->toDateString()),
             Select::make('activity_type_id')->label(__('dawah.fields.activity_type'))->required()->searchable()
-                ->options(fn (): array => DaiActivityType::query()->where('active', true)->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(DaiActivityType::query()->where('active', true))),
             TextInput::make('title')->label(__('dawah.fields.title'))->required()->maxLength(255)->columnSpanFull(),
             Textarea::make('description')->label(__('dawah.fields.description'))->maxLength(5000)->columnSpanFull(),
             TimePicker::make('started_at')->label(__('dawah.fields.started_at'))->seconds(false),
@@ -104,7 +105,7 @@ final class DaiDailyActivityResource extends Resource
                 TextColumn::make('activity_date')->label(__('dawah.fields.activity_date'))->date('Y-m-d')->sortable(),
                 TextColumn::make('dai')->label(__('dawah.fields.dai'))
                     ->state(fn (DaiDailyActivity $record): string => app(DaiDirectory::class)->names([$record->dai_id])[$record->dai_id] ?? '—'),
-                TextColumn::make('activityType.name_ar')->label(__('dawah.fields.activity_type')),
+                TextColumn::make('activityType.'.LocalizedName::column())->label(__('dawah.fields.activity_type')),
                 TextColumn::make('title')->label(__('dawah.fields.title'))->limit(40)->searchable(),
                 TextColumn::make('duration_minutes')->label(__('dawah.fields.duration_minutes'))->placeholder('—'),
                 TextColumn::make('status')->label(__('dawah.fields.status'))->badge()

@@ -17,8 +17,9 @@ use Carbon\CarbonImmutable;
 /**
  * What a certificate prints, frozen at issue (12 §12.4 step 5): later edits
  * of the convert, program or office never change an issued certificate.
- * Gregorian and Umm al-Qura dates are both included; the template chooses
- * (open question #1).
+ * Gregorian and Umm al-Qura dates are included in Arabic and English: the
+ * certificate prints an Arabic page and an English page (open question #1).
+ * The English program name falls back to the Arabic one.
  */
 final readonly class SnapshotBuilder
 {
@@ -44,6 +45,8 @@ final readonly class SnapshotBuilder
             'issued_on' => $issuedAt->toDateString(),
             'issued_on_gregorian_ar' => HijriDate::gregorian($issuedAt),
             'issued_on_hijri_ar' => HijriDate::format($issuedAt),
+            'issued_on_gregorian_en' => HijriDate::gregorian($issuedAt, 'en'),
+            'issued_on_hijri_en' => HijriDate::format($issuedAt, 'en'),
         ];
 
         if ($certificate->certificate_type === CertificateType::Shahadah) {
@@ -54,6 +57,8 @@ final readonly class SnapshotBuilder
                 'shahadah_date' => $shahadah === null ? null : $shahadah['date']->toDateString(),
                 'shahadah_date_gregorian_ar' => $shahadah === null ? null : HijriDate::gregorian($shahadah['date']),
                 'shahadah_date_hijri_ar' => $shahadah === null ? null : HijriDate::format($shahadah['date']),
+                'shahadah_date_gregorian_en' => $shahadah === null ? null : HijriDate::gregorian($shahadah['date'], 'en'),
+                'shahadah_date_hijri_en' => $shahadah === null ? null : HijriDate::format($shahadah['date'], 'en'),
                 'shahadah_location' => $shahadah['location'] ?? null,
             ];
         }
@@ -63,9 +68,12 @@ final readonly class SnapshotBuilder
         return [
             ...$snapshot,
             'program_name_ar' => $completion['program_name_ar'] ?? null,
-            'program_name_en' => $completion['program_name_en'] ?? null,
+            'program_name_en' => $completion['program_name_en'] ?? $completion['program_name_ar'] ?? null,
             'completed_on' => $completion === null ? null : $completion['completed_at']->toDateString(),
             'completed_on_hijri_ar' => $completion === null ? null : HijriDate::format($completion['completed_at']),
+            'completed_on_gregorian_ar' => $completion === null ? null : HijriDate::gregorian($completion['completed_at']),
+            'completed_on_gregorian_en' => $completion === null ? null : HijriDate::gregorian($completion['completed_at'], 'en'),
+            'completed_on_hijri_en' => $completion === null ? null : HijriDate::format($completion['completed_at'], 'en'),
             'attendance_percentage' => $completion['attendance'] ?? null,
             'final_score' => $this->exams->passedFinal((int) $certificate->enrollment_id),
         ];

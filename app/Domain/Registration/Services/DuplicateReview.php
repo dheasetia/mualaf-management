@@ -6,6 +6,7 @@ namespace App\Domain\Registration\Services;
 
 use App\Domain\Converts\Models\Convert;
 use App\Domain\Registration\Models\DuplicateReviewCase;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantContext;
 
 /**
@@ -29,10 +30,10 @@ final readonly class DuplicateReview
         $sameOffice = $convert->current_tenant_id === $this->tenantContext->id();
 
         return [
-            'office' => "{$convert->currentTenant->name_ar} ({$convert->currentTenant->code})",
+            'office' => LocalizedName::of($convert->currentTenant)." ({$convert->currentTenant->code})",
             'name' => $sameOffice ? $convert->full_name : $convert->initials(),
             'date_of_birth' => $convert->date_of_birth?->toDateString(),
-            'nationality' => $convert->nationality?->name_ar,
+            'nationality' => LocalizedName::of($convert->nationality),
             'same_office' => $sameOffice,
         ];
     }

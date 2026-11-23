@@ -11,6 +11,7 @@ use App\Domain\Platform\Models\Country;
 use App\Domain\Transfers\Actions\RequestConvertTransfer;
 use App\Filament\Concerns\ResolvesActor;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -87,7 +88,7 @@ final class NationalIdentitySearch extends Page implements HasForms
                 Select::make('identity_type')->label(__('converts.search.identity_type'))->required()->live()
                     ->options(collect(IdentityType::cases())->mapWithKeys(fn (IdentityType $type): array => [$type->value => $type->label()])->all()),
                 Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all())
+                    ->options(fn (): array => LocalizedName::options(Country::query()))
                     ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false)
                     ->required(),
                 TextInput::make('identity_number')->label(__('converts.search.identity_number'))->required()->maxLength(40)

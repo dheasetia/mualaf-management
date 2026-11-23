@@ -20,6 +20,7 @@ use App\Domain\Dai\Services\FollowUpHistory;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Transfers\Services\TransferLabels;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -55,14 +56,14 @@ final class ConvertInfolist
                     TextEntry::make('gender')->label(__('converts.fields.gender'))
                         ->formatStateUsing(fn (Gender $state): string => $state->label()),
                     TextEntry::make('date_of_birth')->label(__('converts.fields.date_of_birth'))->date('Y-m-d')->placeholder('—'),
-                    TextEntry::make('nationality.name_ar')->label(__('converts.fields.nationality')),
-                    TextEntry::make('nativeLanguage.name_ar')->label(__('converts.fields.native_language'))->placeholder('—'),
+                    TextEntry::make('nationality.'.LocalizedName::column())->label(__('converts.fields.nationality')),
+                    TextEntry::make('nativeLanguage.'.LocalizedName::column())->label(__('converts.fields.native_language'))->placeholder('—'),
                 ]),
             ]),
             Section::make(__('converts.sections.sensitive'))->columns(2)->columnSpanFull()
                 ->visible(fn (Convert $record): bool => self::access()?->canSeeSensitive(self::user(), $record) ?? false)
                 ->schema([
-                    TextEntry::make('previousReligion.name_ar')->label(__('converts.fields.previous_religion'))->placeholder('—'),
+                    TextEntry::make('previousReligion.'.LocalizedName::column())->label(__('converts.fields.previous_religion'))->placeholder('—'),
                     TextEntry::make('previous_religion_other')->label(__('converts.fields.previous_religion_other'))->placeholder('—'),
                 ]),
             Section::make(__('converts.sections.identifiers'))->columnSpanFull()
@@ -75,7 +76,7 @@ final class ConvertInfolist
                                 ->formatStateUsing(fn (IdentityType $state): string => $state->label()),
                             TextEntry::make('masked')->label(__('converts.fields.identity_number'))
                                 ->state(fn (ConvertIdentifier $record): string => $record->masked())->fontFamily('mono'),
-                            TextEntry::make('issuingCountry.name_ar')->label(__('converts.fields.issuing_country')),
+                            TextEntry::make('issuingCountry.'.LocalizedName::column())->label(__('converts.fields.issuing_country')),
                             IconEntry::make('is_primary')->label(__('converts.fields.is_primary'))->boolean(),
                         ]),
                 ]),
@@ -115,8 +116,8 @@ final class ConvertInfolist
                         ->state(fn (Convert $record): array => app(TransferLabels::class)->completedFor($record))
                         ->schema([
                             TextEntry::make('completed_at')->label(__('transfers.fields.transferred_at'))->dateTime('Y-m-d', timezone: $timezone),
-                            TextEntry::make('fromTenant.name_ar')->label(__('transfers.fields.from')),
-                            TextEntry::make('toTenant.name_ar')->label(__('transfers.fields.to')),
+                            TextEntry::make('fromTenant.'.LocalizedName::column())->label(__('transfers.fields.from')),
+                            TextEntry::make('toTenant.'.LocalizedName::column())->label(__('transfers.fields.to')),
                             TextEntry::make('reason')->label(__('transfers.fields.reason')),
                         ]),
                 ]),

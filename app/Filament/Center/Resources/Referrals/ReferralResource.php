@@ -17,6 +17,7 @@ use App\Domain\Platform\Models\Country;
 use App\Filament\Center\Resources\Referrals\Pages\ManageReferrals;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Closure;
 use Filament\Actions\Action;
@@ -84,7 +85,7 @@ final class ReferralResource extends Resource
                     ->state(fn (InternationalReferral $record): string => ($user = auth()->user()) instanceof User && ($convert = Convert::query()->find($record->convert_id)) instanceof Convert
                         ? app(ConvertAccess::class)->displayName($user, $convert) : '—'),
                 TextColumn::make('destination')->label(__('international.fields.destination_country'))
-                    ->state(fn (InternationalReferral $record): string => trim(Country::query()->whereKey($record->destination_country_id)->value('name_ar').' '.$record->destination_city)),
+                    ->state(fn (InternationalReferral $record): string => trim(LocalizedName::of(Country::query()->find($record->destination_country_id)).' '.$record->destination_city)),
                 TextColumn::make('status')->label(__('international.fields.status'))->badge()
                     ->formatStateUsing(fn (ReferralStatus $state): string => $state->label())->color(fn (ReferralStatus $state): string => $state->color()),
                 TextColumn::make('sent_at')->label(__('international.fields.sent_at'))->date('Y-m-d', (string) config('app.display_timezone'))->placeholder('—'),
@@ -96,7 +97,7 @@ final class ReferralResource extends Resource
                             ->options(fn (): array => ($user = auth()->user()) instanceof User ? app(ConvertAccess::class)->visible(Convert::query(), $user)->orderBy('full_name')->limit(500)->get()
                                 ->mapWithKeys(fn (Convert $convert): array => [$convert->id => app(ConvertAccess::class)->displayName($user, $convert)])->all() : []),
                         Select::make('destination_country_id')->label(__('international.fields.destination_country'))->required()->searchable()->live()
-                            ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                            ->options(fn (): array => LocalizedName::options(Country::query())),
                         TextInput::make('destination_city')->label(__('international.fields.destination_city'))->maxLength(255),
                         Select::make('external_organization_id')->label(__('international.fields.organization'))->searchable()
                             ->options(fn (Get $get): array => ExternalIslamicOrganization::query()->where('verification_status', '!=', OrganizationStatus::Inactive)

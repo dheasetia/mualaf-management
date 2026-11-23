@@ -8,6 +8,7 @@ use App\Domain\Converts\Enums\ResidenceType;
 use App\Domain\Converts\Models\ConvertResidence;
 use App\Domain\Platform\Models\City;
 use App\Support\Geo\GoogleMapsLink;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -41,7 +42,7 @@ final class ResidencesRelationManager extends LocationRelationManager
                 ->options(collect(ResidenceType::cases())->mapWithKeys(fn (ResidenceType $case): array => [$case->value => $case->label()])->all()),
             TextInput::make('name')->label(__('converts.locations.name'))->maxLength(255),
             Select::make('city_id')->label(__('converts.locations.city'))->searchable()
-                ->options(fn (): array => City::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(City::query())),
             TextInput::make('district')->label(__('converts.locations.district'))->maxLength(255),
             TextInput::make('address')->label(__('converts.locations.address'))->maxLength(255),
             TextInput::make('building_no')->label(__('converts.locations.building_no'))->maxLength(20),
@@ -68,7 +69,7 @@ final class ResidencesRelationManager extends LocationRelationManager
                 TextColumn::make('residence_type')->label(__('converts.locations.residence_type'))
                     ->formatStateUsing(fn (ResidenceType $state): string => $state->label()),
                 TextColumn::make('name')->label(__('converts.locations.name'))->placeholder('—'),
-                TextColumn::make('city.name_ar')->label(__('converts.locations.city'))->placeholder('—'),
+                TextColumn::make('city.'.LocalizedName::column())->label(__('converts.locations.city'))->placeholder('—'),
                 IconColumn::make('is_pickup_point')->label(__('converts.locations.is_pickup_point'))->boolean(),
                 IconColumn::make('is_current')->label(__('converts.locations.is_current'))->boolean(),
             ])

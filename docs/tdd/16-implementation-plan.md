@@ -63,7 +63,7 @@ Langkah 1 (project foundation) dapat dimulai sebelum gate penuh karena tidak ber
 
 | # | Pertanyaan | Dampak | Pemilik |
 | --- | --- | --- | --- |
-| 1 | ~~Apakah sertifikat dan surat wajib menampilkan tanggal Hijriah (Umm al-Qura) di samping Masehi?~~ Diputuskan 23-11-2026: **wajib** di sertifikat. | Template PDF, snapshot | Islamic Center Dammam |
+| 1 | ~~Apakah sertifikat dan surat wajib menampilkan tanggal Hijriah (Umm al-Qura) di samping Masehi?~~ Diputuskan 23-11-2026: **wajib** di sertifikat. Sertifikat dua lembar: Arab dan Inggris (23-11-2026). | Template PDF, snapshot | Islamic Center Dammam |
 | 2 | ~~Apakah syahadat wajib mencatat saksi (nama, kontak)?~~ Diputuskan 23-11-2026: **wajib** dicatat, minimal **dua** saksi (`SHAHADAH_MIN_WITNESSES=2`). | Tabel `shahadah_witnesses`, form registrasi | Kepala Bagian Dakwah |
 | 3 | ~~Apakah gender convert membatasi da'i/guru yang dapat ditugaskan?~~ Diputuskan 23-11-2026: **tidak membatasi** penugasan da'i (sesuai implementasi; `gender_policy` kelas tetap mengatur komposisi kelas). | Validasi assignment, `guidance_classes.gender_policy` | Kepala Bagian Dakwah |
 | 4 | SLA respons kantor lama untuk transfer sebelum eskalasi otomatis (usulan 7 hari)? | Scheduler eskalasi | Islamic Center Dammam |

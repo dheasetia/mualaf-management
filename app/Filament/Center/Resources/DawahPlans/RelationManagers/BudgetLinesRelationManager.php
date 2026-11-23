@@ -12,6 +12,7 @@ use App\Domain\Dawah\Services\DawahActors;
 use App\Domain\Platform\Models\BudgetCategory;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -64,7 +65,7 @@ final class BudgetLinesRelationManager extends RelationManager
         $money = fn (string $column, string $label): TextColumn => TextColumn::make($column)->label(__('dawah.budget_fields.'.$label))->numeric(2)->placeholder('—');
         $lineForm = [
             Select::make('budget_category_id')->label(__('dawah.budget_fields.category'))->required()
-                ->options(fn (): array => BudgetCategory::query()->where('active', true)->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(BudgetCategory::query()->where('active', true))),
             TextInput::make('description')->label(__('dawah.budget_fields.description'))->required()->maxLength(255),
             TextInput::make('quantity')->label(__('dawah.budget_fields.quantity'))->required()->numeric()->minValue(0.01),
             TextInput::make('unit_cost')->label(__('dawah.budget_fields.unit_cost'))->required()->numeric()->minValue(0),
@@ -81,7 +82,7 @@ final class BudgetLinesRelationManager extends RelationManager
         return $table
             ->modifyQueryUsing(fn ($query) => $query->with('category'))
             ->columns([
-                TextColumn::make('category.name_ar')->label(__('dawah.budget_fields.category')),
+                TextColumn::make('category.'.LocalizedName::column())->label(__('dawah.budget_fields.category')),
                 TextColumn::make('description')->label(__('dawah.budget_fields.description'))->limit(40),
                 TextColumn::make('quantity')->label(__('dawah.budget_fields.quantity'))->numeric(2),
                 $money('unit_cost', 'unit_cost'),

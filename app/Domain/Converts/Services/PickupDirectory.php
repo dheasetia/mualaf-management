@@ -10,6 +10,7 @@ use App\Domain\Converts\Models\ConvertContactPerson;
 use App\Domain\Converts\Models\ConvertEmployment;
 use App\Domain\Converts\Models\ConvertResidence;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 
 /**
  * What transport may know about a convert (08 §8.7, 04 §4.4): pickup points
@@ -54,7 +55,7 @@ final readonly class PickupDirectory
             'residence_id' => $residence->id,
             'latitude' => $residence->latitude,
             'longitude' => $residence->longitude,
-            'address' => trim(implode(', ', array_filter([$residence->name, $residence->city?->getAttribute('name_ar'), $residence->google_maps_url]))),
+            'address' => trim(implode(', ', array_filter([$residence->name, LocalizedName::of($residence->city), $residence->google_maps_url]))),
         ];
     }
 

@@ -12,6 +12,11 @@ return [
         'minutes' => 'Duration (minutes)', 'status' => 'Status', 'requested_by' => 'Requested by', 'expires_at' => 'Ends', 'note' => 'Note', 'requested_at' => 'Requested',
     ],
     'actions' => ['request' => 'Request access', 'approve' => 'Approve', 'reject' => 'Reject', 'revoke' => 'End access', 'open' => 'Open'],
+    'view_fields' => [
+        'full_name' => 'Full name', 'islamic_name' => 'Islamic name', 'gender' => 'Gender', 'nationality' => 'Nationality', 'status' => 'Status',
+        'office' => 'Center', 'disclosure' => 'Disclosure level', 'primary_dai' => "Primary da'i", 'date' => 'Date', 'location' => 'Place',
+        'witnesses' => 'Witnesses', 'last_contact_at' => 'Last contact', 'contacts_recorded' => 'Contacts recorded',
+    ],
     'no_permission_to_contact' => 'not agreed to be contacted',
     'view_notice' => 'Privileged access — this view is recorded in the audit log.',
     'notifications' => ['saved' => 'Saved.'],

@@ -16,6 +16,7 @@ use App\Filament\Center\Resources\GuidanceClasses\Pages\ListGuidanceClasses;
 use App\Filament\Center\Resources\GuidanceClasses\Pages\ViewGuidanceClass;
 use App\Models\User;
 use App\Support\Exceptions\RuleViolation;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -72,11 +73,11 @@ final class GuidanceClassResource extends Resource
     {
         return $schema->columns(2)->components([
             Select::make('program_id')->label(__('guidance.fields.program'))->required()->searchable()
-                ->options(fn (): array => GuidanceProgram::query()->where('active', true)->orderBy('code')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(GuidanceProgram::query()->where('active', true)->orderBy('code'), sortByName: false)),
             TextInput::make('code')->label(__('guidance.fields.code'))->required()->maxLength(30),
             TextInput::make('name')->label(__('guidance.fields.name'))->required()->maxLength(255),
             Select::make('language_id')->label(__('guidance.fields.language'))->required()->searchable()
-                ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(Language::query())),
             Select::make('gender_policy')->label(__('guidance.fields.gender_policy'))->required()->options(collect(GenderPolicy::cases())->mapWithKeys(fn (GenderPolicy $case): array => [$case->value => $case->label()])->all()),
             TextInput::make('capacity')->label(__('guidance.fields.capacity'))->integer()->minValue(1)->maxValue(500)->required(),
             TextInput::make('room')->label(__('guidance.fields.room'))->maxLength(255),
@@ -97,10 +98,10 @@ final class GuidanceClassResource extends Resource
     {
         return $schema->columns(3)->components([
             TextEntry::make('code')->label(__('guidance.fields.code')),
-            TextEntry::make('program.name_ar')->label(__('guidance.fields.program')),
+            TextEntry::make('program.name_ar')->formatStateUsing(fn (GuidanceClass $record): ?string => LocalizedName::of($record->program))->label(__('guidance.fields.program')),
             TextEntry::make('status')->label(__('guidance.fields.status'))->badge()
                 ->formatStateUsing(fn (ClassStatus $state): string => $state->label()),
-            TextEntry::make('language.name_ar')->label(__('guidance.fields.language')),
+            TextEntry::make('language.'.LocalizedName::column())->label(__('guidance.fields.language')),
             TextEntry::make('gender_policy')->label(__('guidance.fields.gender_policy'))
                 ->formatStateUsing(fn (GenderPolicy $state): string => $state->label()),
             TextEntry::make('capacity')->label(__('guidance.fields.capacity')),
@@ -117,8 +118,8 @@ final class GuidanceClassResource extends Resource
             ->columns([
                 TextColumn::make('code')->label(__('guidance.fields.code'))->searchable(),
                 TextColumn::make('name')->label(__('guidance.fields.name'))->searchable(),
-                TextColumn::make('program.name_ar')->label(__('guidance.fields.program')),
-                TextColumn::make('language.name_ar')->label(__('guidance.fields.language')),
+                TextColumn::make('program.name_ar')->formatStateUsing(fn (GuidanceClass $record): ?string => LocalizedName::of($record->program))->label(__('guidance.fields.program')),
+                TextColumn::make('language.'.LocalizedName::column())->label(__('guidance.fields.language')),
                 TextColumn::make('status')->label(__('guidance.fields.status'))->badge()
                     ->formatStateUsing(fn (ClassStatus $state): string => $state->label()),
                 TextColumn::make('enrolled')->label(__('guidance.fields.enrolled_count'))

@@ -8,6 +8,7 @@ use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\Country;
 use App\Domain\Platform\Models\Language;
 use App\Domain\Platform\Models\Religion;
+use App\Support\Localization\LocalizedName;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -29,15 +30,15 @@ final class ConvertForm
                     ->options(collect(Gender::cases())->mapWithKeys(fn (Gender $gender): array => [$gender->value => $gender->label()])->all()),
                 DatePicker::make('date_of_birth')->label(__('converts.fields.date_of_birth'))->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
                 Select::make('nationality_id')->label(__('converts.fields.nationality'))->required()->searchable()
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Country::query())),
                 Select::make('native_language_id')->label(__('converts.fields.native_language'))->searchable()
-                    ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Language::query())),
             ]),
             Section::make(__('converts.sections.sensitive'))->columns(2)->columnSpanFull()
                 ->visible(fn (): bool => auth()->user()?->hasPermission('converts.view_sensitive') ?? false)
                 ->schema([
                     Select::make('previous_religion_id')->label(__('converts.fields.previous_religion'))
-                        ->options(fn (): array => Religion::query()->orderBy('sort_order')->pluck('name_ar', 'id')->all()),
+                        ->options(fn (): array => LocalizedName::options(Religion::query()->orderBy('sort_order'), sortByName: false)),
                     TextInput::make('previous_religion_other')->label(__('converts.fields.previous_religion_other'))->maxLength(255),
                 ]),
         ]);

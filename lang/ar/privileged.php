@@ -12,6 +12,11 @@ return [
         'minutes' => 'المدة (دقائق)', 'status' => 'الحالة', 'requested_by' => 'مقدم الطلب', 'expires_at' => 'ينتهي', 'note' => 'ملاحظة', 'requested_at' => 'تاريخ الطلب',
     ],
     'actions' => ['request' => 'طلب وصول', 'approve' => 'موافقة', 'reject' => 'رفض', 'revoke' => 'إنهاء الوصول', 'open' => 'فتح'],
+    'view_fields' => [
+        'full_name' => 'الاسم الكامل', 'islamic_name' => 'الاسم الإسلامي', 'gender' => 'الجنس', 'nationality' => 'الجنسية', 'status' => 'الحالة',
+        'office' => 'المركز', 'disclosure' => 'مستوى الإفصاح', 'primary_dai' => 'الداعية الأساسي', 'date' => 'التاريخ', 'location' => 'المكان',
+        'witnesses' => 'الشهود', 'last_contact_at' => 'آخر تواصل', 'contacts_recorded' => 'مرات التواصل المسجلة',
+    ],
     'no_permission_to_contact' => 'لم يوافق على التواصل',
     'view_notice' => 'وصول استثنائي — هذا الاطلاع مسجل في سجل التدقيق.',
     'notifications' => ['saved' => 'تم الحفظ.'],

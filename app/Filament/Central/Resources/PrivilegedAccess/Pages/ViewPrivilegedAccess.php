@@ -51,6 +51,7 @@ final class ViewPrivilegedAccess extends Page
     {
         return [
             'labels' => collect(PrivilegedScope::cases())->mapWithKeys(fn (PrivilegedScope $scope): array => [$scope->value => $scope->label()])->all(),
+            'fieldLabels' => (array) __('privileged.view_fields'),
         ];
     }
 }

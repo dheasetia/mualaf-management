@@ -174,6 +174,8 @@ Kelayakan:
 | شهادة إشهار الإسلام | `shahadah_records` status `verified`; belum ada sertifikat syahadat `issued` aktif |
 | شهادة إتمام برنامج التأهيل | Enrollment `completed`; kehadiran ≥ minimum program; ujian final `finalized` dan lulus |
 
+Bahasa: setiap sertifikat dicetak dua lembar dalam satu PDF, halaman pertama berbahasa Arab dan halaman kedua berbahasa Inggris (diputuskan 23-11-2026), masing-masing dengan tanggal Masehi dan Hijriah Umm al-Qura, nomor, dan QR yang sama. Snapshot menyimpan tanggal dalam kedua bahasa (`*_ar`, `*_en`); nama program Inggris memakai nama Arab bila kosong. Template nasional bawaan (`resources/certificate-templates`) dimuat `CertificateTemplateSeeder` sebagai versi baru setiap kali file berubah; versi itu langsung aktif hanya bila versi aktif saat ini juga versi sistem, sehingga versi yang disetujui Central tidak tergantikan.
+
 Verifikasi publik: QR berisi URL `https://<domain>/verify/{certificate_uuid}?t={token}`. Server menghitung `SHA-256(token)` dan membandingkan dengan `verification_token_hash`. Halaman verifikasi hanya menampilkan: nomor sertifikat, jenis, tanggal terbit, kantor penerbit, status (valid/dicabut/diganti), dan nama (inisial bila disclosure ≠ normal). Endpoint di-rate-limit 60/menit/IP.
 
 ## 9.7 Dokumen

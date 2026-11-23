@@ -13,6 +13,7 @@ use App\Domain\FollowUp\Enums\Priority;
 use App\Domain\Platform\Models\Country;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use App\Support\Tenancy\TenantScope;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
@@ -73,7 +74,7 @@ final class FollowUpStatusesRelationManager extends RelationManager
                         DateTimePicker::make('last_contact_at')->label(__('followup.fields.last_contact_at'))->seconds(false),
                         TextInput::make('last_contact_method')->label(__('followup.fields.last_contact_method'))->maxLength(30),
                         Select::make('last_known_country_id')->label(__('followup.fields.last_known_country'))->searchable()
-                            ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                            ->options(fn (): array => LocalizedName::options(Country::query())),
                         TextInput::make('last_known_city')->label(__('followup.fields.last_known_city'))->maxLength(255),
                         Select::make('islamic_activity_status')->label(__('followup.fields.islamic_activity_status'))->options(collect(ActivityLevel::cases())->mapWithKeys(fn (ActivityLevel $case): array => [$case->value => $case->label()])->all()),
                         Select::make('community_connection_status')->label(__('followup.fields.community_connection_status'))->options(collect(CommunityConnection::cases())->mapWithKeys(fn (CommunityConnection $case): array => [$case->value => $case->label()])->all()),

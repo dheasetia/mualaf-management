@@ -13,6 +13,7 @@ use App\Domain\Platform\Models\Language;
 use App\Domain\Platform\Models\Religion;
 use App\Domain\Prospects\Enums\InterestLevel;
 use App\Domain\Prospects\Enums\ProspectSource;
+use App\Support\Localization\LocalizedName;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -32,15 +33,15 @@ final class ProspectForm
                 Select::make('gender')->label(__('prospects.fields.gender'))->required()
                     ->options(self::options(Gender::cases())),
                 Select::make('nationality_id')->label(__('prospects.fields.nationality'))->searchable()
-                    ->options(fn (): array => Country::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Country::query())),
                 Select::make('native_language_id')->label(__('prospects.fields.native_language'))->searchable()
-                    ->options(fn (): array => Language::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Language::query())),
                 Select::make('current_religion_id')->label(__('prospects.fields.current_religion'))
-                    ->options(fn (): array => Religion::query()->where('active', true)->orderBy('sort_order')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Religion::query()->where('active', true)->orderBy('sort_order'), sortByName: false)),
                 TextInput::make('current_religion_other')->label(__('prospects.fields.current_religion_other'))->maxLength(255),
                 TextInput::make('occupation')->label(__('prospects.fields.occupation'))->maxLength(255),
                 Select::make('company_id')->label(__('companies.model'))->searchable()
-                    ->options(fn (): array => Company::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(Company::query())),
             ]),
             Section::make(__('prospects.sections.contact'))->columns(2)->columnSpanFull()->schema([
                 TextInput::make('phone')->label(__('prospects.fields.phone'))->tel()->maxLength(30)
@@ -50,7 +51,7 @@ final class ProspectForm
                 Checkbox::make('confirm_possible_duplicate')->label(__('prospects.fields.confirm_possible_duplicate'))
                     ->columnSpanFull()->dehydrated(),
                 Select::make('residence_city_id')->label(__('prospects.fields.residence_city'))->searchable()
-                    ->options(fn (): array => City::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                    ->options(fn (): array => LocalizedName::options(City::query())),
                 TextInput::make('residence_description')->label(__('prospects.fields.residence_description'))->maxLength(255),
             ]),
             Section::make(__('prospects.sections.dawah'))->columns(2)->columnSpanFull()->schema([

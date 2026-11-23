@@ -10,6 +10,7 @@ use App\Domain\Platform\Models\City;
 use App\Models\User;
 use App\Support\Exceptions\RuleViolation;
 use App\Support\Geo\GoogleMapsLink;
+use App\Support\Localization\LocalizedName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -35,7 +36,7 @@ final class CompanySchema
             TextInput::make('email')->label(__('companies.fields.email'))->email()->maxLength(255),
             TextInput::make('website')->label(__('companies.fields.website'))->url()->maxLength(255),
             Select::make('city_id')->label(__('companies.fields.city'))->searchable()
-                ->options(fn (): array => City::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all()),
+                ->options(fn (): array => LocalizedName::options(City::query())),
             TextInput::make('district')->label(__('companies.fields.district'))->maxLength(255),
             TextInput::make('address')->label(__('companies.fields.address'))->maxLength(255),
             TextInput::make('postal_code')->label(__('companies.fields.postal_code'))->maxLength(10),
@@ -54,7 +55,7 @@ final class CompanySchema
             TextColumn::make('name_ar')->label(__('companies.fields.name_ar'))->searchable()->sortable()
                 ->description(fn (Company $record): ?string => $record->name_en),
             TextColumn::make('registration_number')->label(__('companies.fields.registration_number'))->searchable(),
-            TextColumn::make('city.name_ar')->label(__('companies.fields.city'))->placeholder('—'),
+            TextColumn::make('city.'.LocalizedName::column())->label(__('companies.fields.city'))->placeholder('—'),
             TextColumn::make('owner')->label(__('companies.fields.owner'))->badge()
                 ->state(fn (Company $record): string => $record->isNational() ? __('companies.owner.national') : ($record->tenant->code ?? __('companies.owner.office')))
                 ->color(fn (Company $record): string => $record->isNational() ? 'success' : 'gray'),

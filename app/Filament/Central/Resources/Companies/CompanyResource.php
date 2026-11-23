@@ -10,6 +10,7 @@ use App\Domain\Companies\Scopes\CompanyScope;
 use App\Filament\Central\Resources\Companies\Pages\ManageCompanies;
 use App\Filament\Schemas\CompanySchema;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -32,6 +33,11 @@ final class CompanyResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
 
     protected static ?string $recordTitleAttribute = 'name_ar';
+
+    public static function getRecordTitle(?Model $record): string
+    {
+        return LocalizedName::of($record) ?? self::getModelLabel();
+    }
 
     protected static ?int $navigationSort = 80;
 

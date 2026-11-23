@@ -15,6 +15,7 @@ use App\Domain\Prospects\Enums\ProspectSource;
 use App\Domain\Prospects\Enums\ProspectStatus;
 use App\Domain\Prospects\Models\Prospect;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -31,15 +32,15 @@ final class ProspectInfolist
                 TextEntry::make('full_name')->label(__('prospects.fields.full_name')),
                 TextEntry::make('gender')->label(__('prospects.fields.gender'))
                     ->formatStateUsing(fn (Gender $state): string => $state->label()),
-                TextEntry::make('nationality.name_ar')->label(__('prospects.fields.nationality'))->placeholder('—'),
-                TextEntry::make('nativeLanguage.name_ar')->label(__('prospects.fields.native_language'))->placeholder('—'),
-                TextEntry::make('currentReligion.name_ar')->label(__('prospects.fields.current_religion'))->placeholder('—'),
+                TextEntry::make('nationality.'.LocalizedName::column())->label(__('prospects.fields.nationality'))->placeholder('—'),
+                TextEntry::make('nativeLanguage.'.LocalizedName::column())->label(__('prospects.fields.native_language'))->placeholder('—'),
+                TextEntry::make('currentReligion.'.LocalizedName::column())->label(__('prospects.fields.current_religion'))->placeholder('—'),
                 TextEntry::make('occupation')->label(__('prospects.fields.occupation'))->placeholder('—'),
                 TextEntry::make('phone')->label(__('prospects.fields.phone'))
                     ->state(fn (Prospect $record): ?string => $record->phone_encrypted)->placeholder('—'),
                 TextEntry::make('email')->label(__('prospects.fields.email'))
                     ->state(fn (Prospect $record): ?string => $record->email_encrypted)->placeholder('—'),
-                TextEntry::make('residenceCity.name_ar')->label(__('prospects.fields.residence_city'))->placeholder('—'),
+                TextEntry::make('residenceCity.'.LocalizedName::column())->label(__('prospects.fields.residence_city'))->placeholder('—'),
             ]),
             Section::make(__('prospects.sections.dawah'))->columns(2)->schema([
                 TextEntry::make('status')->label(__('prospects.fields.status'))->badge()

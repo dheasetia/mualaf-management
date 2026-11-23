@@ -10,6 +10,7 @@ use App\Filament\Center\Resources\GuidancePrograms\Pages\ListGuidancePrograms;
 use App\Filament\Center\Resources\GuidancePrograms\Pages\ViewGuidanceProgram;
 use App\Filament\Concerns\RunsDomainActions;
 use App\Models\User;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -38,6 +39,11 @@ final class GuidanceProgramResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
     protected static ?string $recordTitleAttribute = 'name_ar';
+
+    public static function getRecordTitle(?Model $record): string
+    {
+        return LocalizedName::of($record) ?? self::getModelLabel();
+    }
 
     protected static bool $isScopedToTenant = false;
 

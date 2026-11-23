@@ -7,6 +7,7 @@ namespace App\Filament\Central\Resources\Cities;
 use App\Domain\Platform\Models\City;
 use App\Filament\Central\MasterData\MasterDataResource;
 use App\Filament\Central\Resources\Cities\Pages\ManageCities;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -42,7 +43,7 @@ final class CityResource extends MasterDataResource
     {
         return [
             Select::make('region_id')->label(__('platform.fields.region'))
-                ->relationship('region', 'name_ar')
+                ->relationship('region', LocalizedName::column())
                 ->searchable()->preload()->required(),
             TextInput::make('latitude')->label(__('platform.fields.latitude'))
                 ->numeric()->minValue(-90)->maxValue(90),
@@ -54,7 +55,7 @@ final class CityResource extends MasterDataResource
     protected static function extraColumns(): array
     {
         return [
-            TextColumn::make('region.name_ar')->label(__('platform.fields.region'))->sortable(),
+            TextColumn::make('region.'.LocalizedName::column())->label(__('platform.fields.region'))->sortable(),
         ];
     }
 
@@ -62,7 +63,7 @@ final class CityResource extends MasterDataResource
     {
         return [
             SelectFilter::make('region')->label(__('platform.fields.region'))
-                ->relationship('region', 'name_ar')->preload(),
+                ->relationship('region', LocalizedName::column())->preload(),
         ];
     }
 

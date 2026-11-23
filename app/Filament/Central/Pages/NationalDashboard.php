@@ -8,6 +8,7 @@ use App\Domain\Platform\Models\Country;
 use App\Domain\Reporting\Enums\Metric;
 use App\Domain\Reporting\Services\ReportReader;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Support\Localization\LocalizedName;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Pages\Page;
@@ -48,8 +49,8 @@ final class NationalDashboard extends Page
         $reader = app(ReportReader::class);
         $today = CarbonImmutable::now((string) config('app.display_timezone'));
         $year = $today->startOfYear();
-        $offices = Tenant::query()->pluck('name_ar', 'id');
-        $countries = Country::query()->pluck('name_ar', 'id');
+        $offices = collect(LocalizedName::map(Tenant::query()));
+        $countries = collect(LocalizedName::map(Country::query()));
 
         return [
             'lastAggregated' => $reader->lastAggregatedOn(),
