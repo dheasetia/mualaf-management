@@ -71,7 +71,7 @@ Langkah 1 (project foundation) dapat dimulai sebelum gate penuh karena tidak ber
 | 6 | Kebijakan retensi resmi per kategori data | `data_retention_rules` | Legal / kebijakan |
 | 7 | ~~Hosting: cloud region di Saudi (misal penyedia lokal) atau on-premise?~~ Diputuskan 23-11-2026: **Hostinger**. Pusat data di luar Saudi diterima oleh pemilik (23-11-2026); penilaian PDPL §16.5 tetap mencatat transfer lintas negara ini. Perlu VPS (Gotenberg, ClamAV, Redis, worker, scheduler). | Infrastruktur, kepatuhan PDPL | Islamic Center Dammam |
 | 8 | Apakah ada integrasi resmi dengan instansi pemerintah (Absher, Muqeem) di masa depan? | Integration logs, identitas terverifikasi | Islamic Center Dammam |
-| 9 | ~~Kanal notifikasi selain email (SMS, WhatsApp Business API)?~~ Diputuskan 23-11-2026: **WhatsApp** (WhatsApp Business Platform / Cloud API: template pesan disetujui Meta, biaya per percakapan; isi tetap generik tanpa data pribadi). | Notification channels, biaya | Islamic Center Dammam |
+| 9 | ~~Kanal notifikasi selain email (SMS, WhatsApp Business API)?~~ Diputuskan 23-11-2026: **WhatsApp** (WhatsApp Business Platform / Cloud API: template pesan disetujui Meta, biaya per percakapan; isi tetap generik tanpa data pribadi). Diterapkan: kanal WhatsApp dengan opt-in per pengguna, mati sampai kredensial Meta dan template disetujui ([runbook §12](../runbook.md#12-whatsapp)). | Notification channels, biaya | Islamic Center Dammam |
 | 10 | Ambang skor fuzzy duplicate (usulan 0,85) dan field yang dipakai — diterapkan sementara: 0,85 via `DUPLICATE_MATCH_THRESHOLD`, bobot di 04 §4.4 | Duplicate review volume | Tim teknis + admin pilot |
 
 ## 16.5 Kepatuhan

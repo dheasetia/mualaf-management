@@ -41,6 +41,8 @@ use Illuminate\Notifications\Notifiable;
  * @property list<string>|null $app_authentication_recovery_codes
  * @property CarbonImmutable|null $last_login_at
  * @property string|null $last_login_ip
+ * @property string|null $phone_encrypted phone as +digits
+ * @property CarbonImmutable|null $whatsapp_opt_in_at
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token', 'phone_encrypted', 'app_authentication_secret', 'app_authentication_recovery_codes'])]
@@ -179,6 +181,13 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             'app_authentication_secret' => 'encrypted',
             'app_authentication_recovery_codes' => 'encrypted:array',
             'last_login_at' => 'immutable_datetime',
+            'whatsapp_opt_in_at' => 'immutable_datetime',
         ];
+    }
+
+    /** WhatsApp alerts go only to users who opted in with their own number (open question #9). */
+    public function receivesWhatsApp(): bool
+    {
+        return $this->whatsapp_opt_in_at !== null && filled($this->phone_encrypted);
     }
 }
