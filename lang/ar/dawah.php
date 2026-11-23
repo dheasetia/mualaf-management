@@ -50,7 +50,7 @@ return [
     'material_statuses' => ['draft' => 'مسودة', 'in_review' => 'قيد المراجعة', 'approved' => 'معتمدة', 'retired' => 'موقوفة'],
     'budget_fields' => [
         'category' => 'البند', 'description' => 'الوصف', 'quantity' => 'الكمية', 'unit_cost' => 'تكلفة الوحدة',
-        'estimated_amount' => 'التقديري', 'approved_amount' => 'المعتمد', 'actual_amount' => 'الفعلي', 'variance_amount' => 'الفرق', 'notes' => 'ملاحظات',
+        'estimated_amount' => 'التقديري', 'approved_amount' => 'المعتمد', 'actual_amount' => 'الفعلي', 'variance_amount' => 'الفرق', 'receipt' => 'الإيصال', 'notes' => 'ملاحظات',
     ],
     'material_fields' => [
         'title' => 'العنوان', 'title_ar' => 'العنوان بالعربية', 'material_type' => 'النوع', 'language' => 'اللغة', 'topic' => 'الموضوع',
@@ -63,7 +63,7 @@ return [
         'submit' => 'إرسال للمراجعة', 'approve' => 'اعتماد', 'return' => 'إعادة للمسودة', 'retire' => 'إيقاف',
         'new_version' => 'إصدار جديد', 'attach_file' => 'إرفاق ملف', 'download' => 'تنزيل', 'add_stock' => 'إضافة للمخزون', 'distribute' => 'توزيع',
     ],
-    'budget_actions' => ['add_line' => 'إضافة بند', 'approve_amount' => 'اعتماد المبلغ', 'record_actual' => 'تسجيل الفعلي'],
+    'budget_actions' => ['add_line' => 'إضافة بند', 'approve_amount' => 'اعتماد المبلغ', 'record_actual' => 'تسجيل الفعلي', 'attach_receipt' => 'إرفاق إيصال', 'download_receipt' => 'الإيصال'],
     'notifications' => ['saved' => 'تم الحفظ.'],
     'errors' => [
         'budget_not_approved' => 'يجب اعتماد مبلغ كل بند من بنود الميزانية أولًا.',

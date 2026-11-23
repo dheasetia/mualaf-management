@@ -14,7 +14,11 @@ return [
     'document_checks' => ['pending' => 'لم يُفحص', 'verified' => 'تم التحقق', 'rejected' => 'مرفوض'],
     'decisions' => ['approved' => 'اعتماد', 'rejected' => 'رفض', 'returned' => 'إعادة'],
     'assignment_types' => ['verifier' => 'المدقق', 'processor' => 'المعالج', 'approver' => 'المعتمد'],
+    'types' => ['model' => 'نوع طلب', 'plural' => 'أنواع الطلبات الإدارية'],
     'fields' => [
+        'code' => 'الرمز', 'name_ar' => 'الاسم بالعربية', 'name_en' => 'الاسم بالإنجليزية', 'description' => 'الوصف',
+        'required_documents' => 'المستندات', 'required' => 'إلزامي', 'approval_stages' => 'مراحل الاعتماد', 'sla_days' => 'أيام الإنجاز',
+        'letter_type' => 'الخطاب الصادر عند الإكمال', 'active' => 'مفعّل',
         'reference_no' => 'الرقم المرجعي', 'convert' => 'المهتدي', 'type' => 'النوع', 'status' => 'الحالة', 'notes' => 'ملاحظات',
         'submitted_at' => 'تاريخ التقديم', 'due_at' => 'الموعد المستهدف', 'assigned_to' => 'المكلف', 'correction_note' => 'التصحيح المطلوب',
         'requirement' => 'المستند المطلوب', 'file' => 'الملف', 'check' => 'الفحص', 'note' => 'ملاحظة', 'reason' => 'السبب',
@@ -33,6 +37,11 @@ return [
     ],
     'notifications' => ['saved' => 'تم الحفظ.'],
     'errors' => [
+        'invalid_type_code' => 'استخدم حروفًا لاتينية صغيرة وأرقامًا وشرطة سفلية، تبدأ بحرف.',
+        'type_code_locked' => 'لا يمكن تغيير الرمز بعد استخدام هذا النوع في طلبات.',
+        'type_code_taken' => 'هذا الرمز مستخدم لنوع آخر.',
+        'invalid_requirements' => 'لكل مستند رمز فريد من حروف لاتينية صغيرة وأرقام وشرطة سفلية.',
+        'invalid_letter' => 'اختر خطابًا يصدر للمهتدين.',
         'invalid_transition' => 'لا يمكن نقل الطلب من :from إلى :to.',
         'reason_required' => 'السبب مطلوب.',
         'convert_unavailable' => 'اختر مهتديًا متاحًا لك في هذا المركز.',

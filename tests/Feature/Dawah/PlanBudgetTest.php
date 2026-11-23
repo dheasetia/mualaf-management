@@ -13,6 +13,7 @@ use App\Domain\Platform\Models\BudgetCategory;
 use App\Domain\Platform\Models\DaiActivityType;
 use App\Domain\Tenancy\Models\Tenant;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
     seedRbac();
@@ -113,4 +114,33 @@ it('approves a plan without budget lines with a zero budget', function (): void 
     });
 
     expect(($this->fresh)()->approved_budget)->toBe('0.00');
+});
+
+it('attaches receipts while actuals are recorded, readable by budget viewers only', function (): void {
+    Storage::fake('local');
+    $line = ($this->line)('1', '100');
+    $receipt = function (): string {
+        $path = tempnam(sys_get_temp_dir(), 'rcp');
+        file_put_contents($path, "%PDF-1.4\n%receipt\n");
+
+        return $path;
+    };
+
+    ($this->in)(function () use ($line, $receipt): void {
+        expectRuleViolation(fn () => ($this->budget)()->attachReceipt($line, $receipt(), 'receipt.pdf', $this->transport), 'status');
+
+        ($this->plans)()->submit($this->plan, $this->daiUser);
+        ($this->plans)()->startReview($this->plan, $this->head);
+        ($this->budget)()->approveLine($line, '100', $this->approver);
+        ($this->plans)()->approve($this->plan, $this->head);
+        ($this->plans)()->schedule($this->plan, $this->daiUser);
+        ($this->plans)()->start($this->plan, $this->daiUser);
+
+        expect(fn () => ($this->budget)()->attachReceipt($line, $receipt(), 'receipt.pdf', $this->head))->toThrow(AuthorizationException::class);
+        $line = ($this->budget)()->attachReceipt($line, $receipt(), 'receipt.pdf', $this->transport);
+
+        expect($line->receipt_document_id)->not->toBeNull()
+            ->and(($this->budget)()->receiptUrl($line, $this->approver))->toContain('/receipts/');
+        expect(fn () => ($this->budget)()->receiptUrl($line, grantRole(memberOf($this->tenant), 'teacher', $this->tenant)))->toThrow(AuthorizationException::class);
+    });
 });

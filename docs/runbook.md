@@ -79,7 +79,7 @@ Agregasi ulang manual: `php artisan reports:aggregate --date=2026-11-01` atau `-
 ## 7. Kunci dan rahasia
 
 - Simpan di secret manager; `.env` tidak pernah di-commit.
-- **`APP_KEY`**: tambahkan kunci lama ke `APP_PREVIOUS_KEYS` lalu ganti `APP_KEY`; data lama tetap terbaca lewat kunci sebelumnya. Kunci lama baru boleh dihapus setelah semua kolom `*_encrypted` dienkripsi ulang — skrip re-enkripsi **belum tersedia** dan harus dibuat serta diuji di staging lebih dulu. Semua sesi akan berakhir.
+- **`APP_KEY`**: (1) tambahkan kunci lama ke `APP_PREVIOUS_KEYS` lalu ganti `APP_KEY`, deploy — data lama tetap terbaca lewat kunci sebelumnya; (2) `php artisan security:reencrypt --dry-run` lalu `php artisan security:reencrypt` (menulis ulang semua kolom ber-cast `encrypted*`, ditemukan otomatis dari model; aman diulang; dicatat `security.reencrypted`); (3) hanya bila perintah selesai tanpa kegagalan, hapus kunci lama dari `APP_PREVIOUS_KEYS`. Uji dulu di staging. Semua sesi akan berakhir.
 - **`IDENTITY_HMAC_KEY`**: rotasi membutuhkan perhitungan ulang semua fingerprint identitas dalam jendela pemeliharaan (deteksi duplikat bergantung padanya). Jangan rotasi tanpa skrip migrasi yang sudah diuji di staging.
 - Password akun DB dirotasi lewat DBA, lalu `db:sync-app-grants`.
 

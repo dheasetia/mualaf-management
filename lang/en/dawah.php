@@ -50,7 +50,7 @@ return [
     'material_statuses' => ['draft' => 'Draft', 'in_review' => 'In review', 'approved' => 'Approved', 'retired' => 'Retired'],
     'budget_fields' => [
         'category' => 'Category', 'description' => 'Description', 'quantity' => 'Quantity', 'unit_cost' => 'Unit cost',
-        'estimated_amount' => 'Estimated', 'approved_amount' => 'Approved', 'actual_amount' => 'Actual', 'variance_amount' => 'Variance', 'notes' => 'Notes',
+        'estimated_amount' => 'Estimated', 'approved_amount' => 'Approved', 'actual_amount' => 'Actual', 'variance_amount' => 'Variance', 'receipt' => 'Receipt', 'notes' => 'Notes',
     ],
     'material_fields' => [
         'title' => 'Title', 'title_ar' => 'Arabic title', 'material_type' => 'Type', 'language' => 'Language', 'topic' => 'Topic',
@@ -63,7 +63,7 @@ return [
         'submit' => 'Send for review', 'approve' => 'Approve', 'return' => 'Return to draft', 'retire' => 'Retire',
         'new_version' => 'New version', 'attach_file' => 'Attach file', 'download' => 'Download', 'add_stock' => 'Add stock', 'distribute' => 'Distribute',
     ],
-    'budget_actions' => ['add_line' => 'Add line', 'approve_amount' => 'Approve amount', 'record_actual' => 'Record actual'],
+    'budget_actions' => ['add_line' => 'Add line', 'approve_amount' => 'Approve amount', 'record_actual' => 'Record actual', 'attach_receipt' => 'Attach receipt', 'download_receipt' => 'Receipt'],
     'notifications' => ['saved' => 'Saved.'],
     'errors' => [
         'budget_not_approved' => 'Every budget line needs an approved amount first.',

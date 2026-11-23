@@ -57,4 +57,29 @@ final class SubmissionRuleViolation extends RuleViolation
     {
         return new self(__('submissions.errors.assignee_lacks_permission'), 'user_id');
     }
+
+    public static function invalidTypeCode(): self
+    {
+        return new self(__('submissions.errors.invalid_type_code'), 'code');
+    }
+
+    public static function typeCodeLocked(): self
+    {
+        return new self(__('submissions.errors.type_code_locked'), 'code');
+    }
+
+    public static function typeCodeTaken(): self
+    {
+        return new self(__('submissions.errors.type_code_taken'), 'code');
+    }
+
+    public static function invalidRequirements(): self
+    {
+        return new self(__('submissions.errors.invalid_requirements'), 'required_documents');
+    }
+
+    public static function invalidLetter(): self
+    {
+        return new self(__('submissions.errors.invalid_letter'), 'generates_document_template_code');
+    }
 }

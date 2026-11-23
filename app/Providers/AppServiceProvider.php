@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domain\Administration\Models\Submission;
+use App\Domain\Administration\Models\SubmissionType;
 use App\Domain\Administration\Policies\SubmissionPolicy;
 use App\Domain\Audit\Listeners\RecordTenantScopeBypass;
 use App\Domain\Audit\Models\AuditLog;
@@ -20,6 +21,7 @@ use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
 use App\Domain\Dawah\Models\DaiDailyActivity;
+use App\Domain\Dawah\Models\DawahActivityBudget;
 use App\Domain\Dawah\Models\DawahActivityPlan;
 use App\Domain\Dawah\Models\DawahMaterial;
 use App\Domain\Dawah\Models\DawahMaterialDistribution;
@@ -145,12 +147,14 @@ class AppServiceProvider extends ServiceProvider
             'dawah_plan' => DawahActivityPlan::class,
             'dai_activity' => DaiDailyActivity::class,
             'dawah_material' => DawahMaterial::class,
+            'dawah_budget' => DawahActivityBudget::class,
             'vehicle' => Vehicle::class,
             'driver' => Driver::class,
             'activity_transport' => ActivityTransportRequest::class,
             'pickup' => TransportRequest::class,
             'trip' => TransportTrip::class,
             'submission' => Submission::class,
+            'submission_type' => SubmissionType::class,
             'pilgrimage_program' => PilgrimageProgram::class,
             'pilgrimage_registration' => PilgrimageRegistration::class,
             'consent' => ConsentRecord::class,
@@ -215,7 +219,7 @@ class AppServiceProvider extends ServiceProvider
             Gate::policy($transportModel, TransportPolicy::class);
         }
 
-        foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
+        foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class, SubmissionType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);
         }
 
