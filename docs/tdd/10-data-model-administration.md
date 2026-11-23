@@ -115,6 +115,8 @@ convert_follow_up_statuses       -- append-only; baris terbaru = status terkini
 
 `converts.current_follow_up_status_id` (didefinisikan di [06-data-model-core.md](06-data-model-core.md)) menunjuk baris terbaru agar daftar convert tidak perlu subquery. Service yang menulis status baru memperbaruinya dalam transaksi yang sama.
 
+Implementasi (langkah 24a, `FollowUp\Actions\RecordFollowUpStatus`): ditulis oleh yang boleh mencatat follow-up convert (`ConvertPolicy::recordFollowUp`), append-only (trigger + grant), `converts.current_follow_up_status_id` diperbarui dalam transaksi yang sama (FK ditambahkan). Riwayat status dan catatan dibaca lintas kantor untuk convert yang sudah boleh dilihat, sehingga ikut berpindah setelah transfer. Berubah ke `returned_home` memicu `ConvertReturnedHome` (sekali per perubahan).
+
 Aturan PRD §31: sistem tidak pernah menetapkan status murtad atau mengubah `converts.status` berdasarkan ketidakhadiran atau tidak dapat dihubungi. Job otomatis hanya boleh menyarankan `needs_follow_up` / `temporarily_unreachable` sebagai tugas untuk da'i, bukan menulis status.
 
 ## 10.4 Jadwal follow-up
@@ -136,6 +138,8 @@ convert_follow_up_schedules
 ```
 
 Event `ShahadahVerified`, `EnrollmentCompleted`, `ConvertReturnedHome` membuat jadwal dari template. Jadwal terlambat = `status = scheduled AND scheduled_at < now()`; tampil di dashboard da'i dan Head of Dawah.
+
+Implementasi (langkah 24a): listener `ScheduleFollowUps` untuk `ShahadahVerified`, `EnrollmentCompleted` (event baru dari Guidance), `TransferCompleted` (kantor baru) dan `ConvertReturnedHome`; template kantor didahulukan dari nasional (seed: setelah syahadat 7/30/90/180/365 hari, setelah pembinaan 30/90/180, setelah pulang 7/30/90/180/365, setelah transfer 7/30), jam 09.00, untuk Primary Da'i, tanpa duplikat. Layar "Jadwal follow-up": da'i melihat miliknya, pemegang `converts.view` seluruh kantor; catat kontak (menyelesaikan jadwal dan bisa menjadwalkan berikutnya), lewat, jadwal ulang (tidak ke masa lalu), batal dengan alasan. `php artisan followups:flag-quiet` (harian 03.00) hanya membuat jadwal `check_in` prioritas tinggi untuk convert aktif tanpa kontak jangka panjang selama `FOLLOW_UP_QUIET_DAYS` (90) dan tanpa jadwal terbuka; tidak pernah menulis status follow-up atau `converts.status`. Catatan `confidential` hanya untuk `followups.view_confidential` dan penulisnya.
 
 ## 10.5 Catatan follow-up jangka panjang
 

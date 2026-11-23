@@ -88,6 +88,8 @@ final class ConvertResource extends Resource
             RelationManagers\ContactPersonsRelationManager::class,
             RelationManagers\DocumentsRelationManager::class,
             RelationManagers\LettersRelationManager::class,
+            RelationManagers\FollowUpStatusesRelationManager::class,
+            RelationManagers\LongTermFollowUpsRelationManager::class,
         ];
     }
 

@@ -33,6 +33,9 @@ use App\Domain\Documents\Models\GeneratedDocument;
 use App\Domain\Documents\Policies\DocumentTemplatePolicy;
 use App\Domain\Examinations\Models\Exam;
 use App\Domain\Examinations\Policies\ExamPolicy;
+use App\Domain\FollowUp\Events\ConvertReturnedHome;
+use App\Domain\FollowUp\Listeners\ScheduleFollowUps;
+use App\Domain\Guidance\Events\EnrollmentCompleted;
 use App\Domain\Guidance\Listeners\CloseEnrollmentsOnTransfer;
 use App\Domain\Guidance\Models\Enrollment;
 use App\Domain\Guidance\Models\GuidanceClass;
@@ -56,6 +59,7 @@ use App\Domain\Platform\Models\Religion;
 use App\Domain\Platform\Policies\MasterDataPolicy;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Policies\ProspectPolicy;
+use App\Domain\Registration\Events\ShahadahVerified;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\DuplicateReviewCase;
 use App\Domain\Registration\Policies\ConvertRegistrationPolicy;
@@ -186,5 +190,6 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, RecordSuccessfulLogin::class);
         Event::listen(TenantScopeBypassed::class, RecordTenantScopeBypass::class);
         Event::listen(TransferCompleted::class, CloseEnrollmentsOnTransfer::class);
+        Event::listen([ShahadahVerified::class, EnrollmentCompleted::class, TransferCompleted::class, ConvertReturnedHome::class], ScheduleFollowUps::class);
     }
 }

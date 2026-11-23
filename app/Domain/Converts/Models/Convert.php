@@ -11,6 +11,8 @@ use App\Domain\Converts\Scopes\ConvertScope;
 use App\Domain\Dai\Contracts\AssignableSubject;
 use App\Domain\Documents\Models\Document;
 use App\Domain\Documents\Models\GeneratedDocument;
+use App\Domain\FollowUp\Models\ConvertFollowUpStatus;
+use App\Domain\FollowUp\Models\ConvertLongTermFollowUp;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\Country;
 use App\Domain\Platform\Models\Language;
@@ -227,6 +229,18 @@ final class Convert extends Model implements AssignableSubject
     public function letters(): MorphMany
     {
         return $this->morphMany(GeneratedDocument::class, 'subject')->latest('id');
+    }
+
+    /** @return HasMany<ConvertFollowUpStatus, $this> */
+    public function followUpStatuses(): HasMany
+    {
+        return $this->hasMany(ConvertFollowUpStatus::class)->latest('created_at');
+    }
+
+    /** @return HasMany<ConvertLongTermFollowUp, $this> */
+    public function longTermFollowUps(): HasMany
+    {
+        return $this->hasMany(ConvertLongTermFollowUp::class)->latest('follow_up_at');
     }
 
     /** @return array<string, string> */
