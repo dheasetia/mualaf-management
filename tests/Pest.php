@@ -13,6 +13,7 @@ use App\Domain\Identity\Models\Role;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\Country;
 use App\Domain\Registration\Actions\RecordShahadah;
+use App\Domain\Registration\Actions\VerifyShahadah;
 use App\Domain\Registration\Data\ShahadahRegistrationData;
 use App\Domain\Tenancy\Enums\MembershipStatus;
 use App\Domain\Tenancy\Models\Tenant;
@@ -141,4 +142,40 @@ function transferSetup(Tenant $from, Tenant $to, string $iqamah): array
     });
 
     return compact('convert', 'fromHead', 'toHead', 'fromDai', 'toDai');
+}
+
+/**
+ * A convert registered in $tenant; the shahadah is verified unless told not to.
+ */
+function documentsConvert(Tenant $tenant, Gender $gender = Gender::Male, bool $verified = true, string $identity = '277001122'): Convert
+{
+    return inTenant($tenant, function () use ($tenant, $gender, $verified, $identity): Convert {
+        $registration = app(RecordShahadah::class)->handle(new ShahadahRegistrationData(
+            profile: new ConvertProfileData('Daniel Mendoza', $gender, Country::factory()->create()->id, islamicName: 'Dawud'),
+            identity: new IdentifierData(IdentityType::Iqamah, saudiId($identity)),
+            shahadahDate: CarbonImmutable::parse('2026-11-01'),
+            location: 'Center hall',
+            primaryDaiId: Dai::factory()->create()->id,
+        ), grantRole(memberOf($tenant), 'registration_officer', $tenant));
+
+        if ($verified) {
+            app(VerifyShahadah::class)->handle($registration, grantRole(memberOf($tenant), 'shahadah_verifier', $tenant));
+        }
+
+        return Convert::query()->findOrFail($registration->convert_id);
+    });
+}
+
+/** A JPEG carrying an EXIF block with a recognisable marker. */
+function jpegWithExif(string $marker): string
+{
+    $image = imagecreatetruecolor(4, 4);
+    ob_start();
+    imagejpeg($image);
+    $jpeg = (string) ob_get_clean();
+
+    $tiff = "II*\x00\x08\x00\x00\x00\x00\x00".$marker;
+    $app1 = "\xFF\xE1".pack('n', strlen($tiff) + 8)."Exif\x00\x00".$tiff;
+
+    return substr($jpeg, 0, 2).$app1.substr($jpeg, 2);
 }

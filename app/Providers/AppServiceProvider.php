@@ -17,6 +17,10 @@ use App\Domain\Converts\Models\Convert;
 use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
+use App\Domain\Documents\Models\Document;
+use App\Domain\Documents\Models\DocumentTemplate;
+use App\Domain\Documents\Models\GeneratedDocument;
+use App\Domain\Documents\Policies\DocumentTemplatePolicy;
 use App\Domain\Examinations\Models\Exam;
 use App\Domain\Examinations\Policies\ExamPolicy;
 use App\Domain\Guidance\Listeners\CloseEnrollmentsOnTransfer;
@@ -91,6 +95,8 @@ class AppServiceProvider extends ServiceProvider
             'company' => Company::class,
             'enrollment' => Enrollment::class,
             'certificate' => Certificate::class,
+            'document' => Document::class,
+            'generated_document' => GeneratedDocument::class,
         ]);
 
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
@@ -119,6 +125,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Exam::class, ExamPolicy::class);
         Gate::policy(Certificate::class, CertificatePolicy::class);
         Gate::policy(CertificateTemplate::class, CertificatePolicy::class);
+        Gate::policy(DocumentTemplate::class, DocumentTemplatePolicy::class);
 
         RateLimiter::for('certificate-verification', fn (Request $request): Limit => Limit::perMinute(60)->by((string) $request->ip()));
 

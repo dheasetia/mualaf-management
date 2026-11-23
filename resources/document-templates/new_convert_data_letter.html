@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  body { margin: 0; font-family: 'Amiri', 'Noto Naskh Arabic', 'Noto Sans Arabic', 'DejaVu Sans', serif; color: #111827; }
+  .page { box-sizing: border-box; width: 210mm; min-height: 297mm; padding: 22mm 24mm; font-size: 14pt; line-height: 1.9; }
+  header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f766e; padding-bottom: 4mm; margin-bottom: 10mm; }
+  .en { direction: ltr; font-family: 'DejaVu Sans', sans-serif; font-size: 10pt; color: #4b5563; }
+  h1 { font-size: 18pt; text-align: center; margin: 0 0 8mm; }
+  table { border-collapse: collapse; width: 100%; margin: 4mm 0; }
+  td { border: 1px solid #d1d5db; padding: 2mm 3mm; }
+  td:first-child { width: 35%; background: #f3f4f6; }
+  .sign { margin-top: 18mm; text-align: left; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+  <div>{{ office_name_ar }}</div>
+  <div class="en">{{ office_name_en }}<br>{{ document_number }}<br>{{ issued_on }}</div>
+</header>
+  <h1>خطاب بيانات مهتدٍ جديد</h1>
+  <p>المكرم/ {{ addressee }} &nbsp; المحترم</p>
+  <p>السلام عليكم ورحمة الله وبركاته، وبعد:</p>
+  <p>يفيد {{ office_name_ar }} بأن الشخص الموضحة بياناته أدناه قد أشهر إسلامه لدى المركز:</p>
+  <table>
+    <tr><td>الاسم</td><td>{{ full_name }}</td></tr>
+    <tr><td>الاسم الإسلامي</td><td>{{ islamic_name }}</td></tr>
+    <tr><td>الجنسية</td><td>{{ nationality_ar }}</td></tr>
+    <tr><td>تاريخ إشهار الإسلام</td><td>{{ shahadah_date_hijri_ar }} الموافق {{ shahadah_date_gregorian_ar }}</td></tr>
+  </table>
+  <p>{{ body }}</p>
+  <p>وتقبلوا خالص التحية والتقدير.</p>
+  <div class="sign">مدير المركز<br>{{ director_name }}</div>
+</div>
+</body>
+</html>

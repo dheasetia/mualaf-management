@@ -38,3 +38,7 @@ arch('the converts module does not depend on the registration module')
 arch('the examinations module uses guidance through its services only')
     ->expect('App\Domain\Examinations')
     ->not->toUse('App\Domain\Guidance\Models');
+
+arch('uploaded files are read through the document library, not their model')
+    ->expect('App\Domain\Documents\Models\Document')
+    ->toOnlyBeUsedIn(['App\Domain\Documents', 'App\Domain\Converts\Models\Convert', 'App\Filament\Center\Resources\Converts\RelationManagers\DocumentsRelationManager', 'App\Providers\AppServiceProvider']);

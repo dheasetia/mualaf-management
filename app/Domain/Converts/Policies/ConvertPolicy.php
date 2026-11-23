@@ -66,6 +66,27 @@ final readonly class ConvertPolicy
         return $this->full($user, $convert);
     }
 
+    /** Files and letters (09 §9.7): only with the full profile, as they hold identity data. */
+    public function viewDocuments(User $user, Convert $convert): bool
+    {
+        return $this->full($user, $convert) && $user->hasPermission('documents.view');
+    }
+
+    public function uploadDocuments(User $user, Convert $convert): bool
+    {
+        return $this->openWithFullProfile($user, $convert) && $user->hasPermission('documents.upload');
+    }
+
+    public function verifyDocuments(User $user, Convert $convert): bool
+    {
+        return $this->full($user, $convert) && $user->hasPermission('documents.verify');
+    }
+
+    public function generateLetters(User $user, Convert $convert): bool
+    {
+        return $this->openWithFullProfile($user, $convert) && $user->hasPermission('documents.generate');
+    }
+
     public function recordFollowUp(User $user, Convert $convert): bool
     {
         return $this->openWithFullProfile($user, $convert) && $user->hasPermission('followups.create');

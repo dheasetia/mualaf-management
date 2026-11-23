@@ -21,7 +21,7 @@
 | 15 | Guidance (selesai 22-11-2026) | 4 | Program nasional/kantor (salin), modul, lesson, kelas + jadwal + guru, enrollment (kapasitas, gender, kelanjutan transfer), sesi, absensi, progres, akses Teacher `converts.view_class` |
 | 16 | Exams (selesai 22-11-2026) | 4 | Ujian berkomponen berbobot, attempt + remedial, penilaian (Teacher kelas sendiri), finalisasi immutable, amandemen beraudit |
 | 17 | Certificates (selesai 22-11-2026) | 5 | Template berversi (placeholder ter-escape, bukan Blade), request/approve/issue/revoke, nomor + snapshot + token hash, PDF via Gotenberg, QR, verifikasi publik |
-| 18 | Documents | 5 | Dokumen, versi, template surat, generated documents |
+| 18 | Documents (selesai 22-11-2026) | 5 | Unggahan berversi (cek isi, hapus EXIF, link bertanda tangan 5 menit), verifikasi, surat bernomor dari template berversi dengan snapshot beku, template nasional di Central. Sisa: scan ClamAV (langkah 26) |
 | 19 | Dawah planning | 6 | Aktivitas harian, plan, peserta, laporan |
 | 20 | Budget / material | 6 | Budget, variance, materi, distribusi |
 | 21 | Transport | 6 | Kendaraan, driver, trip, pickup |
