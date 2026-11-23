@@ -19,6 +19,8 @@ return [
     'shahadah_void_requested' => ['title' => 'Shahadah void requested', 'body' => 'A center asked to void a shahadah registration; it is waiting for your decision.'],
     'shahadah_void_approved' => ['title' => 'Shahadah voided', 'body' => 'Your request to void a shahadah registration was approved.'],
     'shahadah_void_rejected' => ['title' => 'Void request rejected', 'body' => 'Your request to void a shahadah registration was rejected.'],
+    'submissions_overdue' => ['title' => 'Overdue submissions', 'body' => ':count submission(s) waiting on you are past their due date.'],
+    'submissions_escalated' => ['title' => 'Submissions overdue', 'body' => ':count submission(s) in this center are well past their due date.'],
     'privileged_requested' => ['title' => 'Privileged access requested', 'body' => 'A privileged access request is waiting for your decision.'],
     'privileged_approved' => ['title' => 'Privileged access approved', 'body' => 'Your privileged access request was approved; the access has started.'],
     'privileged_rejected' => ['title' => 'Privileged access rejected', 'body' => 'Your privileged access request was rejected.'],

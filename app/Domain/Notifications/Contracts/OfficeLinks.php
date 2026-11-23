@@ -21,4 +21,6 @@ interface OfficeLinks
     public function followUpSchedule(Tenant $tenant): string;
 
     public function convert(Tenant $tenant, int $convertId): string;
+
+    public function submissions(Tenant $tenant): string;
 }

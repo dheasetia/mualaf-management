@@ -11,6 +11,7 @@ use App\Filament\Center\Resources\ConvertRegistrations\ConvertRegistrationResour
 use App\Filament\Center\Resources\Converts\ConvertResource;
 use App\Filament\Center\Resources\ConvertTransferRequests\ConvertTransferRequestResource;
 use App\Filament\Center\Resources\FollowUpSchedules\FollowUpScheduleResource;
+use App\Filament\Center\Resources\Submissions\SubmissionResource;
 
 final class CenterOfficeLinks implements OfficeLinks
 {
@@ -37,5 +38,10 @@ final class CenterOfficeLinks implements OfficeLinks
     public function convert(Tenant $tenant, int $convertId): string
     {
         return ConvertResource::getUrl('view', ['record' => $convertId], panel: 'center', tenant: $tenant);
+    }
+
+    public function submissions(Tenant $tenant): string
+    {
+        return SubmissionResource::getUrl('index', panel: 'center', tenant: $tenant);
     }
 }
