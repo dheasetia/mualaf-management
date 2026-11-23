@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Audit\Models\AuditLog;
+use App\Domain\Audit\Policies\AuditLogPolicy;
 use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
 use App\Domain\Identity\Rbac\Authorizer;
 use App\Domain\Identity\Rbac\PermissionCatalog;
+use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +35,12 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(! $this->app->isProduction());
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 
+        // 05-database-conventions §5.5: short aliases, and no class names in the database.
+        Relation::enforceMorphMap([
+            'user' => User::class,
+            'tenant' => Tenant::class,
+        ]);
+
         // 13-infrastructure-security §13.5: at least 12 characters; leaked-password
         // check (Have I Been Pwned range API) only where outbound calls are expected.
         Password::defaults(function (): Password {
@@ -48,6 +58,8 @@ class AppServiceProvider extends ServiceProvider
 
             return $this->app->make(Authorizer::class)->check($user, $ability);
         });
+
+        Gate::policy(AuditLog::class, AuditLogPolicy::class);
 
         Event::listen(Failed::class, RecordFailedLogin::class);
         Event::listen(Login::class, RecordSuccessfulLogin::class);

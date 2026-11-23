@@ -74,9 +74,13 @@ Tabel append-only: `audit_logs`, `convert_status_histories`, `convert_transfer_e
 
 Penegakan:
 
-1. User database aplikasi (`muallaf_app`) hanya mendapat `SELECT, INSERT` pada tabel tersebut (tanpa `UPDATE, DELETE`). Grant dikelola oleh migration khusus yang dijalankan user owner.
-2. Trigger `BEFORE UPDATE` dan `BEFORE DELETE` yang `SIGNAL SQLSTATE '45000'` sebagai lapis kedua.
-3. Model memakai trait `AppendOnly` yang melempar exception pada `update()`/`delete()`.
+Daftar tabel tunggal ada di `App\Support\Database\AppendOnlyTables::TABLES`; tabel baru didaftarkan di perubahan yang sama dengan migration-nya.
+
+1. **Grant per tabel.** MySQL tidak dapat mengecualikan satu tabel dari grant level database, sehingga `muallaf_app` memakai grant per tabel: `SELECT, INSERT, UPDATE, DELETE` untuk tabel biasa dan hanya `SELECT, INSERT` untuk tabel append-only. Grant dibuat oleh `php artisan db:sync-app-grants` yang dijalankan DBA (koneksi `dba`, user ber-`GRANT OPTION`) **setelah setiap `migrate`**; perintah ini memberi grant per tabel dulu, baru mencabut grant level database. Tabel baru tidak dapat diakses aplikasi sampai perintah ini dijalankan. `--dry-run` menampilkan statement tanpa menjalankannya.
+2. **Trigger** `BEFORE UPDATE` dan `BEFORE DELETE` (`AppendOnlyTables::createTriggers()` di migration tabel) yang `SIGNAL SQLSTATE '45000'`, berlaku juga untuk user owner. Karena binary logging aktif, server wajib `log_bin_trust_function_creators = 1` agar owner tanpa `SUPER` dapat membuat trigger.
+3. Model memakai trait `App\Support\Database\AppendOnly` yang melempar `AppendOnlyViolation` pada `update()`/`delete()`.
+
+`TRUNCATE` dan `DROP` tidak memicu trigger; keduanya tidak pernah diberikan ke `muallaf_app`.
 
 ## 5.5 Polymorphic relation
 

@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $revoked_by
  * @property string|null $revoke_reason
  * @property-read Role $role
+ * @property-read User $user
  */
 final class UserRoleAssignment extends Model
 {

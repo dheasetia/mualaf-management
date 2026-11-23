@@ -73,6 +73,9 @@ jobs:
       DB_USERNAME: root
       DB_PASSWORD: root
       DB_COLLATION: utf8mb4_0900_ai_ci
+      # Restricted application user, used only by the append-only grant test.
+      DB_APP_USERNAME: muallaf_app
+      DB_APP_PASSWORD: app-password
     steps:
       - uses: actions/checkout@v4
 
@@ -94,6 +97,12 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
+
+      - name: Application DB user with table-level grants
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot -e "CREATE USER 'muallaf_app'@'%' IDENTIFIED BY 'app-password'"
+          php artisan migrate --force
+          php artisan db:sync-app-grants --connection=mysql --user=muallaf_app --host=%
 
       - name: Tests
         run: vendor/bin/pest
