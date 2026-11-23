@@ -9,7 +9,7 @@
 | 3 | Authentication (selesai 22-11-2026) | 1 | Login dua panel, MFA (wajib di Central; di Center menunggu role pada langkah 4), lockout per akun, session idle 30 menit + absolut 12 jam, tanpa remember-me |
 | 4 | RBAC (selesai 22-11-2026, matriks menunggu persetujuan) | 1 | Tabel RBAC, `PermissionCatalog`/`RoleCatalog` + `RbacSeeder`, `Authorizer` + Gate, assign/revoke, MFA per role, `rbac:grant-super-admin` |
 | 5 | Audit (selesai 22-11-2026) | 1 | `audit_logs`, `AuditLogger` + `AuditRedactor`, request id, append-only grant per tabel (`db:sync-app-grants`) + trigger; audit login, login gagal, MFA gagal, assign/revoke role; viewer read-only di Central (`audit.view_national`) dan Center (`audit.view_office`, hanya kantor sendiri) |
-| 6 | Master data | 1 | Region, kota, negara, bahasa, agama, kategori, jenis aktivitas + Filament Central |
+| 6 | Master data (selesai 22-11-2026) | 1 | Region, kota, negara, bahasa, agama, kategori, jenis aktivitas + Filament Central (`master.manage` menulis, user platform membaca) |
 | 7 | Da'i | 2 | `dais`, `dai_languages`, supervisor, workload view |
 | 8 | Prospect | 2 | `prospects`, status machine, follow-up da'i, assignment |
 | 9 | Identity registry | 2 | `convert_identifiers`, fingerprint, national search terbatas |

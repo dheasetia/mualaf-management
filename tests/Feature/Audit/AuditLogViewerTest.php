@@ -17,13 +17,6 @@ beforeEach(function (): void {
     $audit->record('probe.platform');
 });
 
-function withAuthenticator(User $user): User
-{
-    $user->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
-
-    return $user;
-}
-
 it('shows a central auditor the entries of every office and of the platform', function (): void {
     $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_auditor')))
         ->get('/central/audit-logs')

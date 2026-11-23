@@ -57,3 +57,13 @@ function grantRole(User $user, string $roleCode, ?Tenant $tenant = null): User
 
     return $user;
 }
+
+/**
+ * Enables an authenticator app, so panels that require MFA let the user in.
+ */
+function withAuthenticator(User $user): User
+{
+    $user->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
+
+    return $user;
+}

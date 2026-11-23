@@ -29,7 +29,14 @@ dai_activity_types
   category enum(dawah, education, scholarly_media, social) · requires_verification bool · active bool
 ```
 
-Seed awal `dai_activity_types` mengikuti PRD §14 (dakwah individu, kunjungan, diskusi, dialog, syahadat, follow-up, mengajar kelas, kajian, mengajar Al-Qur'an, pelatihan, terjemah, menulis buku, artikel, membuat materi, review materi, video/audio, olahraga, turnamen, perlombaan, gathering, perjalanan, makan bersama, kegiatan Ramadhan).
+Seed awal `dai_activity_types` mengikuti PRD §14 (dakwah individu, kunjungan, diskusi, dialog, syahadat, follow-up, mengajar kelas, kajian, mengajar Al-Qur'an, pelatihan, terjemah, menulis buku, artikel, membuat materi, review materi, video/audio, olahraga, turnamen, perlombaan, gathering, perjalanan, makan bersama, kegiatan Ramadhan). Hanya `shahadah` yang `requires_verification`.
+
+Aturan master data (langkah 6, `PlatformMasterSeeder` + `MasterDataPolicy`):
+
+- Seeder hanya menambah entri yang belum ada (dicocokkan dengan kode, termasuk entri soft-deleted); perubahan dan penonaktifan oleh admin Central tidak ditimpa saat seeder dijalankan ulang.
+- Isi awal: 13 wilayah Saudi dengan kota utamanya; 249 negara ISO 3166-1 dari `database/data/countries.php` (nama Arab/Inggris dari ICU, kode telepon; Palestina dinamai `فلسطين`/`Palestine`); 42 bahasa ISO 639-1 dengan flag RTL; agama sebelum masuk Islam (tanpa `islam`); 11 kategori anggaran.
+- Kode disimpan dalam satu bentuk: huruf besar untuk wilayah, kota, dan ISO negara; huruf kecil untuk bahasa dan kode snake_case (agama, kategori anggaran, jenis aktivitas). Kode unik termasuk terhadap entri soft-deleted.
+- Semua user platform dapat membaca layar master data di Central; hanya `master.manage` yang menulis. Tabel dengan `deleted_at` di-soft-delete (wilayah yang masih punya kota/kantor dan kota yang dipakai kantor tidak dapat dihapus); tabel dengan `active` dinonaktifkan, tidak dihapus. Force delete tidak tersedia.
 
 ## 6.2 Tenants
 
