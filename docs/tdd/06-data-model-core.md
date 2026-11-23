@@ -205,6 +205,8 @@ Perubahan dari v1.0:
 - `status` hanya status *record* administratif. Tidak ada nilai yang merepresentasikan status keimanan; kondisi pembinaan ada di `convert_follow_up_statuses` (PRD §31). Nilai `deceased` dan `record_closed` hanya dapat di-set Head of Dawah dengan alasan.
 - `origin_tenant_id` dan `current_tenant_id` dikeluarkan dari mass assignment; observer melempar exception bila berubah di luar service yang berwenang.
 
+Aturan (langkah 10): convert tidak dibuat dari panel (hanya alur syahadat, langkah 11) dan tidak dihapus. `UpdateConvert` mengubah profil; `ChangeDisclosureLevel` (alasan wajib), `ChangeConvertStatus` (`converts.change_status`, alasan wajib, histori `convert_status_histories` append-only dicap `tenant_id` kantor penulis), `AssignConvertDai` (lewat `DaiAssignmentService`). Status `deceased`/`record_closed` final; record tertutup hanya bisa dibaca. Audit: `converts.updated`, `converts.disclosure_changed`, `converts.status_changed`, `converts.contact_added`, `converts.contact_removed`, `dai.primary_assigned`.
+
 ## 6.9 Convert identity dan kontak
 
 ```
@@ -227,6 +229,8 @@ convert_contacts
   verified_at? · active bool
   idx(value_fingerprint)
 ```
+
+Kontak (langkah 10): telepon (`mobile`, `whatsapp`) disimpan ternormalisasi `+966…` dengan fingerprint HMAC yang sama seperti telepon prospect; email huruf kecil dan divalidasi. Satu kontak primary per convert; menghapus kontak hanya menonaktifkannya (`active = false`).
 
 ## 6.10 Pekerjaan, tempat tinggal, contact person
 

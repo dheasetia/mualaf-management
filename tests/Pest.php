@@ -9,6 +9,7 @@ use App\Domain\Tenancy\Enums\MembershipStatus;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\UserTenantMembership;
 use App\Models\User;
+use App\Support\Exceptions\RuleViolation;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\RbacSeeder;
 use Filament\Facades\Filament;
@@ -93,4 +94,12 @@ function saudiId(string $firstNine): string
     }
 
     throw new LogicException('unreachable');
+}
+
+/**
+ * Asserts that the action breaks a business rule on the given form field.
+ */
+function expectRuleViolation(Closure $action, string $field): void
+{
+    expect($action)->toThrow(fn (RuleViolation $violation) => expect($violation->field)->toBe($field));
 }

@@ -24,7 +24,6 @@ use App\Domain\Prospects\Enums\ProspectStatus;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
-use App\Support\Exceptions\RuleViolation;
 use App\Support\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -60,11 +59,6 @@ function followUp(array $overrides = []): FollowUpData
         'summary' => 'Talked about tawheed.',
         ...$overrides,
     ]);
-}
-
-function expectRuleViolation(Closure $action, string $field): void
-{
-    expect($action)->toThrow(fn (RuleViolation $violation) => expect($violation->field)->toBe($field));
 }
 
 it('registers a prospect with its first status, primary assignment and audit', function (): void {

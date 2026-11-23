@@ -17,6 +17,7 @@ final class AppendOnlyTables
     public const array TABLES = [
         'audit_logs',
         'prospect_status_histories',
+        'convert_status_histories',
     ];
 
     public static function contains(string $table): bool

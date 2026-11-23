@@ -8,6 +8,7 @@ use App\Domain\Audit\Listeners\RecordTenantScopeBypass;
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Policies\AuditLogPolicy;
 use App\Domain\Converts\Models\Convert;
+use App\Domain\Converts\Policies\ConvertPolicy;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Dai\Policies\DaiPolicy;
 use App\Domain\Identity\Listeners\RecordFailedLogin;
@@ -80,6 +81,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(AuditLog::class, AuditLogPolicy::class);
         Gate::policy(Dai::class, DaiPolicy::class);
         Gate::policy(Prospect::class, ProspectPolicy::class);
+        Gate::policy(Convert::class, ConvertPolicy::class);
 
         foreach ([Region::class, City::class, Country::class, Language::class, Religion::class, BudgetCategory::class, DaiActivityType::class] as $masterModel) {
             Gate::policy($masterModel, MasterDataPolicy::class);

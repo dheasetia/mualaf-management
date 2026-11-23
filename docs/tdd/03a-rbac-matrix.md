@@ -15,8 +15,8 @@ Dasar: [03-tenancy-authorization.md](03-tenancy-authorization.md) §3.5–3.7.
 | CAu | Central Auditor | المدقق المركزي | Platform | Ya | 5 |
 | CR | Central Reporting | التقارير المركزية | Platform | Ya | 3 |
 | SO | Support Officer | مسؤول الدعم الفني | Platform | Ya | 2 |
-| CtA | Center Admin | مدير المركز | Kantor | Ya | 23 |
-| HoD | Head of Dawah | رئيس قسم الدعوة | Kantor | Ya | 38 |
+| CtA | Center Admin | مدير المركز | Kantor | Ya | 24 |
+| HoD | Head of Dawah | رئيس قسم الدعوة | Kantor | Ya | 41 |
 | Dai | Da'i | داعية | Kantor | – | 17 |
 | Reg | Registration Officer | موظف التسجيل | Kantor | – | 8 |
 | SV | Shahadah Verifier | مدقق الشهادة | Kantor | Ya | 7 |
@@ -98,6 +98,9 @@ Role wajib MFA bila berscope platform, atau memegang permission dengan aksi: `as
 | `converts.transfer` |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
 | `converts.review_transfer` |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
 | `converts.correct_origin` |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `converts.view_restricted` |  |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
+| `converts.view_high_confidentiality` |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
+| `converts.change_status` |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |
 
 ### identity
 
