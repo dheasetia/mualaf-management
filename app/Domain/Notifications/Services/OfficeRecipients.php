@@ -30,6 +30,20 @@ final readonly class OfficeRecipients
             ->get();
     }
 
+    /**
+     * Platform staff holding a permission through an active platform role.
+     *
+     * @return Collection<int, User>
+     */
+    public function platformWithPermission(string $permission, ?int $except = null): Collection
+    {
+        return User::query()
+            ->whereHas('roleAssignments', fn ($query) => $query->active()->whereNull('tenant_id')
+                ->whereHas('role.permissions', fn ($permissions) => $permissions->where('code', $permission)))
+            ->when($except !== null, fn ($query) => $query->whereKeyNot($except))
+            ->get();
+    }
+
     public function daiUser(int $tenantId, int $daiId): ?User
     {
         $userId = $this->tenantContext->run($tenantId, fn (): mixed => DB::table('dais')->where('tenant_id', $tenantId)->where('id', $daiId)->value('user_id'));

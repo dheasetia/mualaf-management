@@ -15,4 +15,7 @@ return [
     'consent_withdrawn' => ['title' => 'Consent withdrawn', 'body' => 'A convert withdrew a consent; :count related referral(s) were closed.'],
     'follow_ups_overdue' => ['title' => 'Overdue follow-ups', 'body' => 'You have :count overdue follow-up(s).'],
     'follow_ups_escalated' => ['title' => 'Follow-ups overdue for over a week', 'body' => ':count follow-up(s) in this center are more than 7 days overdue.'],
+    'privileged_requested' => ['title' => 'Privileged access requested', 'body' => 'A privileged access request is waiting for your decision.'],
+    'privileged_approved' => ['title' => 'Privileged access approved', 'body' => 'Your privileged access request was approved; the access has started.'],
+    'privileged_rejected' => ['title' => 'Privileged access rejected', 'body' => 'Your privileged access request was rejected.'],
 ];

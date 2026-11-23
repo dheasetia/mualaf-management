@@ -70,6 +70,8 @@ use App\Domain\Platform\Models\Language;
 use App\Domain\Platform\Models\Region;
 use App\Domain\Platform\Models\Religion;
 use App\Domain\Platform\Policies\MasterDataPolicy;
+use App\Domain\Privileged\Models\PrivilegedAccessRequest;
+use App\Domain\Privileged\Policies\PrivilegedAccessPolicy;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Policies\ProspectPolicy;
 use App\Domain\Registration\Events\ShahadahRecorded;
@@ -155,6 +157,7 @@ class AppServiceProvider extends ServiceProvider
             'trip' => TransportTrip::class,
             'submission' => Submission::class,
             'submission_type' => SubmissionType::class,
+            'privileged_access' => PrivilegedAccessRequest::class,
             'pilgrimage_program' => PilgrimageProgram::class,
             'pilgrimage_registration' => PilgrimageRegistration::class,
             'consent' => ConsentRecord::class,
@@ -208,6 +211,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DawahMaterialDistribution::class, DawahMaterialDistributionPolicy::class);
         Gate::policy(Submission::class, SubmissionPolicy::class);
         Gate::policy(ExportJob::class, ExportJobPolicy::class);
+        Gate::policy(PrivilegedAccessRequest::class, PrivilegedAccessPolicy::class);
 
         foreach ([InternationalReferral::class, PreDepartureChecklist::class, ExternalIslamicOrganization::class] as $internationalModel) {
             Gate::policy($internationalModel, InternationalPolicy::class);

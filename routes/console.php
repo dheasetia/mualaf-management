@@ -23,3 +23,6 @@ Schedule::command('exports:purge')->hourly()->withoutOverlapping()->onOneServer(
 
 // 13 §13.6: monthly access review summary for the auditors.
 Schedule::command('access:review')->monthlyOn(1, '06:00')->onOneServer();
+
+// 04 §4.8: break-glass grants end on time.
+Schedule::command('privileged:expire')->everyFiveMinutes()->onOneServer();

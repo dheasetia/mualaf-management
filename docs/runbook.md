@@ -67,6 +67,7 @@ Job gagal: `php artisan queue:failed`, periksa, lalu `queue:retry {id}`. Jangan 
 | `reports:aggregate` | 01.30 | Statistik harian, mengulang 7 hari terakhir |
 | `exports:purge` | tiap jam | Hapus file export kedaluwarsa |
 | `access:review` | tanggal 1, 06.00 | Ringkasan review akses ke audit log |
+| `privileged:expire` | tiap 5 menit | Mengakhiri grant akses istimewa yang kedaluwarsa |
 
 Agregasi ulang manual: `php artisan reports:aggregate --date=2026-11-01` atau `--days=30`.
 
@@ -99,6 +100,7 @@ Agregasi ulang manual: `php artisan reports:aggregate --date=2026-11-01` atau `-
 
 | Kejadian | Langkah awal |
 | --- | --- |
+| Perlu melihat data satu convert dari pusat | **Central → Akses istimewa**: ajukan dengan alasan, scope, dan durasi minimal; penyetuju lain (Super Admin / Central Auditor) memutuskan; setiap pembukaan tercatat `privileged.viewed`. Cabut begitu selesai |
 | Dugaan kebocoran lintas kantor | Simpan bukti (request id `X-Request-Id`, audit log), nonaktifkan fitur terkait, jalankan `pest --group=tenant-isolation`, laporkan ke penanggung jawab data |
 | Akun diambil alih | Nonaktifkan akun, cabut sesi (ganti password memicu `AuthenticateSession`), reset MFA, tinjau audit akun 30 hari |
 | `document.infected` | Pastikan file sudah terhapus, beri tahu pengunggah, periksa unggahan lain dari akun yang sama |
