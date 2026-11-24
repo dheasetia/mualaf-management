@@ -11,6 +11,7 @@ use App\Filament\Center\Resources\ConvertRegistrations\ConvertRegistrationResour
 use App\Filament\Center\Resources\Converts\ConvertResource;
 use App\Filament\Center\Resources\ConvertTransferRequests\ConvertTransferRequestResource;
 use App\Filament\Center\Resources\FollowUpSchedules\FollowUpScheduleResource;
+use App\Filament\Center\Resources\ImportBatches\ImportBatchResource;
 use App\Filament\Center\Resources\Submissions\SubmissionResource;
 
 final class CenterOfficeLinks implements OfficeLinks
@@ -43,5 +44,10 @@ final class CenterOfficeLinks implements OfficeLinks
     public function submissions(Tenant $tenant): string
     {
         return SubmissionResource::getUrl('index', panel: 'center', tenant: $tenant);
+    }
+
+    public function importBatch(Tenant $tenant, int $batchId): string
+    {
+        return ImportBatchResource::getUrl('view', ['record' => $batchId], panel: 'center', tenant: $tenant);
     }
 }

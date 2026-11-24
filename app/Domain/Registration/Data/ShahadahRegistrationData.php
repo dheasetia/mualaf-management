@@ -29,5 +29,7 @@ final readonly class ShahadahRegistrationData
         public ?string $email = null,
         /** @var list<ShahadahWitnessData> */
         public array $witnesses = [],
+        /** Set for a row of a historical import (duplicate cases point at it). */
+        public ?int $importRowId = null,
     ) {}
 }

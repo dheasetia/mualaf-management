@@ -87,8 +87,7 @@ final readonly class DuplicateScreen
             }
 
             $case = new DuplicateReviewCase;
-            $case->candidate_type = $data->prospectId === null ? CandidateType::RegistrationDraft : CandidateType::Prospect;
-            $case->candidate_id = $data->prospectId;
+            [$case->candidate_type, $case->candidate_id] = $this->candidate($data);
             $case->candidate_key = $candidateKey;
             $case->possible_convert_id = $match['convert']->id;
             $case->match_reason = $match['reason'];
@@ -109,6 +108,54 @@ final readonly class DuplicateScreen
         if ($blocking) {
             throw RegistrationRuleViolation::possibleDuplicate();
         }
+    }
+
+    /**
+     * An imported row whose identity is already registered (15-operations
+     * data migration): the collision goes to review instead of being dropped,
+     * once per row and convert, so "same person" can lead to a transfer.
+     */
+    public function openForIdentity(ShahadahRegistrationData $data, int $convertId, User $actor): void
+    {
+        $candidateKey = hash('sha256', $this->identities->fingerprint($data->identity)['fingerprint']);
+        [$candidateType, $candidateId] = $this->candidate($data);
+
+        $exists = DuplicateReviewCase::query()
+            ->where('candidate_key', $candidateKey)
+            ->where('possible_convert_id', $convertId)
+            ->exists();
+
+        if ($exists) {
+            return;
+        }
+
+        $case = new DuplicateReviewCase;
+        $case->candidate_type = $candidateType;
+        $case->candidate_id = $candidateId;
+        $case->candidate_key = $candidateKey;
+        $case->possible_convert_id = $convertId;
+        $case->match_reason = MatchReason::ExactIdentity;
+        $case->match_score = '1.000';
+        $case->match_details = ['candidate_name' => $data->profile->fullName, 'identity_match' => true];
+        $case->status = ReviewStatus::Open;
+        $case->created_by = $actor->id;
+        $case->save();
+
+        $this->audit->record('duplicates.case_opened', newValues: [
+            'case_id' => $case->id,
+            'match_reason' => MatchReason::ExactIdentity->value,
+            'match_score' => $case->match_score,
+        ], actor: $actor);
+    }
+
+    /** @return array{0: CandidateType, 1: int|null} */
+    private function candidate(ShahadahRegistrationData $data): array
+    {
+        return match (true) {
+            $data->importRowId !== null => [CandidateType::ImportRow, $data->importRowId],
+            $data->prospectId !== null => [CandidateType::Prospect, $data->prospectId],
+            default => [CandidateType::RegistrationDraft, null],
+        };
     }
 
     /**
