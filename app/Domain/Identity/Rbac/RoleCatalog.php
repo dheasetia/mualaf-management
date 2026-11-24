@@ -81,7 +81,7 @@ final class RoleCatalog
                 'international.referrals.create',
             ]),
             'registration_officer' => self::tenant('موظف التسجيل', 'Registration Officer', [
-                'prospects.view', 'converts.view', 'converts.create', 'converts.update',
+                'prospects.view', 'converts.view', 'converts.create', 'converts.update', 'converts.import',
                 'identity.national_search', 'shahadah.record', 'documents.view', 'documents.upload',
             ]),
             'shahadah_verifier' => self::tenant('مدقق الشهادة', 'Shahadah Verifier', [

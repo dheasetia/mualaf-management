@@ -86,7 +86,10 @@ final readonly class RecordShahadah
             throw RegistrationRuleViolation::alreadyRegistered();
         }
 
-        ShahadahRecorded::dispatch($registration->id, $registration->tenant_id);
+        // An import announces its rows once, when the batch completes.
+        if ($data->importRowId === null) {
+            ShahadahRecorded::dispatch($registration->id, $registration->tenant_id);
+        }
 
         return $registration;
     }

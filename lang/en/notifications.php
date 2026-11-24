@@ -24,4 +24,6 @@ return [
     'privileged_requested' => ['title' => 'Privileged access requested', 'body' => 'A privileged access request is waiting for your decision.'],
     'privileged_approved' => ['title' => 'Privileged access approved', 'body' => 'Your privileged access request was approved; the access has started.'],
     'privileged_rejected' => ['title' => 'Privileged access rejected', 'body' => 'Your privileged access request was rejected.'],
+    'import_awaiting_verification' => ['title' => 'Imported registrations awaiting verification', 'body' => ':count historical registration(s) were imported and need verification.'],
+    'import_completed' => ['title' => 'Import finished', 'body' => ':imported imported, :duplicates sent to duplicate review, :invalid with errors.'],
 ];

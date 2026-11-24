@@ -79,9 +79,11 @@ use App\Domain\Registration\Events\ShahadahRecorded;
 use App\Domain\Registration\Events\ShahadahVerified;
 use App\Domain\Registration\Models\ConvertRegistration;
 use App\Domain\Registration\Models\DuplicateReviewCase;
+use App\Domain\Registration\Models\ImportBatch;
 use App\Domain\Registration\Models\ShahadahVoidRequest;
 use App\Domain\Registration\Policies\ConvertRegistrationPolicy;
 use App\Domain\Registration\Policies\DuplicateReviewCasePolicy;
+use App\Domain\Registration\Policies\ImportBatchPolicy;
 use App\Domain\Registration\Policies\ShahadahVoidRequestPolicy;
 use App\Domain\Reporting\Models\ExportJob;
 use App\Domain\Reporting\Policies\ExportJobPolicy;
@@ -165,6 +167,7 @@ class AppServiceProvider extends ServiceProvider
             'pilgrimage_registration' => PilgrimageRegistration::class,
             'consent' => ConsentRecord::class,
             'export' => ExportJob::class,
+            'import_batch' => ImportBatch::class,
             'referral' => InternationalReferral::class,
             'checklist' => PreDepartureChecklist::class,
             'home_contact' => ConvertHomeCountryContact::class,
@@ -193,6 +196,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Dai::class, DaiPolicy::class);
         Gate::policy(Prospect::class, ProspectPolicy::class);
         Gate::policy(Convert::class, ConvertPolicy::class);
+        Gate::policy(ImportBatch::class, ImportBatchPolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(Exam::class, ExamPolicy::class);
         Gate::policy(Certificate::class, CertificatePolicy::class);

@@ -29,6 +29,8 @@ use App\Domain\Pilgrimage\Models\PilgrimageRegistration;
 use App\Domain\Prospects\Models\Prospect;
 use App\Domain\Prospects\Models\ProspectStatusHistory;
 use App\Domain\Registration\Models\DuplicateReviewCase;
+use App\Domain\Registration\Models\ImportBatch;
+use App\Domain\Registration\Models\ImportRow;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Transport\Models\ActivityTransportRequest;
 use App\Domain\Transport\Models\Driver;
@@ -49,6 +51,8 @@ const TENANT_SCOPED_MODELS = [
     'prospect' => Prospect::class,
     'prospect status history' => ProspectStatusHistory::class,
     'duplicate review case' => DuplicateReviewCase::class,
+    'import batch' => ImportBatch::class,
+    'import row' => ImportRow::class,
     'guidance class' => GuidanceClass::class,
     'class session' => ClassSession::class,
     'attendance' => Attendance::class,

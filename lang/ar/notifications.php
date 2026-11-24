@@ -24,4 +24,6 @@ return [
     'privileged_requested' => ['title' => 'طلب وصول استثنائي', 'body' => 'يوجد طلب وصول استثنائي بانتظار قرارك.'],
     'privileged_approved' => ['title' => 'تمت الموافقة على الوصول الاستثنائي', 'body' => 'تمت الموافقة على طلبك وبدأ الوصول.'],
     'privileged_rejected' => ['title' => 'رُفض الوصول الاستثنائي', 'body' => 'رُفض طلب الوصول الاستثنائي.'],
+    'import_awaiting_verification' => ['title' => 'تسجيلات مستوردة بانتظار التدقيق', 'body' => 'تم استيراد :count تسجيل/تسجيلات تاريخية وتحتاج إلى تدقيق.'],
+    'import_completed' => ['title' => 'اكتمل الاستيراد', 'body' => 'تم استيراد :imported، وأحيل :duplicates إلى مراجعة التكرار، و:invalid بها أخطاء.'],
 ];

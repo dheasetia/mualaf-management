@@ -9,7 +9,7 @@ Panduan menjalankan, memelihara, dan menangani insiden aplikasi manajemen mualaf
 | Aplikasi Laravel (PHP 8.4) | Panel Center (`/center/{kode}`), Central (`/central`), verifikasi publik (`/verify/{uuid}`) | `APP_DEBUG=false`, HTTPS wajib |
 | MySQL 8.4 | Data utama | Tiga akun: `migrator` (DDL), `dba` (grant), aplikasi (`DB_APP_USERNAME`, tanpa DDL, tanpa UPDATE/DELETE pada tabel append-only) |
 | Redis | Session, cache, antrean | Prefix `muallaf:{env}:` |
-| Queue worker | Antrean `critical`, `pdf`, `default`, `exports`, `files`, `reports` | Lihat §4 |
+| Queue worker | Antrean `critical`, `pdf`, `default`, `exports`, `imports`, `files`, `reports` | Lihat §4 |
 | Scheduler | `php artisan schedule:run` tiap menit | Lihat §5 |
 | Gotenberg 8 | PDF sertifikat dan surat | `GOTENBERG_URL` |
 | ClamAV (clamd) | Scan antivirus unggahan | `CLAMAV_ENABLED=true`, `CLAMAV_HOST`, `CLAMAV_PORT` |

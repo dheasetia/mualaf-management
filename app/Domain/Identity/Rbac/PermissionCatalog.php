@@ -22,6 +22,7 @@ final class PermissionCatalog
         'converts.view', 'converts.view_own', 'converts.view_class', 'converts.create', 'converts.update', 'converts.view_sensitive',
         'converts.assign_dai', 'converts.set_disclosure', 'converts.transfer', 'converts.review_transfer',
         'converts.correct_origin', 'converts.view_restricted', 'converts.view_high_confidentiality', 'converts.change_status',
+        'converts.import',
         'identity.national_search', 'identity.verify', 'identity.reveal',
         'shahadah.record', 'shahadah.verify', 'shahadah.request_void', 'shahadah.approve_void',
         'duplicates.review',

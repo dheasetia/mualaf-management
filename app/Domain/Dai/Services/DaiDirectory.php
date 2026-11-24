@@ -31,6 +31,14 @@ final class DaiDirectory
         return Dai::query()->where('status', DaiStatus::Active)->orderBy('full_name')->pluck('full_name', 'id')->all();
     }
 
+    /** An active da'i of this office by employee number (imports). */
+    public function activeIdByEmployeeNumber(string $employeeNumber): ?int
+    {
+        $id = Dai::query()->where('employee_number', $employeeNumber)->where('status', DaiStatus::Active)->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
     /**
      * Names of da'i by id (any status), for lists.
      *
