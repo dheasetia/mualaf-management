@@ -14,5 +14,5 @@ final readonly class ConsentWithdrawn implements ShouldDispatchAfterCommit
 {
     use Dispatchable;
 
-    public function __construct(public int $consentId, public int $convertId, public int $tenantId, public int $referralsClosed) {}
+    public function __construct(public int $consentId, public int $convertId, public int $tenantId, public int $referralsClosed, public ?int $actorId = null) {}
 }

@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $plan_number
  * @property string $title
  * @property int $activity_type_id
+ * @property int|null $pilgrimage_program_id
  * @property string $objective
  * @property string|null $description
  * @property string|null $target_audience

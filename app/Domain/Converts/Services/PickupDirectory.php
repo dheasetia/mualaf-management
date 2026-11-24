@@ -82,6 +82,15 @@ final readonly class PickupDirectory
         return ConvertContactPerson::query()->where('convert_id', $convertId)->whereKey($contactPersonId)->where('permission_to_contact', true)->exists();
     }
 
+    /** The residence to fetch the convert from: the marked pickup point, else the current one. */
+    public function defaultResidenceId(int $convertId): ?int
+    {
+        $id = ConvertResidence::query()->where('convert_id', $convertId)->where(fn ($query) => $query->where('is_pickup_point', true)->orWhere('is_current', true))
+            ->orderByDesc('is_pickup_point')->orderByDesc('is_current')->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
     /** @return array<int, string> */
     public function residenceOptions(int $convertId): array
     {

@@ -18,6 +18,7 @@ return [
     'attendance_statuses' => ['invited' => 'مدعو', 'confirmed' => 'مؤكد', 'attended' => 'حضر', 'absent' => 'غائب', 'cancelled' => 'ملغى'],
     'report_statuses' => ['draft' => 'مسودة', 'submitted' => 'مقدم', 'verified' => 'تم التحقق', 'returned' => 'معاد للتعديل'],
     'fields' => [
+        'pilgrimage_program' => 'برنامج الحج أو العمرة',
         'plan_number' => 'رقم الخطة', 'title' => 'العنوان', 'activity_type' => 'نوع النشاط', 'objective' => 'الهدف',
         'description' => 'الوصف', 'target_audience' => 'الفئة المستهدفة', 'expected_participants' => 'العدد المتوقع',
         'proposed_by' => 'مقترح الخطة', 'responsible_dai' => 'الداعية المسؤول', 'planned_date' => 'التاريخ', 'start_time' => 'البداية',
@@ -65,7 +66,9 @@ return [
     ],
     'budget_actions' => ['add_line' => 'إضافة بند', 'approve_amount' => 'اعتماد المبلغ', 'record_actual' => 'تسجيل الفعلي', 'attach_receipt' => 'إرفاق إيصال', 'download_receipt' => 'الإيصال'],
     'notifications' => ['saved' => 'تم الحفظ.'],
+    'help' => ['pilgrimage_program' => 'لنشاط مرتبط برحلة حج أو عمرة (السفر أو العودة)؛ يتيح طلب نقل جميع الحجاج من صفحة البرنامج.'],
     'errors' => [
+        'program_unavailable' => 'اختر برنامج حج أو عمرة قائمًا في هذا المركز.',
         'budget_not_approved' => 'يجب اعتماد مبلغ كل بند من بنود الميزانية أولًا.',
         'budget_closed' => 'لا يمكن تعديل الميزانية في هذه الحالة.',
         'invalid_amount' => 'أدخل مبلغًا صحيحًا.',

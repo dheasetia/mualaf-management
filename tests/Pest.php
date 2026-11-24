@@ -12,6 +12,8 @@ use App\Domain\Converts\Services\IdentityNumber;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\Identity\Actions\AssignRole;
 use App\Domain\Identity\Models\Role;
+use App\Domain\International\Enums\ConsentType;
+use App\Domain\International\Models\ConsentRecord;
 use App\Domain\Platform\Enums\Gender;
 use App\Domain\Platform\Models\Country;
 use App\Domain\Registration\Actions\RecordShahadah;
@@ -220,4 +222,14 @@ function shahadahWitnesses(): array
         new ShahadahWitnessData('Ahmad Al-Harbi', '0551234001'),
         new ShahadahWitnessData('Khalid Al-Otaibi', '0551234002', identityLast4: '4321', relationship: 'Colleague'),
     ];
+}
+
+/** An active consent of the convert to take part in a pilgrimage program (10 §10.8). */
+function pilgrimageConsent(Tenant $tenant, Convert $convert): ConsentRecord
+{
+    return inTenant($tenant, fn (): ConsentRecord => ConsentRecord::factory()->create([
+        'convert_id' => $convert->id,
+        'consent_type' => ConsentType::PilgrimageParticipation,
+        'scope' => [],
+    ]));
 }

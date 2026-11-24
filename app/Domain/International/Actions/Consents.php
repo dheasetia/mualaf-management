@@ -95,10 +95,22 @@ final readonly class Consents
                 ->update(['status' => ReferralStatus::Closed, 'closed_at' => CarbonImmutable::now(), 'close_reason' => 'consent_withdrawn', 'updated_at' => now()]);
 
             $this->audit->record('consent.withdrawn', $convert, newValues: ['consent_id' => $consent->id, 'reason' => $reason, 'referrals_closed' => $closed], actor: $actor);
-            ConsentWithdrawn::dispatch($consent->id, $convert->id, $consent->tenant_id, $closed);
+            ConsentWithdrawn::dispatch($consent->id, $convert->id, $consent->tenant_id, $closed, $actor->id);
 
             return $consent;
         });
+    }
+
+    /** The newest active consent of this type (not withdrawn, not expired). */
+    public function activeOf(int $convertId, ConsentType $type): ?ConsentRecord
+    {
+        return ConsentRecord::query()
+            ->where('convert_id', $convertId)
+            ->where('consent_type', $type)
+            ->whereNull('withdrawn_at')
+            ->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', CarbonImmutable::now()))
+            ->latest('given_at')
+            ->first();
     }
 
     /**

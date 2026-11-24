@@ -10,6 +10,7 @@ use App\Domain\Dawah\Enums\PlanStatus;
 use App\Domain\Dawah\Exceptions\DawahRuleViolation;
 use App\Domain\Dawah\Models\DawahActivityPlan;
 use App\Domain\Dawah\Services\DawahActors;
+use App\Domain\Pilgrimage\Services\ProgramDirectory;
 use App\Domain\Platform\Models\DaiActivityType;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
@@ -29,6 +30,7 @@ final readonly class ManagePlans
     private const array FIELDS = [
         'title', 'objective', 'description', 'target_audience', 'expected_participants', 'start_time', 'end_time',
         'city_id', 'location', 'latitude', 'longitude', 'google_maps_url', 'transport_required', 'material_required', 'equipment_required',
+        'pilgrimage_program_id',
     ];
 
     public function __construct(
@@ -37,6 +39,7 @@ final readonly class ManagePlans
         private NumberAllocator $numbers,
         private AuditLogger $audit,
         private TenantContext $tenantContext,
+        private ProgramDirectory $programs,
     ) {}
 
     /** @param  array<string, mixed>  $data */
@@ -102,6 +105,12 @@ final readonly class ManagePlans
     {
         if (! DaiActivityType::query()->whereKey((int) ($data['activity_type_id'] ?? 0))->where('active', true)->exists()) {
             throw DawahRuleViolation::activityTypeUnavailable();
+        }
+
+        $program = $data['pilgrimage_program_id'] ?? null;
+
+        if (! blank($program) && ! array_key_exists((int) $program, $this->programs->linkableOptions())) {
+            throw DawahRuleViolation::programUnavailable();
         }
 
         $responsible = $data['responsible_dai_id'] ?? null;

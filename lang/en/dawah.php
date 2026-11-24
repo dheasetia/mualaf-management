@@ -18,6 +18,7 @@ return [
     'attendance_statuses' => ['invited' => 'Invited', 'confirmed' => 'Confirmed', 'attended' => 'Attended', 'absent' => 'Absent', 'cancelled' => 'Cancelled'],
     'report_statuses' => ['draft' => 'Draft', 'submitted' => 'Submitted', 'verified' => 'Verified', 'returned' => 'Returned'],
     'fields' => [
+        'pilgrimage_program' => 'Pilgrimage program',
         'plan_number' => 'Plan number', 'title' => 'Title', 'activity_type' => 'Activity type', 'objective' => 'Objective',
         'description' => 'Description', 'target_audience' => 'Target audience', 'expected_participants' => 'Expected participants',
         'proposed_by' => 'Proposed by', 'responsible_dai' => "Responsible da'i", 'planned_date' => 'Date', 'start_time' => 'Start',
@@ -65,7 +66,9 @@ return [
     ],
     'budget_actions' => ['add_line' => 'Add line', 'approve_amount' => 'Approve amount', 'record_actual' => 'Record actual', 'attach_receipt' => 'Attach receipt', 'download_receipt' => 'Receipt'],
     'notifications' => ['saved' => 'Saved.'],
+    'help' => ['pilgrimage_program' => 'For an activity of a pilgrimage trip (departure or return); pickups for all pilgrims can then be requested from the program page.'],
     'errors' => [
+        'program_unavailable' => 'Choose a running pilgrimage program of this center.',
         'budget_not_approved' => 'Every budget line needs an approved amount first.',
         'budget_closed' => 'The budget cannot be changed at this status.',
         'invalid_amount' => 'Enter a valid amount.',
