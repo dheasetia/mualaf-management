@@ -18,7 +18,7 @@
     --brand-pattern-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23b79755' stroke-opacity='0.22' stroke-width='1'%3E%3Crect x='16' y='16' width='24' height='24'/%3E%3Crect x='16' y='16' width='24' height='24' transform='rotate(45 28 28)'/%3E%3Cpath d='M0 28h7M49 28h7M28 0v7M28 49v7'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* Headings in Cairo; body text is Noto Naskh Arabic (the panel font) */
+/* Headings and the sidebar menu in Cairo; body text is Noto Naskh Arabic (the panel font) */
 
 .fi-header-heading,
 .fi-simple-header-heading,
@@ -31,6 +31,8 @@
 .fi-callout-heading,
 .fi-account-widget-heading,
 .fi-wi-stats-overview-stat-value,
+.fi-sidebar-item-label,
+.fi-sidebar-group-label,
 .brand-name-ar {
     font-family: 'Cairo', var(--font-family), sans-serif;
 }
