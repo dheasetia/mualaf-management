@@ -46,7 +46,7 @@ app/
 ├── Domain/
 │   ├── Platform/          # master data: regions, cities, countries, languages, religions
 │   ├── Tenancy/           # tenants, settings, memberships, TenantContext
-│   ├── Identity/          # users, roles, permissions, MFA
+│   ├── Identity/          # users, roles, permissions
 │   ├── Audit/             # audit log, privileged access
 │   ├── Prospects/
 │   ├── Companies/         # direktori perusahaan nasional dan kantor (langkah 14)
@@ -100,12 +100,12 @@ app/Domain/Transfers/
 | Central | `/central` | Super Admin, Central Admin, Central Auditor, Central Reporting, Support Officer | Tanpa tenant; data individual sensitif hanya via privileged access |
 | Center | `/center/{tenant:code}` | Semua role kantor | Filament tenancy; tenant dipilih dari membership aktif pengguna |
 
-- `User::canAccessPanel()` memeriksa `is_active`, MFA terdaftar, dan ada role dengan scope yang sesuai panel.
+- `User::canAccessPanel()` memeriksa `is_active` dan ada role dengan scope yang sesuai panel.
 - `User::getTenants()` mengembalikan tenant dari membership aktif saja; `canAccessTenant()` memverifikasi ulang di setiap request.
 - URL tenant hanya *memilih* konteks. Middleware `SetTenantContext` mengisi `TenantContext` setelah verifikasi membership; model dan query membaca tenant dari `TenantContext`, tidak pernah dari input form.
 - Filament diatur `->font('IBM Plex Sans Arabic')` (atau Noto Kufi Arabic), locale default `ar`, arah RTL otomatis dari locale.
 - Dua bahasa antarmuka, Arab dan Inggris (`Locales`). Middleware `SetLocale` (grup `web` dan kedua panel) memakai `users.locale`, lalu pilihan sesi (halaman login), lalu `APP_LOCALE`. Pengguna mengganti bahasa dari menu pengguna atau tautan di halaman login (`POST /locale/{ar|en}`); pilihan disimpan di akun sehingga berlaku di perangkat lain. Nama master data, kantor, role, perusahaan, program, dan jenis pengajuan tampil lewat `LocalizedName` (`name_en` dengan cadangan `name_ar` bila kosong). Tetap berbahasa Arab: nama pribadi berbahasa Arab, sertifikat dan surat PDF (snapshot), dan kolom input `name_ar`.
-- MFA wajib untuk semua role di panel Central dan untuk Center Admin, Head of Dawah, Approver (fitur MFA bawaan Filament: app authentication + recovery codes).
+- Login hanya dengan password; MFA dihapus 26-11-2026 (sebelumnya wajib di Central dan untuk role kantor sensitif).
 
 ## 1.4 Konvensi kode
 

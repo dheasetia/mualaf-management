@@ -20,7 +20,7 @@ beforeEach(function (): void {
     seedRbac();
     Country::factory()->create(['iso2' => 'SA', 'iso3' => 'SAU']);
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->head = withAuthenticator(grantRole(memberOf($this->tenant), 'head_of_dawah', $this->tenant));
+    $this->head = grantRole(memberOf($this->tenant), 'head_of_dawah', $this->tenant);
     $this->convert = documentsConvert($this->tenant);
 });
 
@@ -43,7 +43,7 @@ it('records a consent and creates a referral from the panel', function (): void 
 });
 
 it('keeps the organization directory in Central for its managers', function (): void {
-    $admin = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
+    $admin = grantRole(User::factory()->create(), 'central_admin');
     $this->actingAs($admin);
     Filament::setCurrentPanel(Filament::getPanel('central'));
 
@@ -52,5 +52,5 @@ it('keeps the organization directory in Central for its managers', function (): 
         ->assertHasNoActionErrors();
 
     expect(ExternalIslamicOrganization::query()->sole()->verification_status->value)->toBe('unverified');
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_auditor')))->get('/central/organizations-abroad')->assertForbidden();
+    $this->actingAs(grantRole(User::factory()->create(), 'central_auditor'))->get('/central/organizations-abroad')->assertForbidden();
 });

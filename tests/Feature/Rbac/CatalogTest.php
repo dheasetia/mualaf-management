@@ -40,14 +40,10 @@ it('keeps platform roles away from office data', function (): void {
     }
 });
 
-it('syncs the catalog idempotently and flags MFA roles', function (): void {
+it('syncs the catalog idempotently', function (): void {
     $this->seed(RbacSeeder::class);
     $this->seed(RbacSeeder::class);
 
     expect(Role::query()->count())->toBe(count(RoleCatalog::roles()))
-        ->and(Permission::query()->count())->toBe(count(PermissionCatalog::CODES))
-        ->and(Role::query()->where('code', 'super_admin')->sole()->requires_mfa)->toBeTrue()
-        ->and(Role::query()->where('code', 'approver')->sole()->requires_mfa)->toBeTrue()
-        ->and(Role::query()->where('code', 'dai')->sole()->requires_mfa)->toBeFalse()
-        ->and(Role::query()->where('code', 'teacher')->sole()->requires_mfa)->toBeFalse();
+        ->and(Permission::query()->count())->toBe(count(PermissionCatalog::CODES));
 });

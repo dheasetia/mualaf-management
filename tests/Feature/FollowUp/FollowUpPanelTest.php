@@ -18,7 +18,7 @@ beforeEach(function (): void {
     $this->seed(FollowUpScheduleTemplateSeeder::class);
     Country::factory()->create(['iso2' => 'SA', 'iso3' => 'SAU']);
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->head = withAuthenticator(grantRole(memberOf($this->tenant), 'head_of_dawah', $this->tenant));
+    $this->head = grantRole(memberOf($this->tenant), 'head_of_dawah', $this->tenant);
     $this->convert = documentsConvert($this->tenant);
 });
 

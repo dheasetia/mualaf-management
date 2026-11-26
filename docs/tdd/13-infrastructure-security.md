@@ -72,7 +72,7 @@ Aturan:
 | --- | --- |
 | HTTPS | Wajib, HSTS 1 tahun, cookie `Secure`, `HttpOnly`, `SameSite=Lax` |
 | Autentikasi | Filament login; password minimal 12 karakter, cek kebocoran (`Password::uncompromised()`) |
-| MFA | Wajib untuk role platform dan role kantor yang punya approve/verify/reveal |
+| MFA | Tidak dipakai: login dengan password saja (keputusan 26-11-2026). Kolom `app_authentication_*` di `users` dan `roles.requires_mfa` masih ada, tidak dipakai |
 | Session | Redis, idle timeout 30 menit (`SESSION_LIFETIME`), absolute 12 jam (`SESSION_ABSOLUTE_LIFETIME`, middleware `EnforceAbsoluteSessionLifetime`), regenerasi saat login, sesi lain berakhir saat password berubah (`AuthenticateSession`); opsi "remember me" dihapus karena akan melewati idle timeout |
 | Lockout | 5 gagal → lock 15 menit per email (`AccountLockout`), berlaku juga untuk email yang tidak terdaftar agar tidak membuka keberadaan akun; notifikasi email ke pemilik akun sekali saat terkunci |
 | CSRF | Bawaan Laravel/Livewire |
@@ -94,7 +94,7 @@ Status implementasi (langkah 26):
 - Logging: `tap` `RedactPersonalData` pada channel `single`/`daily` memasking email, nomor telepon, dan nomor identitas 10 digit pada pesan dan context.
 - Antivirus: `ScanDocument` (antrean `files`) memanggil clamd via INSTREAM; `documents.scan_status` (`pending/clean/infected/failed/skipped`); hanya file `clean` (atau `skipped` bila `CLAMAV_ENABLED=false`) yang dapat diverifikasi (dokumen convert, dokumen submission, persyaratan umrah) atau diunduh; file terinfeksi dihapus dan dokumen ditolak; clamd tak terjangkau → dicoba ulang, file tetap tidak dapat dipakai.
 - Login dari browser baru (hash HMAC user agent, `user_login_devices`) dalam `KNOWN_DEVICE_DAYS` memicu email dan audit `auth.new_device`; login pertama tidak dilaporkan.
-- Laporan akses berkala: halaman **Review akses** (`audit.view_office`) dan `php artisan access:review` bulanan ke audit log (role sensitif tanpa authenticator, akun tidak dipakai `STALE_ACCOUNT_DAYS`).
+- Laporan akses berkala: halaman **Review akses** (`audit.view_office`) dan `php artisan access:review` bulanan ke audit log (akun tidak dipakai `STALE_ACCOUNT_DAYS`).
 - Pentest: belum dilakukan pihak eksternal; sebagai gantinya `tests/TenantIsolation/IdorSweepTest.php` membuka setiap halaman record Center dengan record kantor lain oleh pengguna berperan luas (semua harus gagal). Checklist pra-pilot di [runbook](../runbook.md) §11.
 
 ## 13.6 Ancaman utama dan mitigasi
@@ -106,5 +106,5 @@ Status implementasi (langkah 26):
 | Insider membaca data mualaf tanpa keperluan | Least privilege, disclosure level, audit view sensitif, laporan akses berkala ke Local Auditor |
 | Pengungkapan status agama ke pihak ketiga | Tidak ada notifikasi otomatis ke pihak ketiga, `permission_to_contact`, lembar pickup tanpa data agama |
 | Sertifikat palsu | QR token hash, halaman verifikasi resmi, status revoked |
-| Pengambilalihan akun admin | MFA, lockout, notifikasi login baru, sesi pendek |
+| Pengambilalihan akun admin | Kebijakan password, lockout, notifikasi login baru, sesi pendek |
 | Kehilangan data | Backup terenkripsi, binlog, uji restore berkala |

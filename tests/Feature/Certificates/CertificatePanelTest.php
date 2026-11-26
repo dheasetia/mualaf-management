@@ -32,7 +32,7 @@ beforeEach(function (): void {
     Http::fake(['*/forms/chromium/convert/html' => Http::response('%PDF-1.7 fake', 200)]);
 
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->staff = fn (string $role): User => withAuthenticator(grantRole(memberOf($this->tenant), $role, $this->tenant));
+    $this->staff = fn (string $role): User => grantRole(memberOf($this->tenant), $role, $this->tenant);
     $this->convertId = inTenant($this->tenant, function (): int {
         $registration = app(RecordShahadah::class)->handle(new ShahadahRegistrationData(
             profile: new ConvertProfileData('Daniel Mendoza', Gender::Male, Country::factory()->create()->id),
@@ -76,8 +76,8 @@ it('takes a shahadah certificate from request to download through the panel', fu
 });
 
 it('opens the national templates in Central to template managers only', function (): void {
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_admin')))->get('/central/certificate-templates')->assertOk();
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_auditor')))->get('/central/certificate-templates')->assertForbidden();
+    $this->actingAs(grantRole(User::factory()->create(), 'central_admin'))->get('/central/certificate-templates')->assertOk();
+    $this->actingAs(grantRole(User::factory()->create(), 'central_auditor'))->get('/central/certificate-templates')->assertForbidden();
 });
 
 it('limits public verification to 60 requests a minute per address', function (): void {

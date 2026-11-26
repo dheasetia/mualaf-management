@@ -14,7 +14,7 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     seedRbac();
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->officer = withAuthenticator(grantRole(memberOf($this->tenant), 'transportation_officer', $this->tenant));
+    $this->officer = grantRole(memberOf($this->tenant), 'transportation_officer', $this->tenant);
 });
 
 it('registers a vehicle and refuses a duplicate plate in the same center', function (): void {

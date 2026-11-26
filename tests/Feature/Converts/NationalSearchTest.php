@@ -105,7 +105,7 @@ it('allows 30 searches per hour per user; invalid numbers do not count', functio
 
 it('searches from the center panel and clears the number afterwards', function (): void {
     ($this->registerIn)($this->riyadh);
-    inCenterPanel($this->dammam, withAuthenticator($this->registrar));
+    inCenterPanel($this->dammam, $this->registrar);
 
     Livewire::test(NationalIdentitySearch::class)
         ->fillForm(['identity_type' => 'iqamah', 'identity_number' => $this->iqamah])
@@ -114,7 +114,7 @@ it('searches from the center panel and clears the number afterwards', function (
         ->assertSee('RUH')
         ->assertSet('data.identity_number', null);
 
-    $this->actingAs(withAuthenticator(grantRole(memberOf($this->dammam), 'dai', $this->dammam)))
+    $this->actingAs(grantRole(memberOf($this->dammam), 'dai', $this->dammam))
         ->get('/center/DMM/national-identity-search')
         ->assertForbidden();
 });

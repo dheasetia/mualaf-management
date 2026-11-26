@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string $name_en
  * @property RoleScope $scope_type
  * @property bool $is_system
- * @property bool $requires_mfa
  */
 #[UseFactory(RoleFactory::class)]
 final class Role extends Model
@@ -26,7 +25,7 @@ final class Role extends Model
     /** @use HasFactory<RoleFactory> */
     use HasFactory;
 
-    protected $fillable = ['code', 'name_ar', 'name_en', 'scope_type', 'is_system', 'requires_mfa', 'description'];
+    protected $fillable = ['code', 'name_ar', 'name_en', 'scope_type', 'is_system', 'description'];
 
     /** @return BelongsToMany<Permission, $this> */
     public function permissions(): BelongsToMany
@@ -39,7 +38,6 @@ final class Role extends Model
         return [
             'scope_type' => RoleScope::class,
             'is_system' => 'boolean',
-            'requires_mfa' => 'boolean',
         ];
     }
 }

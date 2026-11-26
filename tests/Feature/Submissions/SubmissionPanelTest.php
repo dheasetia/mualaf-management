@@ -22,7 +22,7 @@ beforeEach(function (): void {
     Country::factory()->create(['iso2' => 'SA', 'iso3' => 'SAU']);
     Storage::fake('local');
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->clerk = withAuthenticator(grantRole(memberOf($this->tenant), 'administrative_officer', $this->tenant));
+    $this->clerk = grantRole(memberOf($this->tenant), 'administrative_officer', $this->tenant);
     $this->convert = documentsConvert($this->tenant);
 });
 
@@ -49,6 +49,6 @@ it('creates a submission, attaches the required file and submits it from the pan
 });
 
 it('shows submissions to submissions.view holders only', function (): void {
-    $this->actingAs(withAuthenticator(grantRole(memberOf($this->tenant), 'approver', $this->tenant)))->get('/center/DMM/submissions')->assertOk();
+    $this->actingAs(grantRole(memberOf($this->tenant), 'approver', $this->tenant))->get('/center/DMM/submissions')->assertOk();
     $this->actingAs(grantRole(memberOf($this->tenant), 'teacher', $this->tenant))->get('/center/DMM/submissions')->assertForbidden();
 });

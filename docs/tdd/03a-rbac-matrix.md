@@ -8,29 +8,27 @@ Dasar: [03-tenancy-authorization.md](03-tenancy-authorization.md) §3.5–3.7.
 
 ## Ringkasan role
 
-| Kode | Role | Nama Arab | Scope | Wajib MFA | Jumlah permission |
-| --- | --- | --- | --- | --- | --- |
-| SA | Super Admin | المشرف العام | Platform | Ya | 21 |
-| CA | Central Admin | مسؤول المنصة | Platform | Ya | 21 |
-| CAu | Central Auditor | المدقق المركزي | Platform | Ya | 5 |
-| CR | Central Reporting | التقارير المركزية | Platform | Ya | 3 |
-| SO | Support Officer | مسؤول الدعم الفني | Platform | Ya | 2 |
-| CtA | Center Admin | مدير المركز | Kantor | Ya | 24 |
-| HoD | Head of Dawah | رئيس قسم الدعوة | Kantor | Ya | 42 |
-| Dai | Da'i | داعية | Kantor | – | 17 |
-| Reg | Registration Officer | موظف التسجيل | Kantor | – | 9 |
-| SV | Shahadah Verifier | مدقق الشهادة | Kantor | Ya | 7 |
-| GC | Guidance Coordinator | منسق التأهيل | Kantor | – | 10 |
-| Tch | Teacher | معلم | Kantor | – | 5 |
-| EO | Examination Officer | مسؤول الاختبارات | Kantor | Ya | 7 |
-| CO | Certificate Officer | مسؤول الشهادات | Kantor | Ya | 7 |
-| AO | Administrative Officer | الموظف الإداري | Kantor | Ya | 8 |
-| Apr | Approver | المعتمد | Kantor | Ya | 12 |
-| TO | Transportation Officer | مسؤول النقل | Kantor | Ya | 9 |
-| PO | Pilgrimage Officer | مسؤول الحج والعمرة | Kantor | – | 6 |
-| LA | Local Auditor | المدقق المحلي | Kantor | – | 18 |
-
-Role wajib MFA bila berscope platform, atau memegang permission dengan aksi: `assign_roles`, `approve`, `verify`, `reveal`, `review_transfer`, `finalize`, `issue`, `revoke`, `set_disclosure`, `view_sensitive`, `view_confidential`, `correct_origin`, `approve_void`.
+| Kode | Role | Nama Arab | Scope | Jumlah permission |
+| --- | --- | --- | --- | --- |
+| SA | Super Admin | المشرف العام | Platform | 21 |
+| CA | Central Admin | مسؤول المنصة | Platform | 21 |
+| CAu | Central Auditor | المدقق المركزي | Platform | 5 |
+| CR | Central Reporting | التقارير المركزية | Platform | 3 |
+| SO | Support Officer | مسؤول الدعم الفني | Platform | 2 |
+| CtA | Center Admin | مدير المركز | Kantor | 24 |
+| HoD | Head of Dawah | رئيس قسم الدعوة | Kantor | 42 |
+| Dai | Da'i | داعية | Kantor | 17 |
+| Reg | Registration Officer | موظف التسجيل | Kantor | 9 |
+| SV | Shahadah Verifier | مدقق الشهادة | Kantor | 7 |
+| GC | Guidance Coordinator | منسق التأهيل | Kantor | 10 |
+| Tch | Teacher | معلم | Kantor | 5 |
+| EO | Examination Officer | مسؤول الاختبارات | Kantor | 7 |
+| CO | Certificate Officer | مسؤول الشهادات | Kantor | 7 |
+| AO | Administrative Officer | الموظف الإداري | Kantor | 8 |
+| Apr | Approver | المعتمد | Kantor | 12 |
+| TO | Transportation Officer | مسؤول النقل | Kantor | 9 |
+| PO | Pilgrimage Officer | مسؤول الحج والعمرة | Kantor | 6 |
+| LA | Local Auditor | المدقق المحلي | Kantor | 18 |
 
 ## Matriks per modul
 

@@ -23,8 +23,8 @@ beforeEach(function (): void {
     seedRbac();
     $this->seed(GuidanceProgramSeeder::class);
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->coordinator = withAuthenticator(grantRole(memberOf($this->dammam), 'guidance_coordinator', $this->dammam));
-    $this->teacher = withAuthenticator(grantRole(memberOf($this->dammam), 'teacher', $this->dammam));
+    $this->coordinator = grantRole(memberOf($this->dammam), 'guidance_coordinator', $this->dammam);
+    $this->teacher = grantRole(memberOf($this->dammam), 'teacher', $this->dammam);
     $this->national = GuidanceProgram::query()->whereNull('tenant_id')->sole();
 
     [$this->mine, $this->theirs] = inTenant($this->dammam, function (): array {
@@ -37,7 +37,7 @@ beforeEach(function (): void {
 });
 
 it('gives each office role the guidance screens it needs', function (string $role, int $status): void {
-    $this->actingAs(withAuthenticator(grantRole(memberOf($this->dammam), $role, $this->dammam)))
+    $this->actingAs(grantRole(memberOf($this->dammam), $role, $this->dammam))
         ->get('/center/DMM/guidance-classes')
         ->assertStatus($status);
 })->with([

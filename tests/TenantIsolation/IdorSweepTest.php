@@ -27,7 +27,6 @@ it('never opens another office\'s record from a record page', function (): void 
         grantRole($user, $role, $mine);
     }
 
-    withAuthenticator($user);
     Filament::setCurrentPanel(Filament::getPanel('center'));
     $targets = [];
 

@@ -9,7 +9,6 @@ use App\Filament\Auth\Login;
 use App\Filament\Support\LocaleSwitcher;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\SetLocale;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -42,9 +41,6 @@ class CentralPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('60s')
             ->passwordReset()
             ->profile(EditProfile::class)
-            ->multiFactorAuthentication([
-                AppAuthentication::make()->recoverable(),
-            ], isRequired: true)
             ->colors([
                 'primary' => Color::Emerald,
             ])

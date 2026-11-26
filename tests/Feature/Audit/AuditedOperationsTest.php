@@ -46,20 +46,6 @@ it('audits a failed sign-in against the account without storing the email', func
     'unknown account' => ['nobody@muallaf.test', false],
 ]);
 
-it('audits a rejected authenticator code', function (): void {
-    $this->user->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
-
-    Livewire::test(Login::class)
-        ->fillForm(['email' => 'officer@muallaf.test', 'password' => 'correct-horse-42'])
-        ->call('authenticate')
-        ->set('data.multiFactor.app.code', '000000')
-        ->call('authenticate');
-
-    $this->assertGuest();
-    expect(auditEntry('auth.mfa_failed')->subject_id)->toBe($this->user->id)
-        ->and(AuditLog::query()->where('action', 'auth.login')->exists())->toBeFalse();
-});
-
 it('audits role assignment and revocation in the role tenant', function (): void {
     seedRbac();
     $admin = grantRole(memberOf($this->tenant), 'center_admin', $this->tenant);

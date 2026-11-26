@@ -40,7 +40,6 @@ final class RbacSeeder extends Seeder
                     'name_en' => $definition['name_en'],
                     'scope_type' => $definition['scope'],
                     'is_system' => true,
-                    'requires_mfa' => RoleCatalog::requiresMfa($definition['scope'], $permissions),
                 ]);
 
                 $role->permissions()->sync(array_map(

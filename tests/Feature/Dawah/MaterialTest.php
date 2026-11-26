@@ -146,7 +146,7 @@ it('lets Central draft, review and approve national materials that offices read 
 });
 
 it('manages national materials from the Central panel', function (): void {
-    $admin = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
+    $admin = grantRole(User::factory()->create(), 'central_admin');
     $this->actingAs($admin);
     Filament::setCurrentPanel(Filament::getPanel('central'));
 

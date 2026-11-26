@@ -47,17 +47,6 @@ final class PermissionCatalog
         'privileged.request', 'privileged.approve',
     ];
 
-    /**
-     * Actions that make a role high-privilege: holders must use MFA
-     * (13-infrastructure-security §13.5).
-     *
-     * @var list<string>
-     */
-    public const array MFA_ACTIONS = [
-        'assign_roles', 'approve', 'verify', 'reveal', 'review_transfer', 'finalize', 'issue', 'revoke',
-        'set_disclosure', 'view_sensitive', 'view_confidential', 'correct_origin', 'approve_void',
-    ];
-
     public static function exists(string $code): bool
     {
         return in_array($code, self::CODES, true);

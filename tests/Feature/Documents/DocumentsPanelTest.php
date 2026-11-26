@@ -25,7 +25,7 @@ beforeEach(function (): void {
     Queue::fake();
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
     $this->convert = documentsConvert($this->tenant);
-    $this->staff = fn (string $role): User => withAuthenticator(grantRole(memberOf($this->tenant), $role, $this->tenant));
+    $this->staff = fn (string $role): User => grantRole(memberOf($this->tenant), $role, $this->tenant);
     $this->open = fn (string $manager) => Livewire::test($manager, ['ownerRecord' => $this->convert, 'pageClass' => ViewConvert::class]);
 });
 
@@ -67,6 +67,6 @@ it('generates a letter on the convert page and hides the action without document
 });
 
 it('opens the national letter templates in Central to template managers only', function (): void {
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_admin')))->get('/central/document-templates')->assertOk();
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_auditor')))->get('/central/document-templates')->assertForbidden();
+    $this->actingAs(grantRole(User::factory()->create(), 'central_admin'))->get('/central/document-templates')->assertOk();
+    $this->actingAs(grantRole(User::factory()->create(), 'central_auditor'))->get('/central/document-templates')->assertForbidden();
 });

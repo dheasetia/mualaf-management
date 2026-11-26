@@ -33,8 +33,8 @@ beforeEach(function (): void {
     seedRbac();
     Country::factory()->create(['iso2' => 'SA', 'iso3' => 'SAU']);
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->registrar = withAuthenticator(grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam));
-    $this->verifier = withAuthenticator(grantRole(memberOf($this->dammam), 'shahadah_verifier', $this->dammam));
+    $this->registrar = grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam);
+    $this->verifier = grantRole(memberOf($this->dammam), 'shahadah_verifier', $this->dammam);
     $this->dai = inTenant($this->dammam, fn () => Dai::factory()->create());
 
     $this->register = fn (User $actor, string $iqamah): ConvertRegistration => inTenant($this->dammam, fn () => app(RecordShahadah::class)->handle(new ShahadahRegistrationData(

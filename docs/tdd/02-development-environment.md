@@ -21,7 +21,7 @@ Ekstensi PHP wajib: `pdo_mysql`, `redis` (atau gunakan `predis/predis`), `intl`,
 | Paket | Fungsi |
 | --- | --- |
 | `laravel/framework` (versi stabil terbaru, ≥ 12) | Framework |
-| `filament/filament` (≥ 4) | Panel Central dan Center, MFA, tenancy |
+| `filament/filament` (≥ 4) | Panel Central dan Center, tenancy |
 | `laravel/horizon` | Queue monitoring |
 | `spatie/laravel-data` | DTO untuk Actions |
 | `spatie/browsershot` | HTML → PDF via Chromium |

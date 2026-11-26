@@ -17,7 +17,7 @@ beforeEach(function (): void {
 it('shows the office dashboard from the aggregate tables to reports.view_office only', function (): void {
     documentsConvert($this->tenant);
     app(DailyStatistics::class)->aggregate(CarbonImmutable::parse('2026-11-01'));
-    $admin = withAuthenticator(grantRole(memberOf($this->tenant), 'center_admin', $this->tenant));
+    $admin = grantRole(memberOf($this->tenant), 'center_admin', $this->tenant);
 
     $this->actingAs($admin)->get('/center/DMM/dashboard-report')->assertOk()
         ->assertSee(__('reports.metrics.shahadah_verified'))->assertSee('2026-11');
@@ -25,7 +25,7 @@ it('shows the office dashboard from the aggregate tables to reports.view_office 
 });
 
 it('shows the national dashboard to reports.view_national only', function (): void {
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_reporting')))->get('/central/national-dashboard')->assertOk()
+    $this->actingAs(grantRole(User::factory()->create(), 'central_reporting'))->get('/central/national-dashboard')->assertOk()
         ->assertSee(__('reports.labels.not_aggregated'));
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'support_officer')))->get('/central/national-dashboard')->assertForbidden();
+    $this->actingAs(grantRole(User::factory()->create(), 'support_officer'))->get('/central/national-dashboard')->assertForbidden();
 });

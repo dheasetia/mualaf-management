@@ -78,19 +78,6 @@ final readonly class Authorizer
         return $user->is_active && $this->activeAssignments($user->id, null)->exists();
     }
 
-    /**
-     * True when the user holds, in any tenant or on the platform, a role that requires MFA.
-     */
-    public function holdsRoleRequiringMfa(User $user): bool
-    {
-        return DB::table('user_role_assignments')
-            ->join('roles', 'roles.id', '=', 'user_role_assignments.role_id')
-            ->where('user_role_assignments.user_id', $user->id)
-            ->whereNull('user_role_assignments.revoked_at')
-            ->where('roles.requires_mfa', true)
-            ->exists();
-    }
-
     public function flush(): void
     {
         Cache::forever(self::VERSION_KEY, $this->version() + 1);

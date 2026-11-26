@@ -14,7 +14,7 @@ use Livewire\Livewire;
 
 beforeEach(function (): void {
     seedRbac();
-    $this->admin = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
+    $this->admin = grantRole(User::factory()->create(), 'central_admin');
     $this->data = fn (array $overrides = []): array => [
         'code' => 'zakat_letter', 'name_ar' => 'خطاب الزكاة', 'approval_stages' => 2, 'sla_days' => 10, 'active' => true,
         'generates_document_template_code' => 'other_letter',

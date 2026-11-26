@@ -38,7 +38,7 @@ final class GrantSuperAdmin extends Command
             return self::SUCCESS;
         }
 
-        $this->info('Super Admin assigned. The user must set up MFA on first sign-in to /central.');
+        $this->info('Super Admin assigned. The user can now sign in to /central.');
 
         return self::SUCCESS;
     }
