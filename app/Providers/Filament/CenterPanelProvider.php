@@ -10,6 +10,7 @@ use App\Filament\Auth\Login;
 use App\Filament\Support\LocaleSwitcher;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\RequireMfaForPrivilegedRoles;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetTenantContext;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
@@ -69,6 +70,7 @@ class CenterPanelProvider extends PanelProvider
                 StartSession::class,
                 AuthenticateSession::class,
                 SetLocale::class,
+                SecurityHeaders::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,
                 SubstituteBindings::class,
