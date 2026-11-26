@@ -7,6 +7,7 @@ namespace App\Providers\Filament;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Auth\EditProfile;
 use App\Filament\Auth\Login;
+use App\Filament\Support\Brand;
 use App\Filament\Support\LocaleSwitcher;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\RequireMfaForPrivilegedRoles;
@@ -20,7 +21,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -34,7 +34,7 @@ class CenterPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        return Brand::apply($panel)
             ->id('center')
             ->path('center')
             ->login(Login::class)
@@ -51,9 +51,6 @@ class CenterPanelProvider extends PanelProvider
             ->tenantMiddleware([
                 SetTenantContext::class,
             ], isPersistent: true)
-            ->colors([
-                'primary' => Color::Teal,
-            ])
             ->discoverResources(in: app_path('Filament/Center/Resources'), for: 'App\Filament\Center\Resources')
             ->discoverPages(in: app_path('Filament/Center/Pages'), for: 'App\Filament\Center\Pages')
             ->pages([

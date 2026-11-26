@@ -1,0 +1,251 @@
+@import '../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../app/Filament/**/*';
+@source '../../../resources/views/filament/**/*';
+
+/*
+ * Muallaf Center theme: deep green sidebar with the white logo, gold
+ * accents, warm cream page background. Brand colors come from the panel
+ * (primary = green palette, gray = stone); the values below are the
+ * fixed brand tones the palette does not cover.
+ */
+:root {
+    --brand-green: #075b43;
+    --brand-green-deep: #103e32;
+    --brand-gold: #b79755;
+    --brand-cream: #f7f5ef;
+    --brand-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1'%3E%3Crect x='16' y='16' width='24' height='24'/%3E%3Crect x='16' y='16' width='24' height='24' transform='rotate(45 28 28)'/%3E%3Cpath d='M0 28h7M49 28h7M28 0v7M28 49v7'/%3E%3C/g%3E%3C/svg%3E");
+    --brand-pattern-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23b79755' stroke-opacity='0.22' stroke-width='1'%3E%3Crect x='16' y='16' width='24' height='24'/%3E%3Crect x='16' y='16' width='24' height='24' transform='rotate(45 28 28)'/%3E%3Cpath d='M0 28h7M49 28h7M28 0v7M28 49v7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Headings in Cairo; body text is Amiri (the panel font) */
+
+.fi-header-heading,
+.fi-simple-header-heading,
+.fi-section-header-heading,
+.fi-modal-heading,
+.fi-ta-header-heading,
+.fi-ta-group-heading,
+.fi-ta-empty-state-heading,
+.fi-empty-state-heading,
+.fi-callout-heading,
+.fi-account-widget-heading,
+.fi-wi-stats-overview-stat-value,
+.brand-name-ar {
+    font-family: 'Cairo', var(--font-family), sans-serif;
+}
+
+/* Page background */
+
+.fi-body {
+    @apply bg-(--brand-cream) dark:bg-gray-950;
+}
+
+/* Logo lockup: colored on light surfaces, white on green and in dark mode */
+
+.fi-logo {
+    @apply text-base;
+}
+
+.brand-lockup {
+    @apply flex h-full items-center gap-x-3;
+}
+
+.brand-mark {
+    @apply h-full w-auto shrink-0;
+}
+
+.brand-mark-white {
+    @apply hidden dark:block;
+}
+
+.brand-mark-color {
+    @apply dark:hidden;
+}
+
+.brand-name {
+    @apply flex flex-col justify-center leading-tight whitespace-nowrap;
+}
+
+.brand-name-ar {
+    @apply text-sm font-bold text-(--brand-green-deep) dark:text-white;
+}
+
+.brand-name-en {
+    @apply text-xs font-normal tracking-wide text-(--brand-green) dark:text-white/80;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+.fi-topbar-start,
+.fi-sidebar-header {
+    & .brand-mark-white {
+        @apply block;
+    }
+
+    & .brand-mark-color {
+        @apply hidden;
+    }
+
+    & .brand-name-ar {
+        @apply text-white;
+    }
+
+    & .brand-name-en {
+        @apply text-white/80;
+    }
+}
+
+/* Topbar: the logo block continues the green sidebar column on desktop */
+
+.fi-topbar {
+    @apply bg-white dark:bg-gray-900;
+}
+
+.fi-topbar-start {
+    @apply lg:-ms-4 lg:me-6 lg:w-(--sidebar-width) lg:shrink-0 lg:self-stretch lg:bg-(--brand-green-deep) lg:px-3;
+}
+
+/* Sidebar */
+
+.fi-sidebar {
+    @apply bg-(--brand-green-deep) lg:bg-(--brand-green-deep) dark:bg-gray-900 dark:lg:bg-gray-900;
+
+    &::after {
+        content: '';
+        @apply pointer-events-none absolute inset-x-0 bottom-0 h-56 opacity-[0.07];
+        background-image: var(--brand-pattern);
+        mask-image: linear-gradient(to top, black, transparent);
+    }
+}
+
+.fi-body-has-topbar .fi-sidebar-header {
+    @apply bg-(--brand-green-deep) ring-white/10 dark:bg-gray-900;
+}
+
+.fi-sidebar-nav {
+    @apply relative z-10;
+}
+
+.fi-sidebar-header-controls {
+    @apply after:border-white/10;
+}
+
+.fi-sidebar-group-label {
+    @apply text-xs font-semibold tracking-wide text-(--brand-gold);
+}
+
+.fi-sidebar-group-btn .fi-icon,
+.fi-sidebar-group-dropdown-trigger-btn .fi-icon,
+.fi-sidebar-item-btn > .fi-icon {
+    @apply text-white/60;
+}
+
+.fi-sidebar-item-label {
+    @apply text-white/85;
+}
+
+.fi-sidebar-item-grouped-border-part {
+    @apply bg-white/30;
+}
+
+.fi-sidebar-item {
+    &.fi-sidebar-item-has-url > .fi-sidebar-item-btn,
+    & > .fi-sidebar-item-btn {
+        @apply hover:bg-white/8 focus-visible:bg-white/8;
+    }
+
+    &.fi-active > .fi-sidebar-item-btn {
+        @apply bg-white/12 shadow-xs ring-1 ring-white/10;
+
+        & > .fi-icon,
+        & > .fi-sidebar-item-label {
+            @apply text-white;
+        }
+
+        & > .fi-sidebar-item-grouped-border > .fi-sidebar-item-grouped-border-part {
+            @apply bg-(--brand-gold);
+        }
+    }
+}
+
+.fi-sidebar-group-dropdown-trigger-btn {
+    @apply hover:bg-white/8 focus-visible:bg-white/8;
+}
+
+.fi-sidebar-group.fi-active .fi-sidebar-group-dropdown-trigger-btn .fi-icon {
+    @apply text-white;
+}
+
+.fi-sidebar .fi-tenant-menu-trigger {
+    @apply hover:bg-white/8 focus-visible:bg-white/8;
+
+    & .fi-icon {
+        @apply text-white/60;
+    }
+}
+
+.fi-sidebar .fi-tenant-menu-trigger-current-tenant-label {
+    @apply text-white/60;
+}
+
+.fi-sidebar .fi-tenant-menu-trigger-tenant-name {
+    @apply text-white;
+}
+
+/* Page heading with the gold accent bar */
+
+.fi-header-heading {
+    @apply border-s-4 border-(--brand-gold) ps-3 text-(--brand-green-deep) dark:text-white;
+}
+
+/* Cards: white, softly rounded, warm hairline */
+
+.fi-section,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat,
+.fi-fo-tabs,
+.fi-sc-tabs {
+    @apply rounded-2xl;
+}
+
+.fi-wi-stats-overview-stat-value {
+    @apply text-(--brand-green-deep) dark:text-white;
+}
+
+/* Sign-in and other simple pages */
+
+.fi-simple-layout {
+    background-image: var(--brand-pattern-gold);
+
+    @apply dark:bg-none;
+}
+
+.fi-simple-main {
+    @apply ring-(--brand-gold)/20 sm:rounded-2xl;
+}
+
+.fi-simple-header {
+    & .fi-logo {
+        @apply mb-2 h-auto!;
+    }
+
+    & .brand-lockup {
+        @apply flex-col gap-y-3;
+    }
+
+    & .brand-mark {
+        @apply h-20;
+    }
+
+    & .brand-name {
+        @apply items-center;
+    }
+
+    & .brand-name-ar {
+        @apply text-xl;
+    }
+
+    & .brand-name-en {
+        @apply text-base;
+    }
+}
