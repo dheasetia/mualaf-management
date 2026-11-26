@@ -26,7 +26,7 @@ Operasi yang wajib diaudit (minimum):
 | Transfer | `transfer.requested`, `transfer.reviewed`, `transfer.approved`, `transfer.rejected`, `transfer.accepted`, `transfer.completed`, `transfer.escalated` |
 | Da'i | `dai.primary_assigned` |
 | Sertifikat/dokumen | `certificate.issued`, `certificate.revoked`, `document.generated`, `document.downloaded` |
-| Akses | `auth.login`, `auth.login_failed`, `auth.mfa_failed`, `roles.assigned`, `roles.revoked`, `privileged.requested`, `privileged.approved`, `privileged.accessed` |
+| Akses | `auth.login`, `auth.login_failed`, `auth.mfa_failed`, `roles.assigned`, `roles.revoked`, `roles.created`, `roles.updated`, `roles.deleted`, `users.created`, `users.updated`, `users.activated`, `users.deactivated`, `users.office_added`, `users.office_removed`, `privileged.requested`, `privileged.approved`, `privileged.accessed` |
 | Data | `export.requested`, `export.downloaded`, `import.completed` |
 
 Audit ditulis secara sinkron dalam transaksi yang sama untuk operasi kritis; untuk event baca (download, view sensitif) ditulis via queue `audit` dengan context lengkap.
