@@ -23,6 +23,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -42,18 +44,24 @@ final class DawahMaterialSchema
     public static function form(): array
     {
         return [
-            TextInput::make('title')->label(__('dawah.material_fields.title'))->required()->maxLength(255),
-            TextInput::make('title_ar')->label(__('dawah.material_fields.title_ar'))->maxLength(255),
-            Select::make('material_type')->label(__('dawah.material_fields.material_type'))->required()
-                ->options(collect(MaterialType::cases())->mapWithKeys(fn (MaterialType $type): array => [$type->value => $type->label()])->all()),
-            Select::make('language_id')->label(__('dawah.material_fields.language'))->required()->searchable()
-                ->options(fn (): array => LocalizedName::options(Language::query())),
-            TextInput::make('topic')->label(__('dawah.material_fields.topic'))->maxLength(255),
-            TextInput::make('target_audience')->label(__('dawah.material_fields.target_audience'))->maxLength(255),
-            TextInput::make('external_url')->label(__('dawah.material_fields.external_url'))->url()->maxLength(500),
-            TextInput::make('stock_quantity')->label(__('dawah.material_fields.stock_quantity'))->integer()->minValue(0)
-                ->visible(fn (): bool => app(TenantContext::class)->has()),
-            Textarea::make('description')->label(__('dawah.material_fields.description'))->maxLength(5000)->columnSpanFull(),
+            Section::make(__('dawah.materials.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('title')->label(__('dawah.material_fields.title'))->required()->maxLength(255),
+                    TextInput::make('title_ar')->label(__('dawah.material_fields.title_ar'))->maxLength(255),
+                    Select::make('material_type')->label(__('dawah.material_fields.material_type'))->required()
+                        ->options(collect(MaterialType::cases())->mapWithKeys(fn (MaterialType $type): array => [$type->value => $type->label()])->all()),
+                    Select::make('language_id')->label(__('dawah.material_fields.language'))->required()->searchable()
+                        ->options(fn (): array => LocalizedName::options(Language::query())),
+                ]),
+                Fieldset::make(__('forms.details'))->columns(2)->schema([
+                    TextInput::make('topic')->label(__('dawah.material_fields.topic'))->maxLength(255),
+                    TextInput::make('target_audience')->label(__('dawah.material_fields.target_audience'))->maxLength(255),
+                    TextInput::make('external_url')->label(__('dawah.material_fields.external_url'))->url()->maxLength(500),
+                    TextInput::make('stock_quantity')->label(__('dawah.material_fields.stock_quantity'))->integer()->minValue(0)
+                        ->visible(fn (): bool => app(TenantContext::class)->has()),
+                    Textarea::make('description')->label(__('dawah.material_fields.description'))->maxLength(5000)->columnSpanFull(),
+                ]),
+            ]),
         ];
     }
 

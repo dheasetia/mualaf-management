@@ -20,6 +20,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -66,28 +68,42 @@ final class GuidanceProgramResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('code')->label(__('guidance.fields.code'))->required()->maxLength(30),
-            TextInput::make('name_ar')->label(__('guidance.fields.name_ar'))->required()->maxLength(255),
-            TextInput::make('name_en')->label(__('guidance.fields.name_en'))->maxLength(255),
-            TextInput::make('duration_days')->label(__('guidance.fields.duration_days'))->integer()->minValue(1)->maxValue(730)->default(90)->required(),
-            TextInput::make('minimum_attendance_percentage')->label(__('guidance.fields.minimum_attendance_percentage'))->numeric()->minValue(0)->maxValue(100)->default(75)->required(),
-            TextInput::make('passing_score')->label(__('guidance.fields.passing_score'))->numeric()->minValue(0)->maxValue(100)->default(60)->required(),
-            Toggle::make('active')->label(__('guidance.fields.active'))->default(true),
-            Textarea::make('description')->label(__('guidance.fields.description'))->maxLength(2000)->columnSpanFull(),
+        return $schema->components([
+            Section::make(__('guidance.programs.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('code')->label(__('guidance.fields.code'))->required()->maxLength(30),
+                    TextInput::make('name_ar')->label(__('guidance.fields.name_ar'))->required()->maxLength(255),
+                    TextInput::make('name_en')->label(__('guidance.fields.name_en'))->maxLength(255),
+                    Toggle::make('active')->label(__('guidance.fields.active'))->default(true),
+                ]),
+                Fieldset::make(__('forms.settings'))->columns(3)->schema([
+                    TextInput::make('duration_days')->label(__('guidance.fields.duration_days'))->integer()->minValue(1)->maxValue(730)->default(90)->required(),
+                    TextInput::make('minimum_attendance_percentage')->label(__('guidance.fields.minimum_attendance_percentage'))->numeric()->minValue(0)->maxValue(100)->default(75)->required(),
+                    TextInput::make('passing_score')->label(__('guidance.fields.passing_score'))->numeric()->minValue(0)->maxValue(100)->default(60)->required(),
+                ]),
+                Fieldset::make(__('forms.details'))->columns(1)->schema([
+                    Textarea::make('description')->label(__('guidance.fields.description'))->maxLength(2000)->columnSpanFull(),
+                ]),
+            ]),
         ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->columns(3)->components([
-            TextEntry::make('code')->label(__('guidance.fields.code')),
-            TextEntry::make('name_ar')->label(__('guidance.fields.name_ar')),
-            TextEntry::make('owner')->label(__('guidance.fields.owner'))->badge()
-                ->state(fn (GuidanceProgram $record): string => $record->isNational() ? __('guidance.owner.national') : __('guidance.owner.office')),
-            TextEntry::make('duration_days')->label(__('guidance.fields.duration_days')),
-            TextEntry::make('minimum_attendance_percentage')->label(__('guidance.fields.minimum_attendance_percentage')),
-            TextEntry::make('passing_score')->label(__('guidance.fields.passing_score')),
+        return $schema->components([
+            Section::make(__('guidance.programs.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(3)->schema([
+                    TextEntry::make('code')->label(__('guidance.fields.code')),
+                    TextEntry::make('name_ar')->label(__('guidance.fields.name_ar')),
+                    TextEntry::make('owner')->label(__('guidance.fields.owner'))->badge()
+                        ->state(fn (GuidanceProgram $record): string => $record->isNational() ? __('guidance.owner.national') : __('guidance.owner.office')),
+                ]),
+                Fieldset::make(__('forms.settings'))->columns(3)->schema([
+                    TextEntry::make('duration_days')->label(__('guidance.fields.duration_days')),
+                    TextEntry::make('minimum_attendance_percentage')->label(__('guidance.fields.minimum_attendance_percentage')),
+                    TextEntry::make('passing_score')->label(__('guidance.fields.passing_score')),
+                ]),
+            ]),
         ]);
     }
 

@@ -18,6 +18,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -63,15 +65,21 @@ final class CertificateTemplateResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('template_code')->label(__('certificates.fields.template_code'))->required()->maxLength(40),
-            TextInput::make('name')->label(__('certificates.fields.name'))->required()->maxLength(255),
-            Select::make('certificate_type')->label(__('certificates.fields.type'))->required()
-                ->options(collect(CertificateType::cases())->mapWithKeys(fn (CertificateType $type): array => [$type->value => $type->label()])->all()),
-            Select::make('orientation')->label(__('certificates.fields.orientation'))->required()->default('landscape')
-                ->options(['landscape' => 'Landscape', 'portrait' => 'Portrait']),
-            Textarea::make('html_template')->label(__('certificates.fields.html_template'))->required()->rows(20)
-                ->helperText(__('certificates.help.html_template'))->columnSpanFull()->extraInputAttributes(['dir' => 'ltr', 'style' => 'font-family: monospace']),
+        return $schema->components([
+            Section::make(__('certificates.templates.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('template_code')->label(__('certificates.fields.template_code'))->required()->maxLength(40),
+                    TextInput::make('name')->label(__('certificates.fields.name'))->required()->maxLength(255),
+                    Select::make('certificate_type')->label(__('certificates.fields.type'))->required()
+                        ->options(collect(CertificateType::cases())->mapWithKeys(fn (CertificateType $type): array => [$type->value => $type->label()])->all()),
+                    Select::make('orientation')->label(__('certificates.fields.orientation'))->required()->default('landscape')
+                        ->options(['landscape' => 'Landscape', 'portrait' => 'Portrait']),
+                ]),
+                Fieldset::make(__('forms.content'))->columns(1)->schema([
+                    Textarea::make('html_template')->label(__('certificates.fields.html_template'))->required()->rows(20)
+                        ->helperText(__('certificates.help.html_template'))->columnSpanFull()->extraInputAttributes(['dir' => 'ltr', 'style' => 'font-family: monospace']),
+                ]),
+            ]),
         ]);
     }
 

@@ -24,7 +24,9 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -85,14 +87,18 @@ final class NationalIdentitySearch extends Page implements HasForms
         return $schema
             ->statePath('data')
             ->components([
-                Select::make('identity_type')->label(__('converts.search.identity_type'))->required()->live()
-                    ->options(collect(IdentityType::cases())->mapWithKeys(fn (IdentityType $type): array => [$type->value => $type->label()])->all()),
-                Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()
-                    ->options(fn (): array => LocalizedName::options(Country::query()))
-                    ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false)
-                    ->required(),
-                TextInput::make('identity_number')->label(__('converts.search.identity_number'))->required()->maxLength(40)
-                    ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr']),
+                Section::make(__('converts.search.title'))->columnSpanFull()->schema([
+                    Fieldset::make(__('forms.identity'))->columns(3)->schema([
+                        Select::make('identity_type')->label(__('converts.search.identity_type'))->required()->live()
+                            ->options(collect(IdentityType::cases())->mapWithKeys(fn (IdentityType $type): array => [$type->value => $type->label()])->all()),
+                        Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()
+                            ->options(fn (): array => LocalizedName::options(Country::query()))
+                            ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false)
+                            ->required(),
+                        TextInput::make('identity_number')->label(__('converts.search.identity_number'))->required()->maxLength(40)
+                            ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr']),
+                    ]),
+                ]),
             ]);
     }
 

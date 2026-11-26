@@ -17,6 +17,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -45,18 +47,24 @@ final class ModulesRelationManager extends RelationManager
 
     public function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('title')->label(__('guidance.fields.title'))->required()->maxLength(255),
-            TextInput::make('sort_order')->label(__('guidance.fields.sort_order'))->integer()->default(0),
-            TextInput::make('weight')->label(__('guidance.fields.weight'))->numeric()->minValue(0)->default(1),
-            Toggle::make('required')->label(__('guidance.fields.required'))->default(true),
-            Textarea::make('description')->label(__('guidance.fields.description'))->maxLength(2000)->columnSpanFull(),
-            Repeater::make('lesson_rows')->label(__('guidance.fields.lessons'))->columnSpanFull()->reorderable()
-                ->schema([
-                    Hidden::make('id'),
+        return $schema->components([
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('title')->label(__('guidance.fields.title'))->required()->maxLength(255),
-                    Textarea::make('learning_objectives')->label(__('guidance.fields.learning_objectives'))->maxLength(2000),
+                    TextInput::make('sort_order')->label(__('guidance.fields.sort_order'))->integer()->default(0),
+                    TextInput::make('weight')->label(__('guidance.fields.weight'))->numeric()->minValue(0)->default(1),
+                    Toggle::make('required')->label(__('guidance.fields.required'))->default(true),
+                    Textarea::make('description')->label(__('guidance.fields.description'))->maxLength(2000)->columnSpanFull(),
                 ]),
+                Fieldset::make(__('forms.content'))->columns(1)->schema([
+                    Repeater::make('lesson_rows')->label(__('guidance.fields.lessons'))->columnSpanFull()->reorderable()
+                        ->schema([
+                            Hidden::make('id'),
+                            TextInput::make('title')->label(__('guidance.fields.title'))->required()->maxLength(255),
+                            Textarea::make('learning_objectives')->label(__('guidance.fields.learning_objectives'))->maxLength(2000),
+                        ]),
+                ]),
+            ]),
         ]);
     }
 

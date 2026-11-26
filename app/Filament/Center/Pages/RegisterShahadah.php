@@ -46,8 +46,10 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -130,79 +132,81 @@ final class RegisterShahadah extends Page implements HasForms
     {
         $options = static fn (array $cases): array => collect($cases)->mapWithKeys(fn ($case): array => [$case->value => $case->label()])->all();
 
-        return $schema->statePath('data')->columns(2)->components([
-            Section::make(__('registration.sections.source'))->columns(2)->columnSpanFull()->hidden(fn (): bool => $this->registration !== null)->schema([
-                Select::make('prospect_id')->label(__('registration.fields.prospect'))->searchable()->live()
-                    ->helperText(__('registration.help.prospect'))
-                    ->options(fn (): array => app(ProspectConversion::class)->readyOptions())
-                    ->afterStateUpdated(fn (?int $state) => $state !== null ? $this->prefillFromProspect($state) : null),
-                Select::make('primary_dai_id')->label(__('registration.fields.primary_dai'))->searchable()
-                    ->options(fn (): array => app(DaiDirectory::class)->activeOptions())
-                    ->required(fn (Get $get): bool => blank($get('prospect_id')))
-                    ->hidden(fn (Get $get): bool => filled($get('prospect_id'))),
-            ]),
-            Section::make(__('registration.sections.identity'))->columns(3)->columnSpanFull()->schema([
-                Toggle::make('replace_identity')->label(__('registration.fields.replace_identity'))->live()->columnSpanFull()
-                    ->helperText(fn (): string => __('registration.help.replace_identity', ['last4' => (string) $this->currentIdentityLast4]))
-                    ->visible(fn (): bool => $this->registration !== null),
-                Select::make('identity_type')->label(__('converts.search.identity_type'))->required()->live()
-                    ->options($options(IdentityType::cases()))
-                    ->visible(fn (Get $get): bool => $this->entersIdentity($get)),
-                Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()->required()
-                    ->options(fn (): array => LocalizedName::options(Country::query()))
-                    ->hidden(fn (Get $get): bool => ! $this->entersIdentity($get) || (IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false)),
-                TextInput::make('identity_number')->label(__('converts.search.identity_number'))->required()->maxLength(40)
-                    ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr'])
-                    ->visible(fn (Get $get): bool => $this->entersIdentity($get)),
-            ]),
-            Section::make(__('registration.sections.profile'))->columns(2)->columnSpanFull()->schema([
-                TextInput::make('full_name')->label(__('converts.fields.full_name'))->required()->maxLength(255),
-                TextInput::make('islamic_name')->label(__('converts.fields.islamic_name'))->maxLength(255),
-                TextInput::make('name_ar')->label(__('converts.fields.name_ar'))->maxLength(255)->extraInputAttributes(['dir' => 'rtl']),
-                Select::make('gender')->label(__('converts.fields.gender'))->required()->options($options(Gender::cases())),
-                DatePicker::make('date_of_birth')->label(__('converts.fields.date_of_birth'))->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
-                Select::make('nationality_id')->label(__('converts.fields.nationality'))->required()->searchable()
-                    ->options(fn (): array => LocalizedName::options(Country::query())),
-                Select::make('native_language_id')->label(__('converts.fields.native_language'))->searchable()
-                    ->options(fn (): array => LocalizedName::options(Language::query())),
-                Select::make('previous_religion_id')->label(__('converts.fields.previous_religion'))
-                    ->hidden(fn (): bool => $this->registration !== null && ! (auth()->user()?->hasPermission('converts.view_sensitive') ?? false))
-                    ->options(fn (): array => LocalizedName::options(Religion::query()->where('active', true)->orderBy('sort_order'), sortByName: false)),
-            ]),
-            Section::make(__('registration.sections.shahadah'))->columns(2)->columnSpanFull()->schema([
-                DatePicker::make('shahadah_date')->label(__('registration.fields.shahadah_date'))->required()->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
-                TimePicker::make('shahadah_time')->label(__('registration.fields.shahadah_time'))->seconds(false),
-                TextInput::make('location')->label(__('registration.fields.location'))->required()->maxLength(255),
-                Select::make('city_id')->label(__('registration.fields.city'))->searchable()
-                    ->options(fn (): array => LocalizedName::options(City::query())),
-                Select::make('preacher_dai_id')->label(__('registration.fields.preacher'))->searchable()
-                    ->options(fn (): array => app(DaiDirectory::class)->activeOptions()),
-                Textarea::make('notes')->label(__('registration.fields.notes'))->maxLength(2000)->columnSpanFull(),
-            ]),
-            Section::make(__('registration.sections.witnesses'))->columnSpanFull()
-                ->description(__('registration.help.witnesses'))
-                ->schema([
-                    Repeater::make('witnesses')->hiddenLabel()
-                        ->schema([
-                            TextInput::make('name')->label(__('registration.fields.witness_name'))->required()->maxLength(255),
-                            TextInput::make('phone')->label(__('registration.fields.witness_phone'))->tel()->required()->maxLength(30)
-                                ->extraInputAttributes(['dir' => 'ltr']),
-                            TextInput::make('identity_last4')->label(__('registration.fields.witness_identity_last4'))->length(4)
-                                ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr']),
-                            TextInput::make('relationship')->label(__('registration.fields.witness_relationship'))->maxLength(100),
-                        ])
-                        ->columns(4)
-                        ->defaultItems((int) config('registration.shahadah_min_witnesses'))
-                        ->minItems((int) config('registration.shahadah_min_witnesses'))
-                        ->maxItems((int) config('registration.shahadah_max_witnesses'))
-                        ->addActionLabel(__('registration.actions.add_witness')),
+        return $schema->statePath('data')->components([
+            Section::make(__('registration.page_title'))->columnSpanFull()->schema([
+                Fieldset::make(__('registration.sections.source'))->columns(2)->hidden(fn (): bool => $this->registration !== null)->schema([
+                    Select::make('prospect_id')->label(__('registration.fields.prospect'))->searchable()->live()
+                        ->helperText(__('registration.help.prospect'))
+                        ->options(fn (): array => app(ProspectConversion::class)->readyOptions())
+                        ->afterStateUpdated(fn (?int $state) => $state !== null ? $this->prefillFromProspect($state) : null),
+                    Select::make('primary_dai_id')->label(__('registration.fields.primary_dai'))->searchable()
+                        ->options(fn (): array => app(DaiDirectory::class)->activeOptions())
+                        ->required(fn (Get $get): bool => blank($get('prospect_id')))
+                        ->hidden(fn (Get $get): bool => filled($get('prospect_id'))),
                 ]),
-            Section::make(__('registration.sections.contact'))->columns(2)->columnSpanFull()
-                ->hidden(fn (Get $get): bool => filled($get('prospect_id')) || $this->registration !== null)
-                ->schema([
-                    TextInput::make('phone')->label(__('prospects.fields.phone'))->tel()->maxLength(30)->extraInputAttributes(['dir' => 'ltr']),
-                    TextInput::make('email')->label(__('prospects.fields.email'))->email()->maxLength(255)->extraInputAttributes(['dir' => 'ltr']),
+                Fieldset::make(__('registration.sections.identity'))->columns(3)->schema([
+                    Toggle::make('replace_identity')->label(__('registration.fields.replace_identity'))->live()->columnSpanFull()
+                        ->helperText(fn (): string => __('registration.help.replace_identity', ['last4' => (string) $this->currentIdentityLast4]))
+                        ->visible(fn (): bool => $this->registration !== null),
+                    Select::make('identity_type')->label(__('converts.search.identity_type'))->required()->live()
+                        ->options($options(IdentityType::cases()))
+                        ->visible(fn (Get $get): bool => $this->entersIdentity($get)),
+                    Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()->required()
+                        ->options(fn (): array => LocalizedName::options(Country::query()))
+                        ->hidden(fn (Get $get): bool => ! $this->entersIdentity($get) || (IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false)),
+                    TextInput::make('identity_number')->label(__('converts.search.identity_number'))->required()->maxLength(40)
+                        ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr'])
+                        ->visible(fn (Get $get): bool => $this->entersIdentity($get)),
                 ]),
+                Fieldset::make(__('registration.sections.profile'))->columns(2)->schema([
+                    TextInput::make('full_name')->label(__('converts.fields.full_name'))->required()->maxLength(255),
+                    TextInput::make('islamic_name')->label(__('converts.fields.islamic_name'))->maxLength(255),
+                    TextInput::make('name_ar')->label(__('converts.fields.name_ar'))->maxLength(255)->extraInputAttributes(['dir' => 'rtl']),
+                    Select::make('gender')->label(__('converts.fields.gender'))->required()->options($options(Gender::cases())),
+                    DatePicker::make('date_of_birth')->label(__('converts.fields.date_of_birth'))->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
+                    Select::make('nationality_id')->label(__('converts.fields.nationality'))->required()->searchable()
+                        ->options(fn (): array => LocalizedName::options(Country::query())),
+                    Select::make('native_language_id')->label(__('converts.fields.native_language'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(Language::query())),
+                    Select::make('previous_religion_id')->label(__('converts.fields.previous_religion'))
+                        ->hidden(fn (): bool => $this->registration !== null && ! (auth()->user()?->hasPermission('converts.view_sensitive') ?? false))
+                        ->options(fn (): array => LocalizedName::options(Religion::query()->where('active', true)->orderBy('sort_order'), sortByName: false)),
+                ]),
+                Fieldset::make(__('registration.sections.shahadah'))->columns(2)->schema([
+                    DatePicker::make('shahadah_date')->label(__('registration.fields.shahadah_date'))->required()->maxDate(fn (): string => CarbonImmutable::now((string) config('app.display_timezone'))->toDateString()),
+                    TimePicker::make('shahadah_time')->label(__('registration.fields.shahadah_time'))->seconds(false),
+                    TextInput::make('location')->label(__('registration.fields.location'))->required()->maxLength(255),
+                    Select::make('city_id')->label(__('registration.fields.city'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(City::query())),
+                    Select::make('preacher_dai_id')->label(__('registration.fields.preacher'))->searchable()
+                        ->options(fn (): array => app(DaiDirectory::class)->activeOptions()),
+                    Textarea::make('notes')->label(__('registration.fields.notes'))->maxLength(2000)->columnSpanFull(),
+                ]),
+                Fieldset::make(__('registration.sections.witnesses'))->columns(1)
+                    ->schema([
+                        Text::make(__('registration.help.witnesses'))->color('gray'),
+                        Repeater::make('witnesses')->hiddenLabel()
+                            ->schema([
+                                TextInput::make('name')->label(__('registration.fields.witness_name'))->required()->maxLength(255),
+                                TextInput::make('phone')->label(__('registration.fields.witness_phone'))->tel()->required()->maxLength(30)
+                                    ->extraInputAttributes(['dir' => 'ltr']),
+                                TextInput::make('identity_last4')->label(__('registration.fields.witness_identity_last4'))->length(4)
+                                    ->autocomplete(false)->extraInputAttributes(['dir' => 'ltr']),
+                                TextInput::make('relationship')->label(__('registration.fields.witness_relationship'))->maxLength(100),
+                            ])
+                            ->columns(4)
+                            ->defaultItems((int) config('registration.shahadah_min_witnesses'))
+                            ->minItems((int) config('registration.shahadah_min_witnesses'))
+                            ->maxItems((int) config('registration.shahadah_max_witnesses'))
+                            ->addActionLabel(__('registration.actions.add_witness')),
+                    ]),
+                Fieldset::make(__('registration.sections.contact'))->columns(2)
+                    ->hidden(fn (Get $get): bool => filled($get('prospect_id')) || $this->registration !== null)
+                    ->schema([
+                        TextInput::make('phone')->label(__('prospects.fields.phone'))->tel()->maxLength(30)->extraInputAttributes(['dir' => 'ltr']),
+                        TextInput::make('email')->label(__('prospects.fields.email'))->email()->maxLength(255)->extraInputAttributes(['dir' => 'ltr']),
+                    ]),
+            ]),
         ]);
     }
 

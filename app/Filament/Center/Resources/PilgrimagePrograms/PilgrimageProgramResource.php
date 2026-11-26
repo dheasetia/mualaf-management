@@ -22,6 +22,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -58,33 +60,49 @@ final class PilgrimageProgramResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            Select::make('program_type')->label(__('pilgrimage.fields.program_type'))->required()
-                ->options(collect(ProgramType::cases())->mapWithKeys(fn (ProgramType $type): array => [$type->value => $type->label()])->all()),
-            TextInput::make('name')->label(__('pilgrimage.fields.name'))->required()->maxLength(255),
-            TextInput::make('season_year')->label(__('pilgrimage.fields.season_year'))->required()->integer()->minValue(2024)->maxValue(2100)->default((int) now()->format('Y')),
-            TextInput::make('capacity')->label(__('pilgrimage.fields.capacity'))->required()->integer()->minValue(1)->maxValue(5000),
-            DatePicker::make('starts_on')->label(__('pilgrimage.fields.starts_on'))->required(),
-            DatePicker::make('ends_on')->label(__('pilgrimage.fields.ends_on'))->required(),
-            DatePicker::make('registration_deadline')->label(__('pilgrimage.fields.registration_deadline'))->required(),
-            TextInput::make('min_months_since_shahadah')->label(__('pilgrimage.fields.min_months_since_shahadah'))->integer()->minValue(0)->maxValue(120),
-            Toggle::make('require_completed_guidance')->label(__('pilgrimage.fields.require_completed_guidance')),
+        return $schema->components([
+            Section::make(__('pilgrimage.programs.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    Select::make('program_type')->label(__('pilgrimage.fields.program_type'))->required()
+                        ->options(collect(ProgramType::cases())->mapWithKeys(fn (ProgramType $type): array => [$type->value => $type->label()])->all()),
+                    TextInput::make('name')->label(__('pilgrimage.fields.name'))->required()->maxLength(255),
+                    TextInput::make('season_year')->label(__('pilgrimage.fields.season_year'))->required()->integer()->minValue(2024)->maxValue(2100)->default((int) now()->format('Y')),
+                    TextInput::make('capacity')->label(__('pilgrimage.fields.capacity'))->required()->integer()->minValue(1)->maxValue(5000),
+                ]),
+                Fieldset::make(__('forms.schedule'))->columns(3)->schema([
+                    DatePicker::make('starts_on')->label(__('pilgrimage.fields.starts_on'))->required(),
+                    DatePicker::make('ends_on')->label(__('pilgrimage.fields.ends_on'))->required(),
+                    DatePicker::make('registration_deadline')->label(__('pilgrimage.fields.registration_deadline'))->required(),
+                ]),
+                Fieldset::make(__('forms.settings'))->columns(2)->schema([
+                    TextInput::make('min_months_since_shahadah')->label(__('pilgrimage.fields.min_months_since_shahadah'))->integer()->minValue(0)->maxValue(120),
+                    Toggle::make('require_completed_guidance')->label(__('pilgrimage.fields.require_completed_guidance')),
+                ]),
+            ]),
         ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->columns(3)->components([
-            TextEntry::make('name')->label(__('pilgrimage.fields.name')),
-            TextEntry::make('program_type')->label(__('pilgrimage.fields.program_type'))->formatStateUsing(fn (ProgramType $state): string => $state->label()),
-            TextEntry::make('status')->label(__('pilgrimage.fields.status'))->badge()->formatStateUsing(fn (ProgramStatus $state): string => $state->label()),
-            TextEntry::make('starts_on')->label(__('pilgrimage.fields.starts_on'))->date('Y-m-d'),
-            TextEntry::make('ends_on')->label(__('pilgrimage.fields.ends_on'))->date('Y-m-d'),
-            TextEntry::make('registration_deadline')->label(__('pilgrimage.fields.registration_deadline'))->date('Y-m-d'),
-            TextEntry::make('seats')->label(__('pilgrimage.fields.seats'))
-                ->state(fn (PilgrimageProgram $record): string => app(ManagePrograms::class)->seatsTaken($record).' / '.$record->capacity),
-            TextEntry::make('eligibility_rules.min_months_since_shahadah')->label(__('pilgrimage.fields.min_months_since_shahadah'))->placeholder('—'),
-            IconEntry::make('eligibility_rules.require_completed_guidance')->label(__('pilgrimage.fields.require_completed_guidance'))->boolean(),
+        return $schema->components([
+            Section::make(__('pilgrimage.programs.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(3)->schema([
+                    TextEntry::make('name')->label(__('pilgrimage.fields.name')),
+                    TextEntry::make('program_type')->label(__('pilgrimage.fields.program_type'))->formatStateUsing(fn (ProgramType $state): string => $state->label()),
+                    TextEntry::make('status')->label(__('pilgrimage.fields.status'))->badge()->formatStateUsing(fn (ProgramStatus $state): string => $state->label()),
+                    TextEntry::make('seats')->label(__('pilgrimage.fields.seats'))
+                        ->state(fn (PilgrimageProgram $record): string => app(ManagePrograms::class)->seatsTaken($record).' / '.$record->capacity),
+                ]),
+                Fieldset::make(__('forms.schedule'))->columns(3)->schema([
+                    TextEntry::make('starts_on')->label(__('pilgrimage.fields.starts_on'))->date('Y-m-d'),
+                    TextEntry::make('ends_on')->label(__('pilgrimage.fields.ends_on'))->date('Y-m-d'),
+                    TextEntry::make('registration_deadline')->label(__('pilgrimage.fields.registration_deadline'))->date('Y-m-d'),
+                ]),
+                Fieldset::make(__('forms.settings'))->columns(2)->schema([
+                    TextEntry::make('eligibility_rules.min_months_since_shahadah')->label(__('pilgrimage.fields.min_months_since_shahadah'))->placeholder('—'),
+                    IconEntry::make('eligibility_rules.require_completed_guidance')->label(__('pilgrimage.fields.require_completed_guidance'))->boolean(),
+                ]),
+            ]),
         ]);
     }
 

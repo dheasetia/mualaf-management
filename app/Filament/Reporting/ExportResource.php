@@ -17,6 +17,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -59,14 +61,20 @@ abstract class ExportResource extends Resource
     {
         return Action::make('request')->label(__('reports.actions.request'))
             ->schema([
-                Select::make('export_type')->label(__('reports.fields.export_type'))->required()->live()
-                    ->options(collect(static::types())->mapWithKeys(fn (ExportType $type): array => [$type->value => $type->label()])->all()),
-                DatePicker::make('from')->label(__('reports.fields.from'))
-                    ->visible(fn (Get $get): bool => $get('export_type') === ExportType::ShahadahStatistics->value),
-                DatePicker::make('to')->label(__('reports.fields.to'))
-                    ->visible(fn (Get $get): bool => $get('export_type') === ExportType::ShahadahStatistics->value),
-                Textarea::make('reason')->label(__('reports.fields.reason'))->maxLength(500)
-                    ->required(fn (Get $get): bool => ExportType::tryFrom((string) $get('export_type'))?->isSensitive() ?? false),
+                Section::make()->columnSpanFull()->schema([
+                    Fieldset::make(__('forms.details'))->columns(2)->schema([
+                        Select::make('export_type')->label(__('reports.fields.export_type'))->required()->live()
+                            ->options(collect(static::types())->mapWithKeys(fn (ExportType $type): array => [$type->value => $type->label()])->all()),
+                        Textarea::make('reason')->label(__('reports.fields.reason'))->maxLength(500)
+                            ->required(fn (Get $get): bool => ExportType::tryFrom((string) $get('export_type'))?->isSensitive() ?? false),
+                    ]),
+                    Fieldset::make(__('forms.schedule'))->columns(2)->schema([
+                        DatePicker::make('from')->label(__('reports.fields.from'))
+                            ->visible(fn (Get $get): bool => $get('export_type') === ExportType::ShahadahStatistics->value),
+                        DatePicker::make('to')->label(__('reports.fields.to'))
+                            ->visible(fn (Get $get): bool => $get('export_type') === ExportType::ShahadahStatistics->value),
+                    ]),
+                ]),
             ])
             ->action(function (array $data, Action $action): void {
                 $user = auth()->user();

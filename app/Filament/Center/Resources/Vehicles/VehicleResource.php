@@ -17,6 +17,8 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -53,12 +55,18 @@ final class VehicleResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('vehicle_number')->label(__('transport.fields.vehicle_number'))->required()->maxLength(30),
-            TextInput::make('plate_number')->label(__('transport.fields.plate_number'))->required()->maxLength(20),
-            Select::make('vehicle_type')->label(__('transport.fields.vehicle_type'))->required()->options(collect(VehicleType::cases())->mapWithKeys(fn (VehicleType $case): array => [$case->value => $case->label()])->all()),
-            TextInput::make('capacity')->label(__('transport.fields.capacity'))->required()->integer()->minValue(1)->maxValue(80),
-            Select::make('status')->label(__('transport.fields.status'))->required()->default(VehicleStatus::Available->value)->options(collect(VehicleStatus::cases())->mapWithKeys(fn (VehicleStatus $case): array => [$case->value => $case->label()])->all()),
+        return $schema->components([
+            Section::make(__('transport.vehicles.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.vehicle'))->columns(2)->schema([
+                    TextInput::make('vehicle_number')->label(__('transport.fields.vehicle_number'))->required()->maxLength(30),
+                    TextInput::make('plate_number')->label(__('transport.fields.plate_number'))->required()->maxLength(20),
+                    Select::make('vehicle_type')->label(__('transport.fields.vehicle_type'))->required()->options(collect(VehicleType::cases())->mapWithKeys(fn (VehicleType $case): array => [$case->value => $case->label()])->all()),
+                    TextInput::make('capacity')->label(__('transport.fields.capacity'))->required()->integer()->minValue(1)->maxValue(80),
+                ]),
+                Fieldset::make(__('forms.status'))->columns(2)->schema([
+                    Select::make('status')->label(__('transport.fields.status'))->required()->default(VehicleStatus::Available->value)->options(collect(VehicleStatus::cases())->mapWithKeys(fn (VehicleStatus $case): array => [$case->value => $case->label()])->all()),
+                ]),
+            ]),
         ]);
     }
 

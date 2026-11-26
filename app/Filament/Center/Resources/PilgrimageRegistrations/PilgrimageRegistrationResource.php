@@ -10,6 +10,8 @@ use App\Filament\Center\Resources\PilgrimagePrograms\RelationManagers\Registrati
 use App\Filament\Center\Resources\PilgrimageRegistrations\Pages\ViewPilgrimageRegistration;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 /**
@@ -31,13 +33,19 @@ final class PilgrimageRegistrationResource extends Resource
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->columns(3)->components([
-            TextEntry::make('program.name')->label(__('pilgrimage.programs.model')),
-            TextEntry::make('convert')->label(__('pilgrimage.fields.convert'))
-                ->state(fn (PilgrimageRegistration $record): string => RegistrationsRelationManager::convertName($record->convert_id)),
-            TextEntry::make('status')->label(__('pilgrimage.fields.status'))->badge()
-                ->formatStateUsing(fn (RegistrationStatus $state): string => $state->label())->color(fn (RegistrationStatus $state): string => $state->color()),
-            TextEntry::make('eligibility_notes')->label(__('pilgrimage.fields.eligibility_notes'))->placeholder('—')->columnSpanFull(),
+        return $schema->components([
+            Section::make(__('pilgrimage.registrations.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextEntry::make('program.name')->label(__('pilgrimage.programs.model')),
+                    TextEntry::make('convert')->label(__('pilgrimage.fields.convert'))
+                        ->state(fn (PilgrimageRegistration $record): string => RegistrationsRelationManager::convertName($record->convert_id)),
+                ]),
+                Fieldset::make(__('forms.status'))->columns(2)->schema([
+                    TextEntry::make('status')->label(__('pilgrimage.fields.status'))->badge()
+                        ->formatStateUsing(fn (RegistrationStatus $state): string => $state->label())->color(fn (RegistrationStatus $state): string => $state->color()),
+                    TextEntry::make('eligibility_notes')->label(__('pilgrimage.fields.eligibility_notes'))->placeholder('—')->columnSpanFull(),
+                ]),
+            ]),
         ]);
     }
 

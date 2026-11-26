@@ -26,6 +26,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -93,21 +95,29 @@ final class ReferralResource extends Resource
             ->headerActions([
                 Action::make('createReferral')->label(__('international.actions.create_referral'))->visible(fn (): bool => $can('international.referrals.create'))
                     ->schema([
-                        Select::make('convert_id')->label(__('international.fields.convert'))->required()->searchable()
-                            ->options(fn (): array => ($user = auth()->user()) instanceof User ? app(ConvertAccess::class)->visible(Convert::query(), $user)->orderBy('full_name')->limit(500)->get()
-                                ->mapWithKeys(fn (Convert $convert): array => [$convert->id => app(ConvertAccess::class)->displayName($user, $convert)])->all() : []),
-                        Select::make('destination_country_id')->label(__('international.fields.destination_country'))->required()->searchable()->live()
-                            ->options(fn (): array => LocalizedName::options(Country::query())),
-                        TextInput::make('destination_city')->label(__('international.fields.destination_city'))->maxLength(255),
-                        Select::make('external_organization_id')->label(__('international.fields.organization'))->searchable()
-                            ->options(fn (Get $get): array => ExternalIslamicOrganization::query()->where('verification_status', '!=', OrganizationStatus::Inactive)
-                                ->when(! blank($get('destination_country_id')), fn ($query) => $query->where('country_id', (int) $get('destination_country_id')))
-                                ->orderBy('organization_name')->pluck('organization_name', 'id')->all()),
-                        TextInput::make('external_contact_name')->label(__('international.fields.external_contact_name'))->maxLength(255),
-                        TextInput::make('external_contact_phone')->label(__('international.fields.external_contact_phone'))->tel()->maxLength(40),
-                        Textarea::make('referral_reason')->label(__('international.fields.referral_reason'))->required()->maxLength(2000),
-                        CheckboxList::make('information_scope')->label(__('international.fields.information_scope'))->required()->columns(2)
-                            ->options(collect(SharedField::cases())->mapWithKeys(fn (SharedField $field): array => [$field->value => $field->label()])->all()),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                                Select::make('convert_id')->label(__('international.fields.convert'))->required()->searchable()
+                                    ->options(fn (): array => ($user = auth()->user()) instanceof User ? app(ConvertAccess::class)->visible(Convert::query(), $user)->orderBy('full_name')->limit(500)->get()
+                                        ->mapWithKeys(fn (Convert $convert): array => [$convert->id => app(ConvertAccess::class)->displayName($user, $convert)])->all() : []),
+                                Textarea::make('referral_reason')->label(__('international.fields.referral_reason'))->required()->maxLength(2000),
+                                CheckboxList::make('information_scope')->label(__('international.fields.information_scope'))->required()->columns(2)
+                                    ->options(collect(SharedField::cases())->mapWithKeys(fn (SharedField $field): array => [$field->value => $field->label()])->all()),
+                            ]),
+                            Fieldset::make(__('forms.location'))->columns(2)->schema([
+                                Select::make('destination_country_id')->label(__('international.fields.destination_country'))->required()->searchable()->live()
+                                    ->options(fn (): array => LocalizedName::options(Country::query())),
+                                TextInput::make('destination_city')->label(__('international.fields.destination_city'))->maxLength(255),
+                            ]),
+                            Fieldset::make(__('forms.contact'))->columns(2)->schema([
+                                Select::make('external_organization_id')->label(__('international.fields.organization'))->searchable()
+                                    ->options(fn (Get $get): array => ExternalIslamicOrganization::query()->where('verification_status', '!=', OrganizationStatus::Inactive)
+                                        ->when(! blank($get('destination_country_id')), fn ($query) => $query->where('country_id', (int) $get('destination_country_id')))
+                                        ->orderBy('organization_name')->pluck('organization_name', 'id')->all()),
+                                TextInput::make('external_contact_name')->label(__('international.fields.external_contact_name'))->maxLength(255),
+                                TextInput::make('external_contact_phone')->label(__('international.fields.external_contact_phone'))->tel()->maxLength(40),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $record, array $data, User $user) => $workflow()->create(Convert::query()->findOrFail((int) $data['convert_id']), $data, $user), 'international.notifications.saved')),
             ])

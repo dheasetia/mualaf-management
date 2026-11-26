@@ -11,6 +11,8 @@ use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
@@ -57,12 +59,16 @@ abstract class MasterDataResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            ...static::codeComponents(),
-            TextInput::make('name_ar')->label(__('platform.fields.name_ar'))
-                ->required()->maxLength(255)->extraInputAttributes(['dir' => 'rtl']),
-            TextInput::make('name_en')->label(__('platform.fields.name_en'))
-                ->required()->maxLength(255)->extraInputAttributes(['dir' => 'ltr']),
-            ...static::extraFormComponents(),
+            Section::make(static::getModelLabel())->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    ...static::codeComponents(),
+                    TextInput::make('name_ar')->label(__('platform.fields.name_ar'))
+                        ->required()->maxLength(255)->extraInputAttributes(['dir' => 'rtl']),
+                    TextInput::make('name_en')->label(__('platform.fields.name_en'))
+                        ->required()->maxLength(255)->extraInputAttributes(['dir' => 'ltr']),
+                    ...static::extraFormComponents(),
+                ]),
+            ]),
         ]);
     }
 

@@ -25,6 +25,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -71,43 +73,57 @@ final class GuidanceClassResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            Select::make('program_id')->label(__('guidance.fields.program'))->required()->searchable()
-                ->options(fn (): array => LocalizedName::options(GuidanceProgram::query()->where('active', true)->orderBy('code'), sortByName: false)),
-            TextInput::make('code')->label(__('guidance.fields.code'))->required()->maxLength(30),
-            TextInput::make('name')->label(__('guidance.fields.name'))->required()->maxLength(255),
-            Select::make('language_id')->label(__('guidance.fields.language'))->required()->searchable()
-                ->options(fn (): array => LocalizedName::options(Language::query())),
-            Select::make('gender_policy')->label(__('guidance.fields.gender_policy'))->required()->options(collect(GenderPolicy::cases())->mapWithKeys(fn (GenderPolicy $case): array => [$case->value => $case->label()])->all()),
-            TextInput::make('capacity')->label(__('guidance.fields.capacity'))->integer()->minValue(1)->maxValue(500)->required(),
-            TextInput::make('room')->label(__('guidance.fields.room'))->maxLength(255),
-            TextInput::make('location')->label(__('guidance.fields.location'))->maxLength(255),
-            DatePicker::make('starts_on')->label(__('guidance.fields.starts_on'))->required(),
-            DatePicker::make('ends_on')->label(__('guidance.fields.ends_on'))->required()->afterOrEqual('starts_on'),
-            Repeater::make('schedule_rows')->label(__('guidance.fields.schedules'))->columns(3)->columnSpanFull()->defaultItems(0)
-                ->schema([
-                    Select::make('day_of_week')->label(__('guidance.fields.day_of_week'))->required()
-                        ->options(array_combine(range(0, 6), (array) __('guidance.days'))),
-                    TimePicker::make('start_time')->label(__('guidance.fields.start_time'))->required()->seconds(false),
-                    TimePicker::make('end_time')->label(__('guidance.fields.end_time'))->required()->seconds(false)->after('start_time'),
+        return $schema->components([
+            Section::make(__('guidance.classes.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    Select::make('program_id')->label(__('guidance.fields.program'))->required()->searchable()
+                        ->options(fn (): array => LocalizedName::options(GuidanceProgram::query()->where('active', true)->orderBy('code'), sortByName: false)),
+                    TextInput::make('code')->label(__('guidance.fields.code'))->required()->maxLength(30),
+                    TextInput::make('name')->label(__('guidance.fields.name'))->required()->maxLength(255),
+                    Select::make('language_id')->label(__('guidance.fields.language'))->required()->searchable()
+                        ->options(fn (): array => LocalizedName::options(Language::query())),
+                    Select::make('gender_policy')->label(__('guidance.fields.gender_policy'))->required()->options(collect(GenderPolicy::cases())->mapWithKeys(fn (GenderPolicy $case): array => [$case->value => $case->label()])->all()),
+                    TextInput::make('capacity')->label(__('guidance.fields.capacity'))->integer()->minValue(1)->maxValue(500)->required(),
                 ]),
+                Fieldset::make(__('forms.location'))->columns(2)->schema([
+                    TextInput::make('room')->label(__('guidance.fields.room'))->maxLength(255),
+                    TextInput::make('location')->label(__('guidance.fields.location'))->maxLength(255),
+                ]),
+                Fieldset::make(__('forms.schedule'))->columns(2)->schema([
+                    DatePicker::make('starts_on')->label(__('guidance.fields.starts_on'))->required(),
+                    DatePicker::make('ends_on')->label(__('guidance.fields.ends_on'))->required()->afterOrEqual('starts_on'),
+                    Repeater::make('schedule_rows')->label(__('guidance.fields.schedules'))->columns(3)->columnSpanFull()->defaultItems(0)
+                        ->schema([
+                            Select::make('day_of_week')->label(__('guidance.fields.day_of_week'))->required()
+                                ->options(array_combine(range(0, 6), (array) __('guidance.days'))),
+                            TimePicker::make('start_time')->label(__('guidance.fields.start_time'))->required()->seconds(false),
+                            TimePicker::make('end_time')->label(__('guidance.fields.end_time'))->required()->seconds(false)->after('start_time'),
+                        ]),
+                ]),
+            ]),
         ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->columns(3)->components([
-            TextEntry::make('code')->label(__('guidance.fields.code')),
-            TextEntry::make('program.name_ar')->formatStateUsing(fn (GuidanceClass $record): ?string => LocalizedName::of($record->program))->label(__('guidance.fields.program')),
-            TextEntry::make('status')->label(__('guidance.fields.status'))->badge()
-                ->formatStateUsing(fn (ClassStatus $state): string => $state->label()),
-            TextEntry::make('language.'.LocalizedName::column())->label(__('guidance.fields.language')),
-            TextEntry::make('gender_policy')->label(__('guidance.fields.gender_policy'))
-                ->formatStateUsing(fn (GenderPolicy $state): string => $state->label()),
-            TextEntry::make('capacity')->label(__('guidance.fields.capacity')),
-            TextEntry::make('starts_on')->label(__('guidance.fields.starts_on'))->date('Y-m-d'),
-            TextEntry::make('ends_on')->label(__('guidance.fields.ends_on'))->date('Y-m-d'),
-            TextEntry::make('room')->label(__('guidance.fields.room'))->placeholder('—'),
+        return $schema->components([
+            Section::make(__('guidance.classes.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(3)->schema([
+                    TextEntry::make('code')->label(__('guidance.fields.code')),
+                    TextEntry::make('program.name_ar')->formatStateUsing(fn (GuidanceClass $record): ?string => LocalizedName::of($record->program))->label(__('guidance.fields.program')),
+                    TextEntry::make('status')->label(__('guidance.fields.status'))->badge()
+                        ->formatStateUsing(fn (ClassStatus $state): string => $state->label()),
+                    TextEntry::make('language.'.LocalizedName::column())->label(__('guidance.fields.language')),
+                    TextEntry::make('gender_policy')->label(__('guidance.fields.gender_policy'))
+                        ->formatStateUsing(fn (GenderPolicy $state): string => $state->label()),
+                    TextEntry::make('capacity')->label(__('guidance.fields.capacity')),
+                ]),
+                Fieldset::make(__('forms.schedule'))->columns(3)->schema([
+                    TextEntry::make('starts_on')->label(__('guidance.fields.starts_on'))->date('Y-m-d'),
+                    TextEntry::make('ends_on')->label(__('guidance.fields.ends_on'))->date('Y-m-d'),
+                    TextEntry::make('room')->label(__('guidance.fields.room'))->placeholder('—'),
+                ]),
+            ]),
         ]);
     }
 

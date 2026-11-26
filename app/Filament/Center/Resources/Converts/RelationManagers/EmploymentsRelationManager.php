@@ -15,6 +15,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -37,26 +39,34 @@ final class EmploymentsRelationManager extends LocationRelationManager
 
     public function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            Select::make('company_id')->label(__('converts.locations.company'))->searchable()
-                ->options(fn (): array => LocalizedName::options(Company::query())),
-            TextInput::make('company_name_free')->label(__('converts.locations.company_name_free'))->maxLength(255),
-            TextInput::make('occupation')->label(__('converts.locations.occupation'))->maxLength(255),
-            TextInput::make('department')->label(__('converts.locations.department'))->maxLength(255),
-            TextInput::make('employee_number')->label(__('converts.locations.employee_number'))->maxLength(40),
-            TextInput::make('work_phone_encrypted')->label(__('converts.locations.work_phone'))->tel()->maxLength(30),
-            TextInput::make('work_location_description')->label(__('converts.locations.work_location'))->maxLength(255),
-            Select::make('work_city_id')->label(__('converts.locations.work_city'))->searchable()
-                ->options(fn (): array => LocalizedName::options(City::query())),
-            TextInput::make('work_google_maps_url')->label(__('converts.locations.google_maps_url'))->url()->maxLength(500)
-                ->helperText(__('companies.help.google_maps_url'))->columnSpanFull(),
-            TextInput::make('work_latitude')->label(__('converts.locations.latitude'))->numeric()->minValue(-90)->maxValue(90),
-            TextInput::make('work_longitude')->label(__('converts.locations.longitude'))->numeric()->minValue(-180)->maxValue(180),
-            Select::make('employment_status')->label(__('converts.locations.employment_status'))->required()
-                ->options(collect(JobStatus::cases())->mapWithKeys(fn (JobStatus $case): array => [$case->value => $case->label()])->all())->default(JobStatus::Employed->value),
-            Toggle::make('is_current')->label(__('converts.locations.is_current'))->default(true),
-            DatePicker::make('started_at')->label(__('converts.locations.started_at')),
-            DatePicker::make('ended_at')->label(__('converts.locations.ended_at'))->afterOrEqual('started_at'),
+        return $schema->components([
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    Select::make('company_id')->label(__('converts.locations.company'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(Company::query())),
+                    TextInput::make('company_name_free')->label(__('converts.locations.company_name_free'))->maxLength(255),
+                    TextInput::make('occupation')->label(__('converts.locations.occupation'))->maxLength(255),
+                    TextInput::make('department')->label(__('converts.locations.department'))->maxLength(255),
+                    TextInput::make('employee_number')->label(__('converts.locations.employee_number'))->maxLength(40),
+                    TextInput::make('work_phone_encrypted')->label(__('converts.locations.work_phone'))->tel()->maxLength(30),
+                ]),
+                Fieldset::make(__('forms.location'))->columns(2)->schema([
+                    TextInput::make('work_location_description')->label(__('converts.locations.work_location'))->maxLength(255),
+                    Select::make('work_city_id')->label(__('converts.locations.work_city'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(City::query())),
+                    TextInput::make('work_google_maps_url')->label(__('converts.locations.google_maps_url'))->url()->maxLength(500)
+                        ->helperText(__('companies.help.google_maps_url'))->columnSpanFull(),
+                    TextInput::make('work_latitude')->label(__('converts.locations.latitude'))->numeric()->minValue(-90)->maxValue(90),
+                    TextInput::make('work_longitude')->label(__('converts.locations.longitude'))->numeric()->minValue(-180)->maxValue(180),
+                ]),
+                Fieldset::make(__('forms.status'))->columns(2)->schema([
+                    Select::make('employment_status')->label(__('converts.locations.employment_status'))->required()
+                        ->options(collect(JobStatus::cases())->mapWithKeys(fn (JobStatus $case): array => [$case->value => $case->label()])->all())->default(JobStatus::Employed->value),
+                    Toggle::make('is_current')->label(__('converts.locations.is_current'))->default(true),
+                    DatePicker::make('started_at')->label(__('converts.locations.started_at')),
+                    DatePicker::make('ended_at')->label(__('converts.locations.ended_at'))->afterOrEqual('started_at'),
+                ]),
+            ]),
         ]);
     }
 

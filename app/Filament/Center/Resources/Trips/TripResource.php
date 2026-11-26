@@ -23,6 +23,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -74,15 +76,21 @@ final class TripResource extends Resource
             ->headerActions([
                 Action::make('newTrip')->label(__('transport.actions.new_trip'))->visible($can)
                     ->schema([
-                        Select::make('vehicle_id')->label(__('transport.fields.vehicle'))->required()
-                            ->options(fn (): array => Vehicle::query()->where('status', VehicleStatus::Available)->orderBy('plate_number')->pluck('plate_number', 'id')->all()),
-                        Select::make('driver_id')->label(__('transport.fields.driver'))->required()
-                            ->options(fn (): array => Driver::query()->where('status', DriverStatus::Active)->orderBy('name')->pluck('name', 'id')->all()),
-                        DateTimePicker::make('departs_at')->label(__('transport.fields.departs_at'))->required()->seconds(false),
-                        DateTimePicker::make('returns_at')->label(__('transport.fields.returns_at'))->required()->seconds(false),
-                        Select::make('activity_transport_request_id')->label(__('transport.fields.activity_transport'))
-                            ->options(fn (): array => ActivityTransportRequest::query()->whereIn('status', [ActivityTransportStatus::Approved, ActivityTransportStatus::Scheduled])
-                                ->orderBy('departure_at')->get()->mapWithKeys(fn (ActivityTransportRequest $request): array => [$request->id => '#'.$request->id.' · '.$request->departure_at->setTimezone((string) config('app.display_timezone'))->format('Y-m-d H:i')])->all()),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.trip'))->columns(2)->schema([
+                                Select::make('vehicle_id')->label(__('transport.fields.vehicle'))->required()
+                                    ->options(fn (): array => Vehicle::query()->where('status', VehicleStatus::Available)->orderBy('plate_number')->pluck('plate_number', 'id')->all()),
+                                Select::make('driver_id')->label(__('transport.fields.driver'))->required()
+                                    ->options(fn (): array => Driver::query()->where('status', DriverStatus::Active)->orderBy('name')->pluck('name', 'id')->all()),
+                                Select::make('activity_transport_request_id')->label(__('transport.fields.activity_transport'))
+                                    ->options(fn (): array => ActivityTransportRequest::query()->whereIn('status', [ActivityTransportStatus::Approved, ActivityTransportStatus::Scheduled])
+                                        ->orderBy('departure_at')->get()->mapWithKeys(fn (ActivityTransportRequest $request): array => [$request->id => '#'.$request->id.' · '.$request->departure_at->setTimezone((string) config('app.display_timezone'))->format('Y-m-d H:i')])->all()),
+                            ]),
+                            Fieldset::make(__('forms.schedule'))->columns(2)->schema([
+                                DateTimePicker::make('departs_at')->label(__('transport.fields.departs_at'))->required()->seconds(false),
+                                DateTimePicker::make('returns_at')->label(__('transport.fields.returns_at'))->required()->seconds(false),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $record, array $data, User $actor) => $dispatch()->createTrip([
                         'vehicle_id' => (int) $data['vehicle_id'],

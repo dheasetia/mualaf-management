@@ -17,6 +17,7 @@ use BackedEnum;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -65,16 +66,22 @@ final class SubmissionResource extends Resource
         $timezone = (string) config('app.display_timezone');
 
         return $schema->columns(1)->components([
-            Section::make()->columns(3)->schema([
-                TextEntry::make('reference_no')->label(__('submissions.fields.reference_no')),
-                TextEntry::make('status')->label(__('submissions.fields.status'))->badge()
-                    ->formatStateUsing(fn (SubmissionStatus $state): string => $state->label())->color(fn (SubmissionStatus $state): string => $state->color()),
-                TextEntry::make('type.name_ar')->formatStateUsing(fn (Submission $record): ?string => LocalizedName::of($record->type))->label(__('submissions.fields.type')),
-                TextEntry::make('convert')->label(__('submissions.fields.convert'))->state(fn (Submission $record): string => self::convertName($record->convert_id)),
-                TextEntry::make('submitted_at')->label(__('submissions.fields.submitted_at'))->dateTime('Y-m-d H:i', $timezone)->placeholder('—'),
-                TextEntry::make('due_at')->label(__('submissions.fields.due_at'))->date('Y-m-d', $timezone)->placeholder('—'),
-                TextEntry::make('notes')->label(__('submissions.fields.notes'))->placeholder('—')->columnSpanFull(),
-                TextEntry::make('correction_note')->label(__('submissions.fields.correction_note'))->visible(fn (Submission $record): bool => $record->correction_note !== null)->columnSpanFull(),
+            Section::make(__('submissions.model'))->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextEntry::make('reference_no')->label(__('submissions.fields.reference_no')),
+                    TextEntry::make('status')->label(__('submissions.fields.status'))->badge()
+                        ->formatStateUsing(fn (SubmissionStatus $state): string => $state->label())->color(fn (SubmissionStatus $state): string => $state->color()),
+                    TextEntry::make('type.name_ar')->formatStateUsing(fn (Submission $record): ?string => LocalizedName::of($record->type))->label(__('submissions.fields.type')),
+                    TextEntry::make('convert')->label(__('submissions.fields.convert'))->state(fn (Submission $record): string => self::convertName($record->convert_id)),
+                ]),
+                Fieldset::make(__('forms.schedule'))->columns(2)->schema([
+                    TextEntry::make('submitted_at')->label(__('submissions.fields.submitted_at'))->dateTime('Y-m-d H:i', $timezone)->placeholder('—'),
+                    TextEntry::make('due_at')->label(__('submissions.fields.due_at'))->date('Y-m-d', $timezone)->placeholder('—'),
+                ]),
+                Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                    TextEntry::make('notes')->label(__('submissions.fields.notes'))->placeholder('—')->columnSpanFull(),
+                    TextEntry::make('correction_note')->label(__('submissions.fields.correction_note'))->visible(fn (Submission $record): bool => $record->correction_note !== null)->columnSpanFull(),
+                ]),
             ]),
             Section::make(__('submissions.fields.events'))->collapsed()->schema([
                 RepeatableEntry::make('events')->hiddenLabel()->columns(3)->schema([

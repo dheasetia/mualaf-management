@@ -15,6 +15,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -70,25 +72,33 @@ class AuditLogResource extends Resource
         return $schema
             ->columns(2)
             ->components([
-                TextEntry::make('created_at')->label(__('audit.fields.created_at'))
-                    ->dateTime('Y-m-d H:i:s', timezone: self::displayTimezone()),
-                TextEntry::make('action')->label(__('audit.fields.action'))->badge(),
-                TextEntry::make('actor.name')->label(__('audit.fields.actor'))
-                    ->placeholder(fn (AuditLog $record): string => __('audit.actor_types.'.$record->actor_type->value)),
-                TextEntry::make('tenant.'.LocalizedName::column())->label(__('audit.fields.tenant'))
-                    ->placeholder(__('audit.platform'))
-                    ->visible(static::$showsTenant),
-                TextEntry::make('subject_type')->label(__('audit.fields.subject'))
-                    ->formatStateUsing(fn (AuditLog $record): string => $record->subject_type.' #'.$record->subject_id)
-                    ->placeholder('—'),
-                TextEntry::make('privileged_grant_id')->label(__('audit.fields.privileged_grant'))->placeholder('—'),
-                TextEntry::make('ip_address')->label(__('audit.fields.ip_address'))->placeholder('—'),
-                TextEntry::make('request_id')->label(__('audit.fields.request_id'))->copyable(),
-                TextEntry::make('user_agent')->label(__('audit.fields.user_agent'))->placeholder('—')->columnSpanFull(),
-                TextEntry::make('old_values_redacted')->label(__('audit.fields.old_values'))
-                    ->formatStateUsing($json)->fontFamily('mono')->placeholder('—')->columnSpanFull(),
-                TextEntry::make('new_values_redacted')->label(__('audit.fields.new_values'))
-                    ->formatStateUsing($json)->fontFamily('mono')->placeholder('—')->columnSpanFull(),
+                Section::make(__('audit.model'))->columnSpanFull()->schema([
+                    Fieldset::make(__('forms.record'))->columns(2)->schema([
+                        TextEntry::make('created_at')->label(__('audit.fields.created_at'))
+                            ->dateTime('Y-m-d H:i:s', timezone: self::displayTimezone()),
+                        TextEntry::make('action')->label(__('audit.fields.action'))->badge(),
+                        TextEntry::make('actor.name')->label(__('audit.fields.actor'))
+                            ->placeholder(fn (AuditLog $record): string => __('audit.actor_types.'.$record->actor_type->value)),
+                        TextEntry::make('tenant.'.LocalizedName::column())->label(__('audit.fields.tenant'))
+                            ->placeholder(__('audit.platform'))
+                            ->visible(static::$showsTenant),
+                        TextEntry::make('subject_type')->label(__('audit.fields.subject'))
+                            ->formatStateUsing(fn (AuditLog $record): string => $record->subject_type.' #'.$record->subject_id)
+                            ->placeholder('—'),
+                        TextEntry::make('privileged_grant_id')->label(__('audit.fields.privileged_grant'))->placeholder('—'),
+                    ]),
+                    Fieldset::make(__('forms.audit'))->columns(2)->schema([
+                        TextEntry::make('ip_address')->label(__('audit.fields.ip_address'))->placeholder('—'),
+                        TextEntry::make('request_id')->label(__('audit.fields.request_id'))->copyable(),
+                        TextEntry::make('user_agent')->label(__('audit.fields.user_agent'))->placeholder('—')->columnSpanFull(),
+                    ]),
+                    Fieldset::make(__('forms.details'))->columns(1)->schema([
+                        TextEntry::make('old_values_redacted')->label(__('audit.fields.old_values'))
+                            ->formatStateUsing($json)->fontFamily('mono')->placeholder('—')->columnSpanFull(),
+                        TextEntry::make('new_values_redacted')->label(__('audit.fields.new_values'))
+                            ->formatStateUsing($json)->fontFamily('mono')->placeholder('—')->columnSpanFull(),
+                    ]),
+                ]),
             ]);
     }
 

@@ -18,6 +18,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -61,18 +63,24 @@ final class ParticipantsRelationManager extends RelationManager
             ->headerActions([
                 Action::make('add')->label(__('dawah.actions.add_participant'))->visible($manages)
                     ->schema([
-                        Select::make('participant_type')->label(__('dawah.fields.participant_type'))->required()->live()
-                            ->options(collect(ParticipantType::cases())->mapWithKeys(fn (ParticipantType $type): array => [$type->value => $type->label()])->all()),
-                        Select::make('participant_id')->label(__('dawah.fields.participant'))->searchable()->required()
-                            ->visible(fn (Get $get): bool => ParticipantType::tryFrom((string) $get('participant_type'))?->isLinked() ?? false)
-                            ->options(fn (Get $get): array => ($type = ParticipantType::tryFrom((string) $get('participant_type'))) !== null && ($user = auth()->user()) instanceof User
-                                ? app(ParticipantDirectory::class)->options($type, $user) : []),
-                        TextInput::make('participant_name')->label(__('dawah.fields.participant_name'))->required()->maxLength(255)
-                            ->visible(fn (Get $get): bool => ! (ParticipantType::tryFrom((string) $get('participant_type'))?->isLinked() ?? true)),
-                        TextInput::make('phone')->label(__('dawah.fields.phone'))->tel()->maxLength(30)
-                            ->visible(fn (Get $get): bool => ! (ParticipantType::tryFrom((string) $get('participant_type'))?->isLinked() ?? true)),
-                        Toggle::make('transportation_required')->label(__('dawah.fields.transportation_required')),
-                        TextInput::make('notes')->label(__('dawah.fields.notes'))->maxLength(1000),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                                Select::make('participant_type')->label(__('dawah.fields.participant_type'))->required()->live()
+                                    ->options(collect(ParticipantType::cases())->mapWithKeys(fn (ParticipantType $type): array => [$type->value => $type->label()])->all()),
+                                Select::make('participant_id')->label(__('dawah.fields.participant'))->searchable()->required()
+                                    ->visible(fn (Get $get): bool => ParticipantType::tryFrom((string) $get('participant_type'))?->isLinked() ?? false)
+                                    ->options(fn (Get $get): array => ($type = ParticipantType::tryFrom((string) $get('participant_type'))) !== null && ($user = auth()->user()) instanceof User
+                                        ? app(ParticipantDirectory::class)->options($type, $user) : []),
+                                TextInput::make('participant_name')->label(__('dawah.fields.participant_name'))->required()->maxLength(255)
+                                    ->visible(fn (Get $get): bool => ! (ParticipantType::tryFrom((string) $get('participant_type'))?->isLinked() ?? true)),
+                                TextInput::make('phone')->label(__('dawah.fields.phone'))->tel()->maxLength(30)
+                                    ->visible(fn (Get $get): bool => ! (ParticipantType::tryFrom((string) $get('participant_type'))?->isLinked() ?? true)),
+                            ]),
+                            Fieldset::make(__('forms.details'))->columns(1)->schema([
+                                Toggle::make('transportation_required')->label(__('dawah.fields.transportation_required')),
+                                TextInput::make('notes')->label(__('dawah.fields.notes'))->maxLength(1000),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $record, array $data, User $user) => $manage()->add(
                         $plan instanceof DawahActivityPlan ? $plan : abort(404),

@@ -21,6 +21,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -86,14 +88,20 @@ final class EnrollmentsRelationManager extends RelationManager
                 Action::make('recordProgress')->label(__('guidance.actions.record_progress'))->icon('heroicon-o-check-circle')
                     ->visible(fn (): bool => self::user() !== null && (self::user()->can('teach', $this->ownerClass())) && self::user()->hasPermission('guidance.progress.record'))
                     ->schema([
-                        Select::make('lesson_id')->label(__('guidance.fields.lesson'))->required()->searchable()
-                            ->options(fn (): array => GuidanceLesson::query()
-                                ->whereHas('module', fn (Builder $query) => $query->where('program_id', $this->ownerClass()->program_id))
-                                ->orderBy('module_id')->orderBy('sort_order')->pluck('title', 'id')->all()),
-                        Select::make('progress_status')->label(__('guidance.fields.progress_status'))->required()->options(collect(ProgressStatus::cases())->mapWithKeys(fn (ProgressStatus $case): array => [$case->value => $case->label()])->all()),
-                        TextInput::make('score')->label(__('guidance.fields.score'))->numeric()->minValue(0)->maxValue(100),
-                        Toggle::make('needs_mentoring')->label(__('guidance.fields.needs_mentoring')),
-                        Textarea::make('competency_notes')->label(__('guidance.fields.competency_notes'))->maxLength(2000),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.details'))->columns(2)->schema([
+                                Select::make('lesson_id')->label(__('guidance.fields.lesson'))->required()->searchable()
+                                    ->options(fn (): array => GuidanceLesson::query()
+                                        ->whereHas('module', fn (Builder $query) => $query->where('program_id', $this->ownerClass()->program_id))
+                                        ->orderBy('module_id')->orderBy('sort_order')->pluck('title', 'id')->all()),
+                                Select::make('progress_status')->label(__('guidance.fields.progress_status'))->required()->options(collect(ProgressStatus::cases())->mapWithKeys(fn (ProgressStatus $case): array => [$case->value => $case->label()])->all()),
+                                TextInput::make('score')->label(__('guidance.fields.score'))->numeric()->minValue(0)->maxValue(100),
+                                Toggle::make('needs_mentoring')->label(__('guidance.fields.needs_mentoring')),
+                            ]),
+                            Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                                Textarea::make('competency_notes')->label(__('guidance.fields.competency_notes'))->maxLength(2000),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (Enrollment $record, array $data, User $user) => app(ClassRecords::class)
                         ->recordProgress($record, (int) $data['lesson_id'], [

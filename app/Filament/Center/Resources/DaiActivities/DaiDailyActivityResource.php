@@ -25,6 +25,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -78,19 +80,27 @@ final class DaiDailyActivityResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            DatePicker::make('activity_date')->label(__('dawah.fields.activity_date'))->required()->default(now()->toDateString()),
-            Select::make('activity_type_id')->label(__('dawah.fields.activity_type'))->required()->searchable()
-                ->options(fn (): array => LocalizedName::options(DaiActivityType::query()->where('active', true))),
-            TextInput::make('title')->label(__('dawah.fields.title'))->required()->maxLength(255)->columnSpanFull(),
-            Textarea::make('description')->label(__('dawah.fields.description'))->maxLength(5000)->columnSpanFull(),
-            TimePicker::make('started_at')->label(__('dawah.fields.started_at'))->seconds(false),
-            TimePicker::make('ended_at')->label(__('dawah.fields.ended_at'))->seconds(false),
-            TextInput::make('duration_minutes')->label(__('dawah.fields.duration_minutes'))->integer()->minValue(1)->maxValue(1440),
-            Select::make('related_activity_plan_id')->label(__('dawah.fields.related_plan'))->searchable()
-                ->options(fn (): array => DawahActivityPlan::query()->latest('planned_date')->limit(200)->pluck('title', 'id')->all()),
-            TextInput::make('output_quantity')->label(__('dawah.fields.output_quantity'))->numeric()->minValue(0),
-            TextInput::make('output_unit')->label(__('dawah.fields.output_unit'))->maxLength(30),
+        return $schema->components([
+            Section::make(__('dawah.activities.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    DatePicker::make('activity_date')->label(__('dawah.fields.activity_date'))->required()->default(now()->toDateString()),
+                    Select::make('activity_type_id')->label(__('dawah.fields.activity_type'))->required()->searchable()
+                        ->options(fn (): array => LocalizedName::options(DaiActivityType::query()->where('active', true))),
+                    TextInput::make('title')->label(__('dawah.fields.title'))->required()->maxLength(255)->columnSpanFull(),
+                    Textarea::make('description')->label(__('dawah.fields.description'))->maxLength(5000)->columnSpanFull(),
+                ]),
+                Fieldset::make(__('forms.schedule'))->columns(3)->schema([
+                    TimePicker::make('started_at')->label(__('dawah.fields.started_at'))->seconds(false),
+                    TimePicker::make('ended_at')->label(__('dawah.fields.ended_at'))->seconds(false),
+                    TextInput::make('duration_minutes')->label(__('dawah.fields.duration_minutes'))->integer()->minValue(1)->maxValue(1440),
+                ]),
+                Fieldset::make(__('forms.result'))->columns(2)->schema([
+                    Select::make('related_activity_plan_id')->label(__('dawah.fields.related_plan'))->searchable()
+                        ->options(fn (): array => DawahActivityPlan::query()->latest('planned_date')->limit(200)->pluck('title', 'id')->all()),
+                    TextInput::make('output_quantity')->label(__('dawah.fields.output_quantity'))->numeric()->minValue(0),
+                    TextInput::make('output_unit')->label(__('dawah.fields.output_unit'))->maxLength(30),
+                ]),
+            ]),
         ]);
     }
 

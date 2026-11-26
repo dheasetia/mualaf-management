@@ -12,6 +12,7 @@ use App\Filament\Center\Resources\ImportBatches\RelationManagers\RowsRelationMan
 use BackedEnum;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -71,19 +72,25 @@ final class ImportBatchResource extends Resource
         $timezone = (string) config('app.display_timezone');
 
         return $schema->components([
-            Section::make()->columns(4)->columnSpanFull()->schema([
-                TextEntry::make('original_filename')->label(__('imports.fields.original_filename')),
-                TextEntry::make('status')->label(__('imports.fields.status'))->badge()
-                    ->formatStateUsing(fn (ImportBatchStatus $state): string => $state->label())
-                    ->color(fn (ImportBatchStatus $state): string => $state->color()),
-                TextEntry::make('uploader.name')->label(__('imports.fields.uploaded_by')),
-                TextEntry::make('created_at')->label(__('imports.fields.created_at'))->dateTime('Y-m-d H:i', $timezone),
-                TextEntry::make('total_rows')->label(__('imports.fields.total_rows')),
-                TextEntry::make('success_rows')->label(__('imports.fields.success_rows')),
-                TextEntry::make('duplicate_rows')->label(__('imports.fields.duplicate_rows')),
-                TextEntry::make('failed_rows')->label(__('imports.fields.failed_rows')),
-                TextEntry::make('completed_at')->label(__('imports.fields.completed_at'))->dateTime('Y-m-d H:i', $timezone)->placeholder('—'),
-                TextEntry::make('error_summary')->label(__('imports.fields.error_summary'))->placeholder('—')->columnSpan(3),
+            Section::make(__('imports.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(3)->schema([
+                    TextEntry::make('original_filename')->label(__('imports.fields.original_filename')),
+                    TextEntry::make('status')->label(__('imports.fields.status'))->badge()
+                        ->formatStateUsing(fn (ImportBatchStatus $state): string => $state->label())
+                        ->color(fn (ImportBatchStatus $state): string => $state->color()),
+                    TextEntry::make('uploader.name')->label(__('imports.fields.uploaded_by')),
+                    TextEntry::make('created_at')->label(__('imports.fields.created_at'))->dateTime('Y-m-d H:i', $timezone),
+                    TextEntry::make('completed_at')->label(__('imports.fields.completed_at'))->dateTime('Y-m-d H:i', $timezone)->placeholder('—'),
+                ]),
+                Fieldset::make(__('forms.result'))->columns(4)->schema([
+                    TextEntry::make('total_rows')->label(__('imports.fields.total_rows')),
+                    TextEntry::make('success_rows')->label(__('imports.fields.success_rows')),
+                    TextEntry::make('duplicate_rows')->label(__('imports.fields.duplicate_rows')),
+                    TextEntry::make('failed_rows')->label(__('imports.fields.failed_rows')),
+                ]),
+                Fieldset::make(__('forms.details'))->columns(1)->schema([
+                    TextEntry::make('error_summary')->label(__('imports.fields.error_summary'))->placeholder('—')->columnSpan(3),
+                ]),
             ]),
         ]);
     }

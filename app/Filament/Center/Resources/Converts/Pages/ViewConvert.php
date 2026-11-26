@@ -36,6 +36,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 
 /**
  * @property Convert $record
@@ -55,19 +57,25 @@ final class ViewConvert extends ViewRecord
             Action::make('recordFollowUp')->label(__('prospects.actions.record_follow_up'))->icon('heroicon-o-chat-bubble-left-right')
                 ->authorize($can('recordFollowUp'))
                 ->schema([
-                    Select::make('follow_up_type')->label(__('prospects.fields.follow_up_type'))->required()
-                        ->options(collect(FollowUpType::cases())->mapWithKeys(fn (FollowUpType $type): array => [$type->value => $type->label()])->all()),
-                    Select::make('contact_method')->label(__('prospects.fields.contact_method'))->required()
-                        ->options(collect(ContactMethod::cases())->mapWithKeys(fn (ContactMethod $method): array => [$method->value => $method->label()])->all()),
-                    DateTimePicker::make('occurred_at')->label(__('prospects.fields.occurred_at'))->required()
-                        ->timezone((string) config('app.display_timezone'))->default(now())->maxDate(now()->addMinutes(5)),
-                    Textarea::make('summary')->label(__('prospects.fields.summary'))->required()->maxLength(5000),
-                    TextInput::make('next_action')->label(__('prospects.fields.next_action'))->maxLength(255),
-                    DateTimePicker::make('next_follow_up_at')->label(__('prospects.fields.next_follow_up_at'))
-                        ->timezone((string) config('app.display_timezone'))->after('occurred_at'),
-                    Select::make('confidentiality_level')->label(__('prospects.fields.confidentiality_level'))->required()
-                        ->options(collect(Confidentiality::cases())->mapWithKeys(fn (Confidentiality $level): array => [$level->value => $level->label()])->all())
-                        ->default(Confidentiality::Normal->value),
+                    Section::make()->columnSpanFull()->schema([
+                        Fieldset::make(__('forms.details'))->columns(2)->schema([
+                            Select::make('follow_up_type')->label(__('prospects.fields.follow_up_type'))->required()
+                                ->options(collect(FollowUpType::cases())->mapWithKeys(fn (FollowUpType $type): array => [$type->value => $type->label()])->all()),
+                            Select::make('contact_method')->label(__('prospects.fields.contact_method'))->required()
+                                ->options(collect(ContactMethod::cases())->mapWithKeys(fn (ContactMethod $method): array => [$method->value => $method->label()])->all()),
+                            DateTimePicker::make('occurred_at')->label(__('prospects.fields.occurred_at'))->required()
+                                ->timezone((string) config('app.display_timezone'))->default(now())->maxDate(now()->addMinutes(5)),
+                            Select::make('confidentiality_level')->label(__('prospects.fields.confidentiality_level'))->required()
+                                ->options(collect(Confidentiality::cases())->mapWithKeys(fn (Confidentiality $level): array => [$level->value => $level->label()])->all())
+                                ->default(Confidentiality::Normal->value),
+                        ]),
+                        Fieldset::make(__('forms.result'))->columns(2)->schema([
+                            Textarea::make('summary')->label(__('prospects.fields.summary'))->required()->maxLength(5000),
+                            TextInput::make('next_action')->label(__('prospects.fields.next_action'))->maxLength(255),
+                            DateTimePicker::make('next_follow_up_at')->label(__('prospects.fields.next_follow_up_at'))
+                                ->timezone((string) config('app.display_timezone'))->after('occurred_at'),
+                        ]),
+                    ]),
                 ])
                 ->action($this->run(fn (array $data) => app(RecordConvertFollowUp::class)
                     ->handle($this->record, FollowUpData::fromForm($data), $this->actor()))),

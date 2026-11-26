@@ -17,6 +17,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -53,12 +55,20 @@ final class DriverResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('name')->label(__('transport.fields.name'))->required()->maxLength(255),
-            TextInput::make('phone')->label(__('transport.fields.phone'))->tel()->required()->maxLength(30),
-            TextInput::make('license_number')->label(__('transport.fields.license_number'))->maxLength(40)->password()->revealable(),
-            DatePicker::make('license_expires_on')->label(__('transport.fields.license_expires_on')),
-            Select::make('status')->label(__('transport.fields.status'))->required()->default(DriverStatus::Active->value)->options(collect(DriverStatus::cases())->mapWithKeys(fn (DriverStatus $case): array => [$case->value => $case->label()])->all()),
+        return $schema->components([
+            Section::make(__('transport.drivers.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('name')->label(__('transport.fields.name'))->required()->maxLength(255),
+                    TextInput::make('phone')->label(__('transport.fields.phone'))->tel()->required()->maxLength(30),
+                ]),
+                Fieldset::make(__('forms.details'))->columns(2)->schema([
+                    TextInput::make('license_number')->label(__('transport.fields.license_number'))->maxLength(40)->password()->revealable(),
+                    DatePicker::make('license_expires_on')->label(__('transport.fields.license_expires_on')),
+                ]),
+                Fieldset::make(__('forms.status'))->columns(2)->schema([
+                    Select::make('status')->label(__('transport.fields.status'))->required()->default(DriverStatus::Active->value)->options(collect(DriverStatus::cases())->mapWithKeys(fn (DriverStatus $case): array => [$case->value => $case->label()])->all()),
+                ]),
+            ]),
         ]);
     }
 

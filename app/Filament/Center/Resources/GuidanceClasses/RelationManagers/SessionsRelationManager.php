@@ -24,6 +24,8 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -64,16 +66,22 @@ final class SessionsRelationManager extends RelationManager
                 Action::make('schedule')->label(__('guidance.sessions'))->icon('heroicon-o-plus')
                     ->visible(fn (): bool => $teaches() || (self::user()?->hasPermission('guidance.classes.manage') ?? false))
                     ->schema([
-                        DateTimePicker::make('starts_at')->label(__('guidance.fields.starts_at'))->required()->timezone($timezone)->seconds(false),
-                        DateTimePicker::make('ends_at')->label(__('guidance.fields.ends_at'))->required()->timezone($timezone)->seconds(false)->after('starts_at'),
-                        Select::make('lesson_id')->label(__('guidance.fields.lesson'))->searchable()
-                            ->options(fn (): array => GuidanceLesson::query()
-                                ->whereHas('module', fn (Builder $query) => $query->where('program_id', $this->ownerClass()->program_id))
-                                ->orderBy('module_id')->orderBy('sort_order')->pluck('title', 'id')->all()),
-                        Select::make('teacher_user_id')->label(__('guidance.fields.teacher'))
-                            ->visible(fn (): bool => self::user()?->hasPermission('guidance.classes.manage') ?? false)
-                            ->options(fn (): array => ClassTeacherAssignment::query()->where('class_id', $this->ownerClass()->id)->whereNull('released_at')
-                                ->with('user')->get()->mapWithKeys(fn (ClassTeacherAssignment $assignment): array => [$assignment->user_id => $assignment->user->name])->all()),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.schedule'))->columns(2)->schema([
+                                DateTimePicker::make('starts_at')->label(__('guidance.fields.starts_at'))->required()->timezone($timezone)->seconds(false),
+                                DateTimePicker::make('ends_at')->label(__('guidance.fields.ends_at'))->required()->timezone($timezone)->seconds(false)->after('starts_at'),
+                            ]),
+                            Fieldset::make(__('forms.assignment'))->columns(2)->schema([
+                                Select::make('lesson_id')->label(__('guidance.fields.lesson'))->searchable()
+                                    ->options(fn (): array => GuidanceLesson::query()
+                                        ->whereHas('module', fn (Builder $query) => $query->where('program_id', $this->ownerClass()->program_id))
+                                        ->orderBy('module_id')->orderBy('sort_order')->pluck('title', 'id')->all()),
+                                Select::make('teacher_user_id')->label(__('guidance.fields.teacher'))
+                                    ->visible(fn (): bool => self::user()?->hasPermission('guidance.classes.manage') ?? false)
+                                    ->options(fn (): array => ClassTeacherAssignment::query()->where('class_id', $this->ownerClass()->id)->whereNull('released_at')
+                                        ->with('user')->get()->mapWithKeys(fn (ClassTeacherAssignment $assignment): array => [$assignment->user_id => $assignment->user->name])->all()),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $record, array $data, User $user) => app(ClassRecords::class)->scheduleSession($this->ownerClass(), [
                         'starts_at' => (string) $data['starts_at'],

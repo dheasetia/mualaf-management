@@ -19,6 +19,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -60,20 +62,30 @@ final class ExternalOrganizationResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('organization_name')->label(__('international.fields.organization_name'))->required()->maxLength(255),
-            Select::make('organization_type')->label(__('international.fields.organization_type'))->required()
-                ->options(collect(OrganizationType::cases())->mapWithKeys(fn (OrganizationType $case): array => [$case->value => $case->label()])->all()),
-            Select::make('country_id')->label(__('international.fields.country'))->required()->searchable()
-                ->options(fn (): array => LocalizedName::options(Country::query())),
-            TextInput::make('city')->label(__('international.fields.city'))->required()->maxLength(255),
-            TextInput::make('contact_person')->label(__('international.fields.contact_person'))->maxLength(255),
-            TextInput::make('phone')->label(__('international.fields.phone'))->tel()->maxLength(40),
-            TextInput::make('whatsapp')->label(__('international.fields.whatsapp'))->tel()->maxLength(40),
-            TextInput::make('email')->label(__('international.fields.email'))->email()->maxLength(255),
-            TextInput::make('website')->label(__('international.fields.website'))->url()->maxLength(500),
-            TextInput::make('address')->label(__('international.fields.address'))->maxLength(500),
-            Textarea::make('notes')->label(__('international.fields.notes'))->maxLength(2000)->columnSpanFull(),
+        return $schema->components([
+            Section::make(__('international.organizations.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('organization_name')->label(__('international.fields.organization_name'))->required()->maxLength(255),
+                    Select::make('organization_type')->label(__('international.fields.organization_type'))->required()
+                        ->options(collect(OrganizationType::cases())->mapWithKeys(fn (OrganizationType $case): array => [$case->value => $case->label()])->all()),
+                ]),
+                Fieldset::make(__('forms.location'))->columns(2)->schema([
+                    Select::make('country_id')->label(__('international.fields.country'))->required()->searchable()
+                        ->options(fn (): array => LocalizedName::options(Country::query())),
+                    TextInput::make('city')->label(__('international.fields.city'))->required()->maxLength(255),
+                    TextInput::make('address')->label(__('international.fields.address'))->maxLength(500),
+                ]),
+                Fieldset::make(__('forms.contact'))->columns(2)->schema([
+                    TextInput::make('contact_person')->label(__('international.fields.contact_person'))->maxLength(255),
+                    TextInput::make('phone')->label(__('international.fields.phone'))->tel()->maxLength(40),
+                    TextInput::make('whatsapp')->label(__('international.fields.whatsapp'))->tel()->maxLength(40),
+                    TextInput::make('email')->label(__('international.fields.email'))->email()->maxLength(255),
+                    TextInput::make('website')->label(__('international.fields.website'))->url()->maxLength(500),
+                ]),
+                Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                    Textarea::make('notes')->label(__('international.fields.notes'))->maxLength(2000)->columnSpanFull(),
+                ]),
+            ]),
         ]);
     }
 

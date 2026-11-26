@@ -22,6 +22,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -78,20 +80,26 @@ final class ConsentsRelationManager extends RelationManager
             ->headerActions([
                 Action::make('recordConsent')->label(__('international.actions.record_consent'))->visible(fn (): bool => $this->canRecord())
                     ->schema([
-                        Select::make('consent_type')->label(__('international.fields.consent_type'))->required()->live()->options(collect(ConsentType::cases())->mapWithKeys(fn (ConsentType $case): array => [$case->value => $case->label()])->all()),
-                        CheckboxList::make('fields')->label(__('international.fields.fields'))->columns(2)
-                            ->visible(fn (Get $get): bool => $get('consent_type') === ConsentType::InternationalSharing->value)
-                            ->options(collect(SharedField::cases())->mapWithKeys(fn (SharedField $case): array => [$case->value => $case->label()])->all()),
-                        Select::make('destination_country_id')->label(__('international.fields.destination_country'))->searchable()
-                            ->visible(fn (Get $get): bool => $get('consent_type') === ConsentType::InternationalSharing->value)
-                            ->options(fn (): array => LocalizedName::options(Country::query())),
-                        Select::make('method')->label(__('international.fields.method'))->required()->live()->options(collect(ConsentMethod::cases())->mapWithKeys(fn (ConsentMethod $case): array => [$case->value => $case->label()])->all()),
-                        Select::make('witnessed_by')->label(__('international.fields.witnessed_by'))->searchable()
-                            ->visible(fn (Get $get): bool => $get('method') === ConsentMethod::VerbalWitnessed->value)
-                            ->options(fn (): array => User::query()->whereIn('id', UserTenantMembership::query()->where('tenant_id', app(TenantContext::class)->id())->select('user_id'))
-                                ->whereKeyNot(auth()->id())->orderBy('name')->pluck('name', 'id')->all()),
-                        DateTimePicker::make('given_at')->label(__('international.fields.given_at'))->seconds(false)->default(now()),
-                        DateTimePicker::make('expires_at')->label(__('international.fields.expires_at'))->seconds(false),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.consent'))->columns(2)->schema([
+                                Select::make('consent_type')->label(__('international.fields.consent_type'))->required()->live()->options(collect(ConsentType::cases())->mapWithKeys(fn (ConsentType $case): array => [$case->value => $case->label()])->all()),
+                                CheckboxList::make('fields')->label(__('international.fields.fields'))->columns(2)
+                                    ->visible(fn (Get $get): bool => $get('consent_type') === ConsentType::InternationalSharing->value)
+                                    ->options(collect(SharedField::cases())->mapWithKeys(fn (SharedField $case): array => [$case->value => $case->label()])->all()),
+                                Select::make('destination_country_id')->label(__('international.fields.destination_country'))->searchable()
+                                    ->visible(fn (Get $get): bool => $get('consent_type') === ConsentType::InternationalSharing->value)
+                                    ->options(fn (): array => LocalizedName::options(Country::query())),
+                            ]),
+                            Fieldset::make(__('forms.record'))->columns(2)->schema([
+                                Select::make('method')->label(__('international.fields.method'))->required()->live()->options(collect(ConsentMethod::cases())->mapWithKeys(fn (ConsentMethod $case): array => [$case->value => $case->label()])->all()),
+                                Select::make('witnessed_by')->label(__('international.fields.witnessed_by'))->searchable()
+                                    ->visible(fn (Get $get): bool => $get('method') === ConsentMethod::VerbalWitnessed->value)
+                                    ->options(fn (): array => User::query()->whereIn('id', UserTenantMembership::query()->where('tenant_id', app(TenantContext::class)->id())->select('user_id'))
+                                        ->whereKeyNot(auth()->id())->orderBy('name')->pluck('name', 'id')->all()),
+                                DateTimePicker::make('given_at')->label(__('international.fields.given_at'))->seconds(false)->default(now()),
+                                DateTimePicker::make('expires_at')->label(__('international.fields.expires_at'))->seconds(false),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $row, array $data, User $user) => app(Consents::class)->record($this->convert(), $data, $user), 'international.notifications.saved')),
             ])

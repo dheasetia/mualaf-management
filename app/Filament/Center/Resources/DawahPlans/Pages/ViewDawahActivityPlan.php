@@ -19,6 +19,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 
 /**
  * Plan page: each workflow step is an action shown only to who may take it
@@ -72,17 +74,25 @@ final class ViewDawahActivityPlan extends ViewRecord
                 fn ($plan, $data, $actor) => $reports()->save($plan, $data, $actor))
                 ->fillForm(fn (): array => $this->record->report?->toArray() ?? [])
                 ->schema([
-                    Textarea::make('summary')->label(__('dawah.fields.summary'))->required()->maxLength(10000),
-                    TextInput::make('actual_participants')->label(__('dawah.fields.actual_participants'))->integer()->minValue(0),
-                    TextInput::make('new_prospects_count')->label(__('dawah.fields.new_prospects_count'))->integer()->minValue(0)->default(0),
-                    TextInput::make('shahadah_count')->label(__('dawah.fields.shahadah_count'))->integer()->minValue(0)->default(0),
-                    DateTimePicker::make('actual_start_at')->label(__('dawah.fields.actual_start_at'))->seconds(false),
-                    DateTimePicker::make('actual_end_at')->label(__('dawah.fields.actual_end_at'))->seconds(false)->afterOrEqual('actual_start_at'),
-                    Textarea::make('achievements')->label(__('dawah.fields.achievements'))->maxLength(5000),
-                    Textarea::make('challenges')->label(__('dawah.fields.challenges'))->maxLength(5000),
-                    Textarea::make('follow_up_actions')->label(__('dawah.fields.follow_up_actions'))->maxLength(5000),
-                    Textarea::make('material_usage_summary')->label(__('dawah.fields.material_usage_summary'))->maxLength(2000),
-                    Textarea::make('transport_summary')->label(__('dawah.fields.transport_summary'))->maxLength(2000),
+                    Section::make()->columnSpanFull()->schema([
+                        Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                            Textarea::make('summary')->label(__('dawah.fields.summary'))->required()->maxLength(10000),
+                            TextInput::make('actual_participants')->label(__('dawah.fields.actual_participants'))->integer()->minValue(0),
+                            TextInput::make('new_prospects_count')->label(__('dawah.fields.new_prospects_count'))->integer()->minValue(0)->default(0),
+                            TextInput::make('shahadah_count')->label(__('dawah.fields.shahadah_count'))->integer()->minValue(0)->default(0),
+                        ]),
+                        Fieldset::make(__('forms.schedule'))->columns(2)->schema([
+                            DateTimePicker::make('actual_start_at')->label(__('dawah.fields.actual_start_at'))->seconds(false),
+                            DateTimePicker::make('actual_end_at')->label(__('dawah.fields.actual_end_at'))->seconds(false)->afterOrEqual('actual_start_at'),
+                        ]),
+                        Fieldset::make(__('forms.result'))->columns(1)->schema([
+                            Textarea::make('achievements')->label(__('dawah.fields.achievements'))->maxLength(5000),
+                            Textarea::make('challenges')->label(__('dawah.fields.challenges'))->maxLength(5000),
+                            Textarea::make('follow_up_actions')->label(__('dawah.fields.follow_up_actions'))->maxLength(5000),
+                            Textarea::make('material_usage_summary')->label(__('dawah.fields.material_usage_summary'))->maxLength(2000),
+                            Textarea::make('transport_summary')->label(__('dawah.fields.transport_summary'))->maxLength(2000),
+                        ]),
+                    ]),
                 ]),
             $step('submitReport', 'submit_report', fn (): bool => $at(PlanStatus::Completed) && $this->record->report !== null && $can('dawah.reports.submit') && $isResponsible(),
                 fn ($plan, $data, $actor) => $reports()->submit($plan, $actor))->color('primary')->requiresConfirmation(),

@@ -25,6 +25,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -76,35 +78,47 @@ final class ExamResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('title')->label(__('exams.fields.title'))->required()->maxLength(255),
-            Select::make('exam_type')->label(__('exams.fields.exam_type'))->required()->options(collect(ExamType::cases())->mapWithKeys(fn (ExamType $case): array => [$case->value => $case->label()])->all()),
-            Select::make('program_id')->label(__('exams.fields.program'))->required()->live()
-                ->options(fn (): array => LocalizedName::options(GuidanceProgram::query()->where('active', true)->orderBy('code'), sortByName: false)),
-            Select::make('class_id')->label(__('exams.fields.class'))
-                ->options(fn (Get $get): array => GuidanceClass::query()->where('program_id', $get('program_id'))->orderBy('code')->pluck('name', 'id')->all()),
-            TextInput::make('maximum_score')->label(__('exams.fields.maximum_score'))->numeric()->minValue(1)->maxValue(1000)->default(100)->required(),
-            TextInput::make('passing_score')->label(__('exams.fields.passing_score'))->numeric()->minValue(0)->default(60)->required(),
-            DateTimePicker::make('scheduled_at')->label(__('exams.fields.scheduled_at'))->timezone((string) config('app.display_timezone'))->seconds(false),
-            Repeater::make('component_rows')->label(__('exams.fields.components'))->columnSpanFull()->columns(4)->minItems(1)
-                ->schema([
-                    TextInput::make('component_code')->label(__('exams.fields.component_code'))->required()->maxLength(30),
-                    TextInput::make('name')->label(__('exams.fields.name'))->required()->maxLength(255),
-                    TextInput::make('max_score')->label(__('exams.fields.max_score'))->numeric()->minValue(1)->required(),
-                    TextInput::make('weight')->label(__('exams.fields.weight'))->numeric()->minValue(0.01)->default(1)->required(),
+        return $schema->components([
+            Section::make(__('exams.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('title')->label(__('exams.fields.title'))->required()->maxLength(255),
+                    Select::make('exam_type')->label(__('exams.fields.exam_type'))->required()->options(collect(ExamType::cases())->mapWithKeys(fn (ExamType $case): array => [$case->value => $case->label()])->all()),
+                    Select::make('program_id')->label(__('exams.fields.program'))->required()->live()
+                        ->options(fn (): array => LocalizedName::options(GuidanceProgram::query()->where('active', true)->orderBy('code'), sortByName: false)),
+                    Select::make('class_id')->label(__('exams.fields.class'))
+                        ->options(fn (Get $get): array => GuidanceClass::query()->where('program_id', $get('program_id'))->orderBy('code')->pluck('name', 'id')->all()),
+                    DateTimePicker::make('scheduled_at')->label(__('exams.fields.scheduled_at'))->timezone((string) config('app.display_timezone'))->seconds(false),
                 ]),
+                Fieldset::make(__('forms.settings'))->columns(2)->schema([
+                    TextInput::make('maximum_score')->label(__('exams.fields.maximum_score'))->numeric()->minValue(1)->maxValue(1000)->default(100)->required(),
+                    TextInput::make('passing_score')->label(__('exams.fields.passing_score'))->numeric()->minValue(0)->default(60)->required(),
+                    Repeater::make('component_rows')->label(__('exams.fields.components'))->columnSpanFull()->columns(4)->minItems(1)
+                        ->schema([
+                            TextInput::make('component_code')->label(__('exams.fields.component_code'))->required()->maxLength(30),
+                            TextInput::make('name')->label(__('exams.fields.name'))->required()->maxLength(255),
+                            TextInput::make('max_score')->label(__('exams.fields.max_score'))->numeric()->minValue(1)->required(),
+                            TextInput::make('weight')->label(__('exams.fields.weight'))->numeric()->minValue(0.01)->default(1)->required(),
+                        ]),
+                ]),
+            ]),
         ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->columns(3)->components([
-            TextEntry::make('title')->label(__('exams.fields.title')),
-            TextEntry::make('exam_type')->label(__('exams.fields.exam_type'))->formatStateUsing(fn (ExamType $state): string => $state->label()),
-            TextEntry::make('status')->label(__('exams.fields.status'))->badge()->formatStateUsing(fn (ExamStatus $state): string => $state->label()),
-            TextEntry::make('maximum_score')->label(__('exams.fields.maximum_score')),
-            TextEntry::make('passing_score')->label(__('exams.fields.passing_score')),
-            TextEntry::make('scheduled_at')->label(__('exams.fields.scheduled_at'))->dateTime('Y-m-d H:i', timezone: (string) config('app.display_timezone'))->placeholder('—'),
+        return $schema->components([
+            Section::make(__('exams.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(3)->schema([
+                    TextEntry::make('title')->label(__('exams.fields.title')),
+                    TextEntry::make('exam_type')->label(__('exams.fields.exam_type'))->formatStateUsing(fn (ExamType $state): string => $state->label()),
+                    TextEntry::make('status')->label(__('exams.fields.status'))->badge()->formatStateUsing(fn (ExamStatus $state): string => $state->label()),
+                    TextEntry::make('scheduled_at')->label(__('exams.fields.scheduled_at'))->dateTime('Y-m-d H:i', timezone: (string) config('app.display_timezone'))->placeholder('—'),
+                ]),
+                Fieldset::make(__('forms.settings'))->columns(2)->schema([
+                    TextEntry::make('maximum_score')->label(__('exams.fields.maximum_score')),
+                    TextEntry::make('passing_score')->label(__('exams.fields.passing_score')),
+                ]),
+            ]),
         ]);
     }
 

@@ -24,6 +24,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -77,17 +79,23 @@ final class PrivilegedAccessResource extends Resource
         return Action::make('request')->label(__('privileged.actions.request'))
             ->visible(fn (): bool => auth()->user()?->hasPermission('privileged.request') ?? false)
             ->schema([
-                Select::make('identity_type')->label(__('privileged.fields.identity_type'))->required()->live()
-                    ->options(collect(IdentityType::cases())->mapWithKeys(fn (IdentityType $type): array => [$type->value => $type->label()])->all()),
-                Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()
-                    ->options(fn (): array => LocalizedName::options(Country::query()))
-                    ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false),
-                TextInput::make('identity_number')->label(__('privileged.fields.identity_number'))->required()->maxLength(40)->extraInputAttributes(['dir' => 'ltr']),
-                Textarea::make('reason')->label(__('privileged.fields.reason'))->required()->maxLength(2000),
-                CheckboxList::make('scope')->label(__('privileged.fields.scope'))->required()->columns(2)
-                    ->options(collect(PrivilegedScope::cases())->mapWithKeys(fn (PrivilegedScope $scope): array => [$scope->value => $scope->label()])->all()),
-                Select::make('minutes')->label(__('privileged.fields.minutes'))->required()->default(60)
-                    ->options([15 => '15', 30 => '30', 60 => '60', 120 => '120', 240 => '240', 480 => '480', 1440 => '1440']),
+                Section::make()->columnSpanFull()->schema([
+                    Fieldset::make(__('forms.identity'))->columns(3)->schema([
+                        Select::make('identity_type')->label(__('privileged.fields.identity_type'))->required()->live()
+                            ->options(collect(IdentityType::cases())->mapWithKeys(fn (IdentityType $type): array => [$type->value => $type->label()])->all()),
+                        Select::make('issuing_country_id')->label(__('converts.search.issuing_country'))->searchable()
+                            ->options(fn (): array => LocalizedName::options(Country::query()))
+                            ->hidden(fn (Get $get): bool => IdentityType::tryFrom((string) $get('identity_type'))?->issuedBySaudiArabia() ?? false),
+                        TextInput::make('identity_number')->label(__('privileged.fields.identity_number'))->required()->maxLength(40)->extraInputAttributes(['dir' => 'ltr']),
+                    ]),
+                    Fieldset::make(__('forms.details'))->columns(2)->schema([
+                        Textarea::make('reason')->label(__('privileged.fields.reason'))->required()->maxLength(2000),
+                        CheckboxList::make('scope')->label(__('privileged.fields.scope'))->required()->columns(2)
+                            ->options(collect(PrivilegedScope::cases())->mapWithKeys(fn (PrivilegedScope $scope): array => [$scope->value => $scope->label()])->all()),
+                        Select::make('minutes')->label(__('privileged.fields.minutes'))->required()->default(60)
+                            ->options([15 => '15', 30 => '30', 60 => '60', 120 => '120', 240 => '240', 480 => '480', 1440 => '1440']),
+                    ]),
+                ]),
             ])
             ->action(self::domainAction(fn (mixed $record, array $data, User $user) => app(PrivilegedAccess::class)->request(
                 new IdentifierData(IdentityType::from((string) $data['identity_type']), (string) $data['identity_number'], blank($data['issuing_country_id'] ?? null) ? null : (int) $data['issuing_country_id']),
