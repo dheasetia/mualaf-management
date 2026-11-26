@@ -136,6 +136,12 @@
     @apply text-xs font-semibold tracking-wide text-(--brand-gold);
 }
 
+/* Office name for staff of one office (no switcher), styled like a group label */
+.office-name {
+    @apply -mb-3 border-b border-white/10 px-2 pb-4 text-sm font-semibold tracking-wide text-(--brand-gold);
+    font-family: 'Cairo', var(--font-family), sans-serif;
+}
+
 .fi-sidebar-group-btn .fi-icon,
 .fi-sidebar-group-dropdown-trigger-btn .fi-icon,
 .fi-sidebar-item-btn > .fi-icon {

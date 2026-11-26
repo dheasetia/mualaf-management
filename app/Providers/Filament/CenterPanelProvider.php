@@ -14,6 +14,7 @@ use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\RequireMfaForPrivilegedRoles;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetTenantContext;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
@@ -56,6 +57,9 @@ class CenterPanelProvider extends PanelProvider
                 AppAuthentication::make()->recoverable(),
             ], isRequired: false)
             ->tenant(Tenant::class, slugAttribute: 'code')
+            // The office switcher only for staff of several offices; others see the office name.
+            ->tenantMenu(fn (): bool => self::worksInSeveralOffices())
+            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_START, fn (): string => self::worksInSeveralOffices() ? '' : view('filament.center.office-name')->render())
             ->tenantMiddleware([
                 SetTenantContext::class,
             ], isPersistent: true)
@@ -109,5 +113,12 @@ class CenterPanelProvider extends PanelProvider
                 'audit.navigation_group',
             ],
         );
+    }
+
+    private static function worksInSeveralOffices(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->accessibleTenants()->count() > 1;
     }
 }
