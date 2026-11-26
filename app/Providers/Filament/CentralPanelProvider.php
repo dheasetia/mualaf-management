@@ -6,6 +6,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\EditProfile;
 use App\Filament\Auth\Login;
+use App\Filament\Support\Brand;
 use App\Filament\Support\LocaleSwitcher;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\SetLocale;
@@ -17,7 +18,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -31,7 +31,7 @@ class CentralPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        return Brand::apply($panel)
             ->default()
             ->id('central')
             ->path('central')
@@ -41,13 +41,10 @@ class CentralPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('60s')
             ->passwordReset()
-            ->profile(EditProfile::class)
+            ->profile(EditProfile::class, isSimple: false)
             ->multiFactorAuthentication([
                 AppAuthentication::make()->recoverable(),
             ], isRequired: true)
-            ->colors([
-                'primary' => Color::Emerald,
-            ])
             ->discoverResources(in: app_path('Filament/Central/Resources'), for: 'App\Filament\Central\Resources')
             ->discoverPages(in: app_path('Filament/Central/Pages'), for: 'App\Filament\Central\Pages')
             ->pages([

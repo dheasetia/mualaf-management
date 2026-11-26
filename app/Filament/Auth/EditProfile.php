@@ -9,11 +9,13 @@ use App\Models\User;
 use App\Support\Identity\PhoneNumber;
 use Carbon\CarbonImmutable;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use SensitiveParameter;
 
@@ -22,8 +24,35 @@ use SensitiveParameter;
  * WhatsApp alerts (open question #9). The number is stored as +digits,
  * encrypted; changing the opt-in is audited without the number.
  */
-final class EditProfile extends BaseEditProfile
+class EditProfile extends BaseEditProfile
 {
+    public function mount(): void
+    {
+        parent::mount();
+
+        $this->redirectToOfficeProfile();
+    }
+
+    /**
+     * Center: this office-less page cannot show the sidebar, so open the profile
+     * inside the user's office (OfficeProfile) instead.
+     */
+    private function redirectToOfficeProfile(): void
+    {
+        $panel = Filament::getCurrentPanel();
+        $routeName = $panel?->generateRouteName('office-profile');
+
+        if (! static::isSimple() || $panel === null || ! $panel->hasTenancy() || ! Route::has((string) $routeName)) {
+            return;
+        }
+
+        $tenant = Filament::getUserDefaultTenant($this->getUser());
+
+        if ($tenant !== null) {
+            $this->redirect(route((string) $routeName, ['tenant' => $tenant]));
+        }
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema->components([

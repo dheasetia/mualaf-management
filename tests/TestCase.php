@@ -20,6 +20,16 @@ abstract class TestCase extends BaseTestCase
         $this->app->make('migrator')->path(__DIR__.'/Fixtures/migrations');
     }
 
+    /**
+     * Panels load the Vite-built theme; tests render pages without a build.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutVite();
+    }
+
     protected function tearDown(): void
     {
         $this->app?->make(TenantContext::class)->clear();

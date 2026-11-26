@@ -28,7 +28,7 @@ final readonly class RequireMfaForPrivilegedRoles
 
         if (
             ! $user instanceof User
-            || $request->routeIs('filament.*.auth.profile')
+            || $request->routeIs('filament.*.auth.profile', 'filament.*.office-profile')
             || ! $this->authorizer->holdsRoleRequiringMfa($user)
             || MultiFactorChallenge::make()->hasEnabledProviders($user)
         ) {
