@@ -12,7 +12,7 @@ use Illuminate\Contracts\View\View;
  * The Muallaf Center look shared by both panels: deep green with a gold
  * accent on warm cream, the logo lockup and the Arabic-first typeface.
  * The theme stylesheet places the white logo on the green sidebar and
- * the colored one on light surfaces. Body text is Amiri, headings Cairo.
+ * the colored one on light surfaces. Body text is Noto Naskh Arabic, headings Cairo.
  */
 final class Brand
 {
@@ -39,8 +39,8 @@ final class Brand
     {
         return $panel
             ->viteTheme('resources/css/filament/theme.css')
-            // Amiri for body text, Cairo for headings (theme.css); one stylesheet from the CSP font host.
-            ->font('Amiri', url: 'https://fonts.bunny.net/css?family=amiri:400,700|cairo:500,600,700&display=swap')
+            // Noto Naskh Arabic for body text, Cairo for headings (theme.css); one stylesheet from the CSP font host.
+            ->font('Noto Naskh Arabic', url: 'https://fonts.bunny.net/css?family=noto-naskh-arabic:400,500,600,700|cairo:500,600,700&display=swap')
             ->colors([
                 'primary' => array_map(Color::convertToOklch(...), self::GREEN),
                 'gray' => Color::Stone,
