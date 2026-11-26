@@ -61,7 +61,7 @@ users
   id pk · uuid uq · name · email uq · username? uq · phone_encrypted? enc
   password · email_verified_at? · is_active bool
   mfa_secret? enc · mfa_recovery_codes? enc · mfa_confirmed_at?
-  locale varchar(5) default 'ar' · last_login_at? · last_login_ip?
+  locale varchar(5) default 'ar' · avatar_path? (foto profil di disk privat, JPEG 256×256 tanpa metadata) · last_login_at? · last_login_ip?
   remember_token?
 
 user_tenant_memberships

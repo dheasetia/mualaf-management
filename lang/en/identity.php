@@ -8,6 +8,11 @@ return [
         'whatsapp_opt_in' => 'Send my alerts on WhatsApp too',
         'whatsapp_help' => 'Short alerts without personal data (for example "New transfer request"), in your language. Details stay in the platform.',
         'invalid_phone' => 'Enter a valid mobile number.',
+        'photo' => 'Profile photo',
+        'photo_help' => 'JPG, PNG or WebP up to 2 MB. It is cropped square and location and camera data are removed. Only signed-in users can see it.',
+        'remove_photo' => 'Remove the current photo',
+        'photo_too_large' => 'The photo is larger than 2 MB.',
+        'photo_not_image' => 'Choose a JPG, PNG or WebP image.',
     ],
     'new_device' => [
         'subject' => 'New sign-in to your account',

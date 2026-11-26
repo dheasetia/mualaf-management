@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Filament\Auth;
 
 use App\Domain\Audit\Services\AuditLogger;
+use App\Domain\Identity\Exceptions\ProfilePhotoRejected;
+use App\Domain\Identity\Services\ProfilePhotos;
 use App\Models\User;
 use App\Support\Identity\PhoneNumber;
 use Carbon\CarbonImmutable;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use SensitiveParameter;
 
 /**
@@ -27,6 +31,11 @@ final class EditProfile extends BaseEditProfile
     public function form(Schema $schema): Schema
     {
         return $schema->components([
+            FileUpload::make('photo')->label(__('identity.profile.photo'))->helperText(__('identity.profile.photo_help'))
+                ->image()->imagePreviewHeight('120')->storeFiles(false)
+                ->maxSize(ProfilePhotos::MAX_BYTES / 1024)->acceptedFileTypes(ProfilePhotos::MIME_TYPES),
+            Toggle::make('remove_photo')->label(__('identity.profile.remove_photo'))
+                ->visible(fn (): bool => ($user = $this->getUser()) instanceof User && $user->avatar_path !== null),
             $this->getNameFormComponent(),
             $this->getEmailFormComponent(),
             TextInput::make('phone')->label(__('identity.profile.phone'))->tel()->maxLength(30)
@@ -63,11 +72,34 @@ final class EditProfile extends BaseEditProfile
     {
         $phone = blank($data['phone'] ?? null) ? null : PhoneNumber::normalize((string) $data['phone']);
         $optIn = (bool) ($data['whatsapp_opt_in'] ?? false);
-        unset($data['phone'], $data['whatsapp_opt_in']);
+        $photo = $data['photo'] ?? null;
+        $removePhoto = (bool) ($data['remove_photo'] ?? false);
+        unset($data['phone'], $data['whatsapp_opt_in'], $data['photo'], $data['remove_photo']);
 
         $this->applyContact($record, $phone, $optIn);
+        $this->applyPhoto($record, $photo, $removePhoto);
 
         return parent::handleRecordUpdate($record, $data);
+    }
+
+    private function applyPhoto(Model $record, mixed $photo, bool $remove): void
+    {
+        if (! $record instanceof User) {
+            return;
+        }
+
+        $photos = app(ProfilePhotos::class);
+        $photo = is_array($photo) ? (array_values($photo)[0] ?? null) : $photo;
+
+        try {
+            if ($photo instanceof TemporaryUploadedFile) {
+                $photos->replace($record, (string) $photo->getRealPath());
+            } elseif ($remove) {
+                $photos->remove($record);
+            }
+        } catch (ProfilePhotoRejected $rejected) {
+            throw ValidationException::withMessages(['data.photo' => $rejected->getMessage()]);
+        }
     }
 
     private function applyContact(Model $record, ?string $phone, bool $optIn): void
