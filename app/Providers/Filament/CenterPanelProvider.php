@@ -7,13 +7,16 @@ namespace App\Providers\Filament;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Auth\EditProfile;
 use App\Filament\Auth\Login;
+use App\Filament\Center\Pages\OfficeProfile;
 use App\Filament\Support\Brand;
 use App\Filament\Support\LocaleSwitcher;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
 use App\Http\Middleware\RequireMfaForPrivilegedRoles;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetTenantContext;
+use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -39,7 +42,11 @@ class CenterPanelProvider extends PanelProvider
             ->id('center')
             ->path('center')
             ->login(Login::class)
-            ->userMenuItems([LocaleSwitcher::userMenuItem()])
+            ->userMenuItems([
+                // Inside an office, open the profile in the panel layout (sidebar kept).
+                'profile' => fn (Action $action): Action => $action->url(fn (): string => Filament::getTenant() !== null ? OfficeProfile::getUrl() : (string) Filament::getProfileUrl()),
+                LocaleSwitcher::userMenuItem(),
+            ])
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn (): string => view('filament.auth.locale-switcher')->render())
             ->databaseNotifications()
             ->databaseNotificationsPolling('60s')

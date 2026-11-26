@@ -22,7 +22,7 @@ use SensitiveParameter;
  * WhatsApp alerts (open question #9). The number is stored as +digits,
  * encrypted; changing the opt-in is audited without the number.
  */
-final class EditProfile extends BaseEditProfile
+class EditProfile extends BaseEditProfile
 {
     public function form(Schema $schema): Schema
     {

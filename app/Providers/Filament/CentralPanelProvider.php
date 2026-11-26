@@ -41,7 +41,7 @@ class CentralPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('60s')
             ->passwordReset()
-            ->profile(EditProfile::class)
+            ->profile(EditProfile::class, isSimple: false)
             ->multiFactorAuthentication([
                 AppAuthentication::make()->recoverable(),
             ], isRequired: true)
