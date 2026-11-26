@@ -28,6 +28,9 @@ use SensitiveParameter;
  */
 final class EditProfile extends BaseEditProfile
 {
+    /** Set while saving; the top bar avatar is another component, so the page reloads. */
+    private bool $photoChanged = false;
+
     public function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -82,6 +85,13 @@ final class EditProfile extends BaseEditProfile
         return parent::handleRecordUpdate($record, $data);
     }
 
+    protected function afterSave(): void
+    {
+        if ($this->photoChanged) {
+            $this->js('window.location.reload()');
+        }
+    }
+
     private function applyPhoto(Model $record, mixed $photo, bool $remove): void
     {
         if (! $record instanceof User) {
@@ -94,8 +104,10 @@ final class EditProfile extends BaseEditProfile
         try {
             if ($photo instanceof TemporaryUploadedFile) {
                 $photos->replace($record, (string) $photo->getRealPath());
-            } elseif ($remove) {
+                $this->photoChanged = true;
+            } elseif ($remove && $record->avatar_path !== null) {
                 $photos->remove($record);
+                $this->photoChanged = true;
             }
         } catch (ProfilePhotoRejected $rejected) {
             throw ValidationException::withMessages(['data.photo' => $rejected->getMessage()]);

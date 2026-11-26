@@ -18,10 +18,15 @@ beforeEach(function (): void {
 });
 
 it('uploads a profile photo as a square JPEG and shows it as the avatar', function (): void {
-    Livewire::test(EditProfile::class)
+    $component = Livewire::test(EditProfile::class)
         ->fillForm(['photo' => UploadedFile::fake()->image('me.png', 600, 400)])
         ->call('save')
         ->assertHasNoFormErrors();
+
+    // The page reloads so the avatar in the top bar shows the new photo.
+    expect(json_encode($component->effects))->toContain('window.location.reload()');
+    Livewire::test(EditProfile::class)->fillForm(['name' => 'Same photo'])->call('save')
+        ->tap(fn ($unchanged) => expect(json_encode($unchanged->effects))->not->toContain('window.location.reload()'));
 
     $path = $this->user->refresh()->avatar_path;
     $size = getimagesizefromstring((string) Storage::disk(ProfilePhotos::DISK)->get((string) $path));
