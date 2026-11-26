@@ -7,9 +7,8 @@ use App\Http\Controllers\VerifyCertificateController;
 use App\Support\Localization\Locales;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// The site root opens the Center panel, where office staff sign in.
+Route::redirect('/', '/center');
 
 // 09 §9.6: public certificate verification from the QR code, 60 requests a minute per IP.
 Route::get('/verify/{uuid}', VerifyCertificateController::class)
