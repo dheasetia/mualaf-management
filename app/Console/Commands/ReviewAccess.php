@@ -29,15 +29,14 @@ final class ReviewAccess extends Command
             $rows = $review->rows($tenantId);
             $summary = [
                 'accounts' => count($rows),
-                'missing_mfa' => count(array_filter($rows, fn (array $row): bool => $row['missing_mfa'])),
                 'stale' => count(array_filter($rows, fn (array $row): bool => $row['stale'])),
             ];
 
             $audit->record('access.reviewed', newValues: $summary, tenantId: $tenantId);
-            $lines[] = [(string) $label, $summary['accounts'], $summary['missing_mfa'], $summary['stale']];
+            $lines[] = [(string) $label, $summary['accounts'], $summary['stale']];
         }
 
-        $this->table(['scope', 'accounts', 'privileged without MFA', 'unused'], $lines);
+        $this->table(['scope', 'accounts', 'unused'], $lines);
 
         return self::SUCCESS;
     }

@@ -21,7 +21,7 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     seedRbac();
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->head = withAuthenticator(grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam));
+    $this->head = grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam);
     $this->convert = inTenant($this->dammam, fn () => Convert::factory()->create());
     $this->save = fn (string $type, array $data, $record = null, ?Convert $convert = null) => inTenant($this->dammam,
         fn () => app(SaveConvertLocationRecord::class)->handle($convert ?? $this->convert, $type, $record, $data, $this->head));
@@ -71,8 +71,8 @@ it('refuses changes on closed records and on records of another convert', functi
 
 it('shows locations with the full profile only, read-only without converts.update', function (): void {
     $restricted = inTenant($this->dammam, fn () => Convert::factory()->create(['disclosure_risk_level' => DisclosureLevel::Restricted]));
-    $registrar = withAuthenticator(grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam));
-    $auditor = withAuthenticator(grantRole(memberOf($this->dammam), 'local_auditor', $this->dammam));
+    $registrar = grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam);
+    $auditor = grantRole(memberOf($this->dammam), 'local_auditor', $this->dammam);
 
     inCenterPanel($this->dammam, $registrar);
     expect(ResidencesRelationManager::canViewForRecord($restricted, ViewConvert::class))->toBeFalse()

@@ -31,8 +31,8 @@ beforeEach(function (): void {
     $this->philippines = Country::factory()->create();
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
     $this->riyadh = Tenant::factory()->active()->create(['code' => 'RUH']);
-    $this->registrar = withAuthenticator(grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam));
-    $this->head = withAuthenticator(grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam));
+    $this->registrar = grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam);
+    $this->head = grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam);
     $this->dai = inTenant($this->dammam, fn () => Dai::factory()->create());
 
     // Already registered in Riyadh under a passport.

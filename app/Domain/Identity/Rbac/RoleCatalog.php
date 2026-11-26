@@ -131,22 +131,6 @@ final class RoleCatalog
         ];
     }
 
-    /** @param  list<string>  $permissions */
-    public static function requiresMfa(RoleScope $scope, array $permissions): bool
-    {
-        if ($scope === RoleScope::Platform) {
-            return true;
-        }
-
-        foreach ($permissions as $code) {
-            if (in_array(PermissionCatalog::split($code)['action'], PermissionCatalog::MFA_ACTIONS, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @param  list<string>  $permissions
      * @return array{name_ar: string, name_en: string, scope: RoleScope, permissions: list<string>}

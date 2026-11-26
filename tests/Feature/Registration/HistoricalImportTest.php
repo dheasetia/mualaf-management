@@ -46,8 +46,8 @@ beforeEach(function (): void {
     $this->philippines = Country::factory()->create(['iso2' => 'PH', 'iso3' => 'PHL']);
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
     $this->riyadh = Tenant::factory()->active()->create(['code' => 'RUH']);
-    $this->registrar = withAuthenticator(grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam));
-    $this->head = withAuthenticator(grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam));
+    $this->registrar = grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam);
+    $this->head = grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam);
     $this->verifier = grantRole(memberOf($this->dammam), 'shahadah_verifier', $this->dammam);
     inTenant($this->dammam, fn () => Dai::factory()->create(['employee_number' => 'EMP-001']));
 

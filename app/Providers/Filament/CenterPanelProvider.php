@@ -9,10 +9,8 @@ use App\Filament\Auth\EditProfile;
 use App\Filament\Auth\Login;
 use App\Filament\Support\LocaleSwitcher;
 use App\Http\Middleware\EnforceAbsoluteSessionLifetime;
-use App\Http\Middleware\RequireMfaForPrivilegedRoles;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetTenantContext;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -44,9 +42,6 @@ class CenterPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('60s')
             ->passwordReset()
             ->profile(EditProfile::class)
-            ->multiFactorAuthentication([
-                AppAuthentication::make()->recoverable(),
-            ], isRequired: false)
             ->tenant(Tenant::class, slugAttribute: 'code')
             ->tenantMiddleware([
                 SetTenantContext::class,
@@ -78,7 +73,6 @@ class CenterPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 EnforceAbsoluteSessionLifetime::class,
-                RequireMfaForPrivilegedRoles::class,
             ]);
     }
 }

@@ -50,8 +50,8 @@ beforeEach(function (): void {
     $this->registration = fn (): ConvertRegistration => inTenant($this->dammam, fn () => ConvertRegistration::query()->where('convert_id', $this->convert->id)->sole());
     $this->registrar = User::query()->findOrFail(($this->registration)()->registered_by);
     $this->verifier = grantRole(memberOf($this->dammam), 'shahadah_verifier', $this->dammam);
-    $this->head = withAuthenticator(grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam));
-    $this->centralAdmin = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
+    $this->head = grantRole(memberOf($this->dammam), 'head_of_dawah', $this->dammam);
+    $this->centralAdmin = grantRole(User::factory()->create(), 'central_admin');
     $this->correction = fn (array $overrides = []): ShahadahCorrectionData => new ShahadahCorrectionData(...[
         'profile' => new ConvertProfileData('Daniel Mendes', Gender::Male, $this->convert->nationality_id, islamicName: 'Dawud'),
         'shahadahDate' => CarbonImmutable::parse('2026-11-02'),

@@ -14,7 +14,7 @@ it('still reads converts of other offices through bypass after a Center panel re
     [$dammam, $riyadh] = [Tenant::factory()->active()->create(['code' => 'DMM']), Tenant::factory()->active()->create(['code' => 'RUH'])];
     $riyadhConvert = inTenant($riyadh, fn () => Convert::factory()->create());
 
-    $this->actingAs(withAuthenticator(grantRole(memberOf($dammam), 'head_of_dawah', $dammam)))
+    $this->actingAs(grantRole(memberOf($dammam), 'head_of_dawah', $dammam))
         ->get('/center/DMM/converts')
         ->assertOk();
 

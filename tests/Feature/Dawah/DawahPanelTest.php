@@ -26,7 +26,7 @@ beforeEach(function (): void {
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
     $this->type = DaiActivityType::factory()->create();
     $this->daiUser = grantRole(memberOf($this->tenant), 'dai', $this->tenant);
-    $this->head = withAuthenticator(grantRole(memberOf($this->tenant), 'head_of_dawah', $this->tenant));
+    $this->head = grantRole(memberOf($this->tenant), 'head_of_dawah', $this->tenant);
     inTenant($this->tenant, fn () => Dai::factory()->create(['user_id' => $this->daiUser->id]));
 });
 

@@ -17,8 +17,8 @@ return [
     'access_review' => [
         'title' => 'Access review',
         'help' => 'Staff of this center with their roles. Review it regularly: remove roles that are no longer needed and accounts that are not used.',
-        'name' => 'Name', 'email' => 'Email', 'roles' => 'Roles', 'mfa' => 'Authenticator', 'last_login' => 'Last sign-in', 'never' => 'Never',
-        'flags' => 'Attention', 'missing_mfa' => 'Privileged role without authenticator', 'stale' => 'Not used for :days days',
+        'name' => 'Name', 'email' => 'Email', 'roles' => 'Roles', 'last_login' => 'Last sign-in', 'never' => 'Never',
+        'flags' => 'Attention', 'stale' => 'Not used for :days days',
     ],
     'locked' => [
         'message' => 'Sign-in for this account is temporarily blocked after repeated failed attempts. Try again in :minutes minutes.',
@@ -26,9 +26,5 @@ return [
         'line' => ':attempts failed sign-in attempts were made on your account, so sign-in is blocked for :minutes minutes.',
         'ip' => 'IP address of the last attempt: :ip',
         'advice' => 'If this was not you, change your password and inform your center administrator.',
-    ],
-    'mfa_required' => [
-        'title' => 'Two-factor authentication required',
-        'body' => 'Your role in this center requires two-factor authentication. Enable an authenticator app on your profile page to continue.',
     ],
 ];

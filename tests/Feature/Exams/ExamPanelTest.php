@@ -22,8 +22,8 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     seedRbac();
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->officer = withAuthenticator(grantRole(memberOf($this->tenant), 'examination_officer', $this->tenant));
-    $this->teacher = withAuthenticator(grantRole(memberOf($this->tenant), 'teacher', $this->tenant));
+    $this->officer = grantRole(memberOf($this->tenant), 'examination_officer', $this->tenant);
+    $this->teacher = grantRole(memberOf($this->tenant), 'teacher', $this->tenant);
     $coordinator = grantRole(memberOf($this->tenant), 'guidance_coordinator', $this->tenant);
 
     [$this->exam, $this->otherExam, $this->attempt] = inTenant($this->tenant, function () use ($coordinator): array {
@@ -49,7 +49,7 @@ beforeEach(function (): void {
 it('opens exams to examination officers and to teachers for their own classes', function (): void {
     $this->actingAs($this->officer)->get('/center/DMM/exams')->assertOk()->assertSee(['Tagalog class final', 'Urdu class final']);
     $this->actingAs($this->teacher)->get('/center/DMM/exams')->assertOk()->assertSee('Tagalog class final')->assertDontSee('Urdu class final');
-    $this->actingAs(withAuthenticator(grantRole(memberOf($this->tenant), 'registration_officer', $this->tenant)))->get('/center/DMM/exams')->assertForbidden();
+    $this->actingAs(grantRole(memberOf($this->tenant), 'registration_officer', $this->tenant))->get('/center/DMM/exams')->assertForbidden();
 });
 
 it('lets the teacher grade and the officer finalize from the exam page', function (): void {

@@ -15,7 +15,7 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     seedRbac();
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->staff = fn (string $role) => withAuthenticator(grantRole(memberOf($this->dammam), $role, $this->dammam));
+    $this->staff = fn (string $role) => grantRole(memberOf($this->dammam), $role, $this->dammam);
 });
 
 it('gives each office role the da\'i screens the matrix allows', function (string $role, int $list, int $create, int $workload): void {

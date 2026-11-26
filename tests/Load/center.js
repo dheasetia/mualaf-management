@@ -5,7 +5,7 @@
 //   TENANT=LOAD CONVERT_ID=123 k6 run tests/Load/center.js
 //
 // SESSION_COOKIE is copied from a signed-in browser session of a Center
-// Admin of the LOAD office (MFA done). Only GET requests are made.
+// Admin of the LOAD office. Only GET requests are made.
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 

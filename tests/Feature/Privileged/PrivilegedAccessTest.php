@@ -24,9 +24,9 @@ beforeEach(function (): void {
     Country::factory()->create(['iso2' => 'SA', 'iso3' => 'SAU']);
     $this->tenant = Tenant::factory()->active()->create(['code' => 'DMM']);
     $this->convert = documentsConvert($this->tenant);
-    $this->requester = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
-    $this->auditor = withAuthenticator(grantRole(User::factory()->create(), 'central_auditor'));
-    $this->superAdmin = withAuthenticator(grantRole(User::factory()->create(), 'super_admin'));
+    $this->requester = grantRole(User::factory()->create(), 'central_admin');
+    $this->auditor = grantRole(User::factory()->create(), 'central_auditor');
+    $this->superAdmin = grantRole(User::factory()->create(), 'super_admin');
     $this->access = fn (): PrivilegedAccess => app(PrivilegedAccess::class);
     $this->ask = fn (array $scopes = ['profile', 'identity'], int $minutes = 60, ?User $actor = null) => ($this->access)()->request(
         new IdentifierData(IdentityType::Iqamah, saudiId('277001122')), 'Ticket #42: duplicate record complaint', $scopes, $minutes, $actor ?? $this->requester,

@@ -77,16 +77,6 @@ function grantRole(User $user, string $roleCode, ?Tenant $tenant = null): User
     return $user;
 }
 
-/**
- * Enables an authenticator app, so panels that require MFA let the user in.
- */
-function withAuthenticator(User $user): User
-{
-    $user->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
-
-    return $user;
-}
-
 /** Livewire tests skip panel middleware: sign in and set what SetTenantContext would. */
 function inCenterPanel(Tenant $tenant, User $user): User
 {
@@ -129,8 +119,8 @@ function expectRuleViolation(Closure $action, string $field): void
 function transferSetup(Tenant $from, Tenant $to, string $iqamah): array
 {
     Country::query()->firstOrCreate(['iso2' => 'SA'], ['iso3' => 'SAU', 'name_ar' => 'السعودية', 'name_en' => 'Saudi Arabia']);
-    $fromHead = withAuthenticator(grantRole(memberOf($from), 'head_of_dawah', $from));
-    $toHead = withAuthenticator(grantRole(memberOf($to), 'head_of_dawah', $to));
+    $fromHead = grantRole(memberOf($from), 'head_of_dawah', $from);
+    $toHead = grantRole(memberOf($to), 'head_of_dawah', $to);
     $fromDai = inTenant($from, fn () => Dai::factory()->create(['user_id' => $fromHead->id]));
     $toDai = inTenant($to, fn () => Dai::factory()->create(['user_id' => $toHead->id]));
 

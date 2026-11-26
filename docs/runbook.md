@@ -95,7 +95,7 @@ Agregasi ulang manual: `php artisan reports:aggregate --date=2026-11-01` atau `-
 ## 9. Review akses (bulanan)
 
 1. Baca ringkasan `access.reviewed` di audit log, atau jalankan `php artisan access:review`.
-2. Di tiap kantor, Local Auditor membuka **Laporan → Review akses**: akun dengan role sensitif tanpa authenticator, dan akun tidak dipakai > 90 hari.
+2. Di tiap kantor, Local Auditor membuka **Laporan → Review akses**: akun tidak dipakai > 90 hari.
 3. Center Admin mencabut role yang tidak perlu dan menonaktifkan akun tak terpakai; catat tindakan di tiket.
 
 ## 10. Penanganan insiden
@@ -104,7 +104,7 @@ Agregasi ulang manual: `php artisan reports:aggregate --date=2026-11-01` atau `-
 | --- | --- |
 | Perlu melihat data satu convert dari pusat | **Central → Akses istimewa**: ajukan dengan alasan, scope, dan durasi minimal; penyetuju lain (Super Admin / Central Auditor) memutuskan; setiap pembukaan tercatat `privileged.viewed`. Cabut begitu selesai |
 | Dugaan kebocoran lintas kantor | Simpan bukti (request id `X-Request-Id`, audit log), nonaktifkan fitur terkait, jalankan `pest --group=tenant-isolation`, laporkan ke penanggung jawab data |
-| Akun diambil alih | Nonaktifkan akun, cabut sesi (ganti password memicu `AuthenticateSession`), reset MFA, tinjau audit akun 30 hari |
+| Akun diambil alih | Nonaktifkan akun, cabut sesi (ganti password memicu `AuthenticateSession`), tinjau audit akun 30 hari |
 | `document.infected` | Pastikan file sudah terhapus, beri tahu pengunggah, periksa unggahan lain dari akun yang sama |
 | Export bocor | File berumur ≤ 24 jam dan terenkripsi AES-256; minta penerima menghapus, catat `export.downloaded` |
 | Sertifikat palsu dilaporkan | Cek di `/verify`; bila sah tetapi disalahgunakan, cabut lewat panel (status `revoked` tampil di verifikasi) |

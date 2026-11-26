@@ -21,7 +21,6 @@ final class RoleFactory extends Factory
             'name_en' => 'Test role',
             'scope_type' => RoleScope::Tenant,
             'is_system' => false,
-            'requires_mfa' => false,
         ];
     }
 }

@@ -21,7 +21,7 @@ beforeEach(function (): void {
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
     $this->riyadh = Tenant::factory()->active()->create(['code' => 'RUH']);
     $this->registrar = grantRole(memberOf($this->dammam), 'registration_officer', $this->dammam);
-    $this->centralAdmin = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
+    $this->centralAdmin = grantRole(User::factory()->create(), 'central_admin');
     $this->national = Company::factory()->create(['name_ar' => 'شركة وطنية', 'registration_number' => '1010000001']);
     $this->save = fn (array $data, ?Company $company = null, ?Tenant $tenant = null) => inTenant($tenant ?? $this->dammam,
         fn () => app(SaveCompany::class)->handle($company, ['name_ar' => 'شركة الدمام', ...$data], $this->registrar));

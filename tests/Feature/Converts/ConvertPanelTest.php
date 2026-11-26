@@ -13,7 +13,7 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     seedRbac();
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->staff = fn (string $role): User => withAuthenticator(grantRole(memberOf($this->dammam), $role, $this->dammam));
+    $this->staff = fn (string $role): User => grantRole(memberOf($this->dammam), $role, $this->dammam);
     [$this->normal, $this->secret] = inTenant($this->dammam, fn (): array => [
         Convert::factory()->create(['full_name' => 'Normal Person']),
         Convert::factory()->create(['full_name' => 'Secret Person', 'disclosure_risk_level' => DisclosureLevel::HighConfidentiality]),

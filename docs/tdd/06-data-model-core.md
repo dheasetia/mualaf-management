@@ -60,7 +60,6 @@ tenant_settings
 users
   id pk · uuid uq · name · email uq · username? uq · phone_encrypted? enc
   password · email_verified_at? · is_active bool
-  mfa_secret? enc · mfa_recovery_codes? enc · mfa_confirmed_at?
   locale varchar(5) default 'ar' · last_login_at? · last_login_ip?
   remember_token?
 

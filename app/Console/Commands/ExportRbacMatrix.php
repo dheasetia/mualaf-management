@@ -53,26 +53,22 @@ final class ExportRbacMatrix extends Command
             '',
             '## Ringkasan role',
             '',
-            '| Kode | Role | Nama Arab | Scope | Wajib MFA | Jumlah permission |',
-            '| --- | --- | --- | --- | --- | --- |',
+            '| Kode | Role | Nama Arab | Scope | Jumlah permission |',
+            '| --- | --- | --- | --- | --- |',
         ];
 
         foreach ($roles as $code => $role) {
             $permissions = array_values(array_unique($role['permissions']));
             $lines[] = sprintf(
-                '| %s | %s | %s | %s | %s | %d |',
+                '| %s | %s | %s | %s | %d |',
                 self::SHORT[$code] ?? $code,
                 $role['name_en'],
                 $role['name_ar'],
                 $role['scope'] === RoleScope::Platform ? 'Platform' : 'Kantor',
-                RoleCatalog::requiresMfa($role['scope'], $permissions) ? 'Ya' : '–',
                 count($permissions),
             );
         }
 
-        $lines[] = '';
-        $lines[] = 'Role wajib MFA bila berscope platform, atau memegang permission dengan aksi: `'
-            .implode('`, `', PermissionCatalog::MFA_ACTIONS).'`.';
         $lines[] = '';
         $lines[] = '## Matriks per modul';
         $lines[] = '';

@@ -45,7 +45,7 @@ it('requests a transfer from the national search result, then accepts it from th
 });
 
 it('opens the transfers list to roles holding a transfer permission', function (string $role, int $status): void {
-    $this->actingAs(withAuthenticator(grantRole(memberOf($this->dammam), $role, $this->dammam)))
+    $this->actingAs(grantRole(memberOf($this->dammam), $role, $this->dammam))
         ->get('/center/DMM/convert-transfer-requests')
         ->assertStatus($status);
 })->with([

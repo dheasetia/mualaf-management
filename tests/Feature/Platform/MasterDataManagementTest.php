@@ -17,7 +17,7 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     seedRbac();
     Filament::setCurrentPanel(Filament::getPanel('central'));
-    $this->centralAdmin = withAuthenticator(grantRole(User::factory()->create(), 'central_admin'));
+    $this->centralAdmin = grantRole(User::factory()->create(), 'central_admin');
 });
 
 it('opens every master data screen for a central admin', function (string $path): void {
@@ -25,7 +25,7 @@ it('opens every master data screen for a central admin', function (string $path)
 })->with(['regions', 'cities', 'countries', 'languages', 'religions', 'budget-categories', 'dai-activity-types']);
 
 it('lets platform users without master.manage read but not change master data', function (): void {
-    $auditor = withAuthenticator(grantRole(User::factory()->create(), 'central_auditor'));
+    $auditor = grantRole(User::factory()->create(), 'central_auditor');
     $region = Region::factory()->create();
 
     $this->actingAs($auditor)->get('/central/regions')->assertOk()->assertSee($region->name_ar);

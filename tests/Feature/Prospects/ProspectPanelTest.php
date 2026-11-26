@@ -18,7 +18,7 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     seedRbac();
     $this->dammam = Tenant::factory()->active()->create(['code' => 'DMM']);
-    $this->staff = fn (string $role): User => withAuthenticator(grantRole(memberOf($this->dammam), $role, $this->dammam));
+    $this->staff = fn (string $role): User => grantRole(memberOf($this->dammam), $role, $this->dammam);
 
     $this->head = ($this->staff)('head_of_dawah');
     $this->daiUser = ($this->staff)('dai');

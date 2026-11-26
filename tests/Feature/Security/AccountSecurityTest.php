@@ -44,23 +44,23 @@ it('reports again for a browser not seen for a long time', function (): void {
     Notification::assertSentToTimes($user, NewDeviceLoginNotification::class, 2);
 });
 
-it('flags privileged accounts without an authenticator and unused accounts in the access review', function (): void {
+it('flags unused accounts in the access review', function (): void {
     $approver = grantRole(memberOf($this->tenant), 'approver', $this->tenant);
     $dai = grantRole(memberOf($this->tenant), 'dai', $this->tenant);
-    $secured = withAuthenticator(grantRole(memberOf($this->tenant), 'approver', $this->tenant));
+    $secured = grantRole(memberOf($this->tenant), 'approver', $this->tenant);
     User::query()->whereKey([$approver->id, $dai->id, $secured->id])->update(['last_login_at' => now()]);
     $this->travel(120)->days();
     User::query()->whereKey([$approver->id, $secured->id])->update(['last_login_at' => now()]);
 
     $rows = collect(app(AccessReview::class)->rows($this->tenant->id))->keyBy('user_id');
 
-    expect($rows[$approver->id])->missing_mfa->toBeTrue()->stale->toBeFalse()
-        ->and($rows[$dai->id])->missing_mfa->toBeFalse()->stale->toBeTrue()
-        ->and($rows[$secured->id])->missing_mfa->toBeFalse()->stale->toBeFalse();
+    expect($rows[$approver->id])->stale->toBeFalse()
+        ->and($rows[$dai->id])->stale->toBeTrue()
+        ->and($rows[$secured->id])->stale->toBeFalse();
 
     $this->artisan('access:review')->assertSuccessful();
     expect(AuditLog::query()->where('action', 'access.reviewed')->where('tenant_id', $this->tenant->id)->sole()->new_values_redacted)
-        ->toMatchArray(['accounts' => 3, 'missing_mfa' => 1, 'stale' => 1]);
+        ->toMatchArray(['accounts' => 3, 'stale' => 1]);
 });
 
 it('opens the access review page to audit.view_office only', function (): void {

@@ -18,14 +18,14 @@ beforeEach(function (): void {
 });
 
 it('shows a central auditor the entries of every office and of the platform', function (): void {
-    $this->actingAs(withAuthenticator(grantRole(User::factory()->create(), 'central_auditor')))
+    $this->actingAs(grantRole(User::factory()->create(), 'central_auditor'))
         ->get('/central/audit-logs')
         ->assertOk()
         ->assertSee(['probe.dammam', 'probe.riyadh', 'probe.platform']);
 });
 
 it('shows a local auditor only the entries of their own office', function (): void {
-    $this->actingAs(withAuthenticator(grantRole(memberOf($this->dammam, $this->riyadh), 'local_auditor', $this->dammam)))
+    $this->actingAs(grantRole(memberOf($this->dammam, $this->riyadh), 'local_auditor', $this->dammam))
         ->get('/center/DMM/audit-logs')
         ->assertOk()
         ->assertSee('probe.dammam')

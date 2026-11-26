@@ -13,8 +13,6 @@ use App\Domain\Tenancy\Models\UserTenantMembership;
 use App\Support\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
-use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
-use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
@@ -37,8 +35,6 @@ use Illuminate\Notifications\Notifiable;
  * @property string $name
  * @property string $email
  * @property bool $is_active
- * @property string|null $app_authentication_secret
- * @property list<string>|null $app_authentication_recovery_codes
  * @property CarbonImmutable|null $last_login_at
  * @property string|null $last_login_ip
  * @property string|null $phone_encrypted phone as +digits
@@ -46,7 +42,7 @@ use Illuminate\Notifications\Notifiable;
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token', 'phone_encrypted', 'app_authentication_secret', 'app_authentication_recovery_codes'])]
-class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasTenants
+class User extends Authenticatable implements FilamentUser, HasTenants
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasUuids, Notifiable;
@@ -137,35 +133,6 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         return $this->hasMany(UserTenantMembership::class);
     }
 
-    public function getAppAuthenticationSecret(): ?string
-    {
-        return $this->app_authentication_secret;
-    }
-
-    public function saveAppAuthenticationSecret(#[\SensitiveParameter] ?string $secret): void
-    {
-        $this->app_authentication_secret = $secret;
-        $this->save();
-    }
-
-    public function getAppAuthenticationHolderName(): string
-    {
-        return $this->email;
-    }
-
-    /** @return list<string>|null */
-    public function getAppAuthenticationRecoveryCodes(): ?array
-    {
-        return $this->app_authentication_recovery_codes;
-    }
-
-    /** @param  array<string>|null  $codes */
-    public function saveAppAuthenticationRecoveryCodes(#[\SensitiveParameter] ?array $codes): void
-    {
-        $this->app_authentication_recovery_codes = $codes === null ? null : array_values($codes);
-        $this->save();
-    }
-
     /**
      * Get the attributes that should be cast.
      *
@@ -178,8 +145,6 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             'password' => 'hashed',
             'is_active' => 'boolean',
             'phone_encrypted' => 'encrypted',
-            'app_authentication_secret' => 'encrypted',
-            'app_authentication_recovery_codes' => 'encrypted:array',
             'last_login_at' => 'immutable_datetime',
             'whatsapp_opt_in_at' => 'immutable_datetime',
         ];

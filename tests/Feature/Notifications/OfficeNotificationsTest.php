@@ -101,7 +101,7 @@ it('shows each office only its own notifications', function (): void {
 });
 
 it('shows the office\'s alerts in the panel bell', function (): void {
-    $verifier = withAuthenticator(grantRole(memberOf($this->dammam), 'shahadah_verifier', $this->dammam));
+    $verifier = grantRole(memberOf($this->dammam), 'shahadah_verifier', $this->dammam);
     documentsConvert($this->dammam, verified: false, identity: '288116677');
     inCenterPanel($this->dammam, $verifier);
 
