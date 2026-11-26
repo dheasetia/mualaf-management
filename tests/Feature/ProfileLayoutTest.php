@@ -18,9 +18,9 @@ it('shows the profile page inside the panel, with the sidebar', function (): voi
         ->assertOk()
         ->assertSee('fi-sidebar-nav', false);
 
-    // The user menu inside the office links there; the office-less page still works.
+    // The user menu inside the office links there, and the office-less page sends the user there.
     $this->actingAs($dai)->get('/center/DMM')->assertSee('/center/DMM/profile', false);
-    $this->actingAs($dai)->get('/center/profile')->assertOk();
+    $this->actingAs($dai)->get('/center/profile')->assertRedirect('/center/DMM/profile');
 
     expect(Filament::getPanel('central')->isProfilePageSimple())->toBeFalse();
 });

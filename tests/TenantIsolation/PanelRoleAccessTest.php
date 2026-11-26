@@ -25,8 +25,9 @@ it('sends office users with high-privilege roles to their profile to set up MFA'
     $approver = grantRole(memberOf($this->dammam), 'approver', $this->dammam);
 
     $this->actingAs($approver)->get('/center/DMM')->assertRedirect('/center/profile');
-    // The profile page itself stays reachable, so there is no redirect loop.
-    $this->actingAs($approver)->get('/center/profile')->assertOk();
+    // The profile opens inside the office and stays reachable, so there is no redirect loop.
+    $this->actingAs($approver)->get('/center/profile')->assertRedirect('/center/DMM/profile');
+    $this->actingAs($approver)->get('/center/DMM/profile')->assertOk();
 })->group('tenant-isolation');
 
 it('lets office users with ordinary roles in without MFA', function (): void {
