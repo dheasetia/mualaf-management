@@ -30,7 +30,7 @@
 | 24 | Long-term follow-up (selesai 23-11-2026) | 8 | Status follow-up append-only, jadwal dari template + saran otomatis (PRD §31), catatan, negara asal, consent, referral internasional berbasis consent, checklist pra-kepulangan, direktori organisasi (Central). Sisa: notifikasi ke Primary Da'i |
 | 25 | Reporting (selesai 23-11-2026) | 9 | Agregasi harian `reports:aggregate`, dashboard kantor (Center) dan nasional (Central) dari tabel agregat, export terenkripsi AES-256 24 jam. Import convert historis dengan duplicate check nasional per baris (24-11-2026). Sisa: read replica |
 | 26b | Privileged access / break-glass (selesai 23-11-2026) | 10 | Permintaan, persetujuan four-eyes, grant berwaktu, tampilan baca-saja ber-scope dengan audit per pembukaan, kedaluwarsa otomatis |
-| 26 | Security hardening (selesai 23-11-2026) | 10 | Header keamanan + CSP, log tanpa PII, scan ClamAV, notifikasi perangkat baru, review akses (halaman + `access:review`), sapuan IDOR otomatis, `LoadTestSeeder` + skrip k6, [runbook](../runbook.md). Sisa: pentest eksternal, eksekusi load test di staging, CSP tanpa `unsafe-eval`. Rotasi `APP_KEY`: `security:reencrypt` (tindak lanjut) |
+| 26 | Security hardening (selesai 23-11-2026) | 10 | Header keamanan + CSP, log tanpa PII, scan ClamAV, notifikasi perangkat baru, review akses (halaman + `access:review`), sapuan IDOR otomatis, `LoadTestSeeder` + skrip k6, [runbook](../runbook.md). Sisa: pentest eksternal, eksekusi load test di staging, CSP tanpa `unsafe-eval` (menunggu dukungan CSP di Filament; `unsafe-inline` script sudah diganti nonce 24-11-2026). Rotasi `APP_KEY`: `security:reencrypt` (tindak lanjut) |
 
 ## 16.2 Definition of Done per modul
 

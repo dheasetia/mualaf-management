@@ -45,7 +45,7 @@
                 </table>
             @endif
 
-            <x-filament::button class="print:hidden" onclick="window.print()" icon="heroicon-o-printer">{{ __('transport.sheet.print') }}</x-filament::button>
+            <x-filament::button class="print:hidden" x-on:click="window.print()" icon="heroicon-o-printer">{{ __('transport.sheet.print') }}</x-filament::button>
         </div>
     @endif
 </x-filament-panels::page>

@@ -26,3 +26,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 .env.testing
+
+# Published by `php artisan filament:upgrade` (composer post-autoload-dump)
+/public/css/filament
+/public/js/filament
+/public/fonts/filament
