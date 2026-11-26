@@ -8,7 +8,7 @@ use App\Domain\Notifications\Jobs\SendWhatsAppMessage;
 use App\Domain\Notifications\Models\IntegrationLog;
 use App\Domain\Notifications\Notifications\OfficeAlert;
 use App\Domain\Tenancy\Models\Tenant;
-use App\Filament\Auth\EditProfile;
+use App\Filament\Center\Pages\OfficeProfile;
 use App\Models\User;
 use Illuminate\Http\Client\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -90,12 +90,12 @@ it('lets users set their number and opt in on their profile', function (): void 
     $user = grantRole(memberOf($this->dammam), 'dai', $this->dammam);
     inCenterPanel($this->dammam, $user);
 
-    Livewire::test(EditProfile::class)
+    Livewire::test(OfficeProfile::class)
         ->fillForm(['whatsapp_opt_in' => true, 'phone' => ''])
         ->call('save')
         ->assertHasFormErrors(['phone']);
 
-    Livewire::test(EditProfile::class)
+    Livewire::test(OfficeProfile::class)
         ->fillForm(['phone' => '055 123 4567', 'whatsapp_opt_in' => true])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -105,8 +105,8 @@ it('lets users set their number and opt in on their profile', function (): void 
         ->and($user->receivesWhatsApp())->toBeTrue()
         ->and(AuditLog::query()->where('action', 'account.whatsapp_opt_in_changed')->sole()->new_values_redacted)->toBe(['opted_in' => true]);
 
-    Livewire::test(EditProfile::class)->fillForm(['whatsapp_opt_in' => false])->call('save')->assertHasNoFormErrors();
+    Livewire::test(OfficeProfile::class)->fillForm(['whatsapp_opt_in' => false])->call('save')->assertHasNoFormErrors();
     expect($user->refresh()->receivesWhatsApp())->toBeFalse();
 
-    Livewire::test(EditProfile::class)->fillForm(['phone' => '12'])->call('save')->assertHasErrors(['data.phone']);
+    Livewire::test(OfficeProfile::class)->fillForm(['phone' => '12'])->call('save')->assertHasErrors(['data.phone']);
 });
