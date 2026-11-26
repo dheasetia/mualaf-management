@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Tenancy\Models\Tenant;
+use Illuminate\Support\Facades\Vite;
 
 it('sends the security headers on web pages', function (): void {
     $response = $this->get('http://localhost/');
@@ -54,4 +55,22 @@ it('sends the nonced policy on signed-in panel pages, which carry no un-nonced s
         ->and($response->getContent())->toContain('nonce="'.$match[1].'"')
         ->not->toMatch('/<script(?![^>]*\bnonce=)(?![^>]*\bsrc=)[^>]*>/')
         ->not->toMatch('/<[^>]+\son[a-z]+\s*=/i');
+});
+
+it('allows the Vite dev server from the hot file, locally only', function (): void {
+    $hotFile = tempnam(sys_get_temp_dir(), 'hot');
+    file_put_contents($hotFile, 'https://muallaf-management.test:5173');
+    Vite::useHotFile($hotFile);
+
+    $productionPolicy = (string) $this->get('/center/login')->headers->get('Content-Security-Policy');
+
+    app()->detectEnvironment(fn (): string => 'local');
+    $localPolicy = (string) $this->get('/center/login')->headers->get('Content-Security-Policy');
+    unlink($hotFile);
+
+    expect($productionPolicy)->not->toContain(':5173')
+        ->and($localPolicy)->toContain("style-src 'self' 'unsafe-inline' ")
+        ->toContain('https://muallaf-management.test:5173')
+        ->toContain('wss://muallaf-management.test:5173')
+        ->toContain('http://localhost:5173');
 });
