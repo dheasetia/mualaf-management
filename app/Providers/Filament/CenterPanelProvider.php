@@ -18,6 +18,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -51,6 +52,7 @@ class CenterPanelProvider extends PanelProvider
             ->tenantMiddleware([
                 SetTenantContext::class,
             ], isPersistent: true)
+            ->navigationGroups(self::navigationGroups())
             ->discoverResources(in: app_path('Filament/Center/Resources'), for: 'App\Filament\Center\Resources')
             ->discoverPages(in: app_path('Filament/Center/Pages'), for: 'App\Filament\Center\Pages')
             ->pages([
@@ -77,5 +79,28 @@ class CenterPanelProvider extends PanelProvider
                 EnforceAbsoluteSessionLifetime::class,
                 RequireMfaForPrivilegedRoles::class,
             ]);
+    }
+
+    /**
+     * Sidebar group order. Labels are closures so they follow the request locale
+     * and match the groups the resources and pages declare.
+     *
+     * @return list<NavigationGroup>
+     */
+    private static function navigationGroups(): array
+    {
+        return array_map(
+            fn (string $key): NavigationGroup => NavigationGroup::make(fn (): string => __($key)),
+            [
+                'dawah.navigation_group',
+                'guidance.navigation_group',
+                'submissions.navigation_group',
+                'reports.navigation_group',
+                'transport.navigation_group',
+                'pilgrimage.navigation_group',
+                'international.navigation_group',
+                'audit.navigation_group',
+            ],
+        );
     }
 }
