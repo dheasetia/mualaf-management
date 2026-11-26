@@ -6,6 +6,7 @@ use App\Domain\Converts\Data\ConvertProfileData;
 use App\Domain\Converts\Data\IdentifierData;
 use App\Domain\Converts\Enums\IdentityType;
 use App\Domain\Converts\Models\Convert;
+use App\Domain\Dai\Enums\DaiStatus;
 use App\Domain\Dai\Models\Dai;
 use App\Domain\FollowUp\Enums\ScheduleStatus;
 use App\Domain\FollowUp\Models\ConvertFollowUpSchedule;
@@ -14,13 +15,19 @@ use App\Domain\Platform\Models\Country;
 use App\Domain\Registration\Actions\RecordShahadah;
 use App\Domain\Registration\Data\ShahadahRegistrationData;
 use App\Domain\Registration\Models\ConvertRegistration;
+use App\Domain\Reporting\Enums\Metric;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Filament\Center\Pages\Dashboard;
+use App\Filament\Center\Widgets\ActivityTrendChart;
 use App\Filament\Center\Widgets\AwaitingVerificationWidget;
 use App\Filament\Center\Widgets\MyFollowUpsWidget;
 use App\Filament\Center\Widgets\OfficeStatsWidget;
+use App\Filament\Center\Widgets\OperationsWidget;
+use App\Filament\Center\Widgets\ShahadahTrendChart;
+use App\Filament\Center\Widgets\YearSummaryWidget;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -107,4 +114,35 @@ it('shows office figures only to holders of reports.view_office', function (): v
     inCenterPanel($this->tenant, grantRole(memberOf($this->tenant), 'local_auditor', $this->tenant));
     expect(OfficeStatsWidget::canView())->toBeTrue();
     Livewire::test(OfficeStatsWidget::class)->assertSuccessful()->assertSee(__('dashboard.stats.converts_active'));
+});
+
+it('summarises the year and charts the trends from the daily aggregates, for report holders only', function (): void {
+    $today = CarbonImmutable::now((string) config('app.display_timezone'));
+    DB::table('report_daily_tenant_stats')->insert([
+        ['tenant_id' => $this->tenant->id, 'stat_date' => $today->startOfYear()->toDateString(), 'metric' => Metric::ShahadahVerified->value, 'value' => 7],
+        ['tenant_id' => $this->tenant->id, 'stat_date' => $today->toDateString(), 'metric' => Metric::ShahadahVerified->value, 'value' => 4],
+        ['tenant_id' => $this->tenant->id, 'stat_date' => $today->subYear()->toDateString(), 'metric' => Metric::ShahadahVerified->value, 'value' => 100],
+    ]);
+
+    inCenterPanel($this->tenant, grantRole(memberOf($this->tenant), 'dai', $this->tenant));
+    expect([YearSummaryWidget::canView(), ShahadahTrendChart::canView(), ActivityTrendChart::canView(), OperationsWidget::canView()])->each->toBeFalse();
+
+    inCenterPanel($this->tenant, grantRole(memberOf($this->tenant), 'local_auditor', $this->tenant));
+    Livewire::test(YearSummaryWidget::class)->assertSee('11')->assertSee(__('dashboard.year_summary.last_30_days', ['count' => '4']));
+    Livewire::test(ShahadahTrendChart::class)->assertSuccessful();
+    Livewire::test(ActivityTrendChart::class)->assertSuccessful();
+});
+
+it('counts work in progress in this office only', function (): void {
+    $other = Tenant::factory()->active()->create();
+    inTenant($this->tenant, fn () => Dai::factory()->count(2)->create());
+    inTenant($this->tenant, fn () => Dai::factory()->create(['status' => DaiStatus::Inactive]));
+    inTenant($other, fn () => Dai::factory()->count(5)->create());
+
+    inCenterPanel($this->tenant, grantRole(memberOf($this->tenant), 'local_auditor', $this->tenant));
+
+    $widget = Livewire::test(OperationsWidget::class)->assertSee(__('dashboard.operations.dais_active'))->instance();
+    $stats = (fn (): array => $this->getStats())->call($widget);
+
+    expect((string) $stats[0]->getValue())->toBe('2');
 });
