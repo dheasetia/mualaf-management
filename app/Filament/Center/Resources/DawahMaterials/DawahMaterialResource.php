@@ -22,6 +22,9 @@ final class DawahMaterialResource extends Resource
 
     protected static ?string $slug = 'dawah-materials';
 
+    /** MaterialScope already limits the list to national materials and this office's own. */
+    protected static bool $isScopedToTenant = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
     protected static ?int $navigationSort = 3;

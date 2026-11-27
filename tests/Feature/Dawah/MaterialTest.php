@@ -156,3 +156,16 @@ it('manages national materials from the Central panel', function (): void {
 
     expect(DawahMaterial::query()->sole())->tenant_id->toBeNull()->title->toBe('Prayer guide');
 });
+
+it('opens the center materials page with national and own materials only', function (): void {
+    $other = Tenant::factory()->active()->create();
+    DawahMaterial::factory()->create(['title' => 'National guide', 'tenant_id' => null]);
+    ($this->in)(fn () => DawahMaterial::factory()->create(['title' => 'Own leaflet', 'tenant_id' => $this->tenant->id]));
+    inTenant($other, fn () => DawahMaterial::factory()->create(['title' => 'Other office leaflet', 'tenant_id' => $other->id]));
+
+    $this->actingAs($this->daiUser)->get('/center/'.$this->tenant->code.'/dawah-materials')
+        ->assertOk()
+        ->assertSee('National guide')
+        ->assertSee('Own leaflet')
+        ->assertDontSee('Other office leaflet');
+});
