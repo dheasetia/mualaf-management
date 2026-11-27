@@ -31,7 +31,7 @@ final class CompanySchema
     public static function form(): array
     {
         return [
-            Section::make(__('companies.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('name_ar')->label(__('companies.fields.name_ar'))->required()->maxLength(255)->extraInputAttributes(['dir' => 'rtl']),
                     TextInput::make('name_en')->label(__('companies.fields.name_en'))->maxLength(255)->extraInputAttributes(['dir' => 'ltr']),

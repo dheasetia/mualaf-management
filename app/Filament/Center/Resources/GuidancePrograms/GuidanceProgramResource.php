@@ -69,7 +69,7 @@ final class GuidanceProgramResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('guidance.programs.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('code')->label(__('guidance.fields.code'))->required()->maxLength(30),
                     TextInput::make('name_ar')->label(__('guidance.fields.name_ar'))->required()->maxLength(255),

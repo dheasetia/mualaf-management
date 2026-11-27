@@ -60,7 +60,7 @@ final class SubmissionTypeResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('submissions.types.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('code')->label(__('submissions.fields.code'))->required()->maxLength(40)
                         ->disabled(fn (?SubmissionType $record): bool => $record !== null && app(ManageSubmissionTypes::class)->isInUse($record))->dehydrated(),

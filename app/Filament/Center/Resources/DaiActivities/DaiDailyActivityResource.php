@@ -81,7 +81,7 @@ final class DaiDailyActivityResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('dawah.activities.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     DatePicker::make('activity_date')->label(__('dawah.fields.activity_date'))->required()->default(now()->toDateString()),
                     Select::make('activity_type_id')->label(__('dawah.fields.activity_type'))->required()->searchable()

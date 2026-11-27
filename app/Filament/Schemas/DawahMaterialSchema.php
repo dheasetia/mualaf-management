@@ -44,7 +44,7 @@ final class DawahMaterialSchema
     public static function form(): array
     {
         return [
-            Section::make(__('dawah.materials.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('title')->label(__('dawah.material_fields.title'))->required()->maxLength(255),
                     TextInput::make('title_ar')->label(__('dawah.material_fields.title_ar'))->maxLength(255),

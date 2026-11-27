@@ -56,7 +56,7 @@ final class VehicleResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('transport.vehicles.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.vehicle'))->columns(2)->schema([
                     TextInput::make('vehicle_number')->label(__('transport.fields.vehicle_number'))->required()->maxLength(30),
                     TextInput::make('plate_number')->label(__('transport.fields.plate_number'))->required()->maxLength(20),

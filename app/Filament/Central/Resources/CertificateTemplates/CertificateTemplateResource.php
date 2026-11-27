@@ -66,7 +66,7 @@ final class CertificateTemplateResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('certificates.templates.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('template_code')->label(__('certificates.fields.template_code'))->required()->maxLength(40),
                     TextInput::make('name')->label(__('certificates.fields.name'))->required()->maxLength(255),

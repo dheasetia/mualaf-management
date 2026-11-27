@@ -66,7 +66,7 @@ final class DocumentTemplateResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('documents.templates.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('template_code')->label(__('documents.fields.template_code'))->required()->maxLength(40),
                     TextInput::make('name_ar')->label(__('documents.fields.name'))->required()->maxLength(255),

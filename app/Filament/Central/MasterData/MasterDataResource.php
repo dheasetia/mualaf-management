@@ -59,7 +59,7 @@ abstract class MasterDataResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(static::getModelLabel())->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     ...static::codeComponents(),
                     TextInput::make('name_ar')->label(__('platform.fields.name_ar'))

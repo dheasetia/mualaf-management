@@ -56,7 +56,7 @@ final class DriverResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('transport.drivers.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('name')->label(__('transport.fields.name'))->required()->maxLength(255),
                     TextInput::make('phone')->label(__('transport.fields.phone'))->tel()->required()->maxLength(30),

@@ -63,7 +63,7 @@ final class ExternalOrganizationResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make(__('international.organizations.model'))->columnSpanFull()->schema([
+            Section::make()->columnSpanFull()->schema([
                 Fieldset::make(__('forms.basic'))->columns(2)->schema([
                     TextInput::make('organization_name')->label(__('international.fields.organization_name'))->required()->maxLength(255),
                     Select::make('organization_type')->label(__('international.fields.organization_type'))->required()
