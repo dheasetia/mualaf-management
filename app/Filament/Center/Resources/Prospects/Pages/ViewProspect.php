@@ -31,6 +31,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 
 /**
  * @property Prospect $record
@@ -51,22 +53,28 @@ final class ViewProspect extends ViewRecord
                 ->icon('heroicon-o-chat-bubble-left-right')
                 ->authorize(fn (): bool => auth()->user()?->can('recordFollowUp', $this->record) ?? false)
                 ->schema([
-                    Select::make('follow_up_type')->label(__('prospects.fields.follow_up_type'))->required()
-                        ->options(self::options(FollowUpType::cases())),
-                    Select::make('contact_method')->label(__('prospects.fields.contact_method'))->required()
-                        ->options(self::options(ContactMethod::cases())),
-                    DateTimePicker::make('occurred_at')->label(__('prospects.fields.occurred_at'))->required()
-                        ->timezone($timezone)->default(now())->maxDate(now()->addMinutes(5)),
-                    TextInput::make('duration_minutes')->label(__('prospects.fields.duration_minutes'))->integer()->minValue(1)->maxValue(1440),
-                    TextInput::make('location')->label(__('prospects.fields.location'))->maxLength(255),
-                    Textarea::make('summary')->label(__('prospects.fields.summary'))->required()->maxLength(5000),
-                    Textarea::make('questions_raised')->label(__('prospects.fields.questions_raised'))->maxLength(5000),
-                    TextInput::make('outcome')->label(__('prospects.fields.outcome'))->maxLength(255),
-                    TextInput::make('next_action')->label(__('prospects.fields.next_action'))->maxLength(255),
-                    DateTimePicker::make('next_follow_up_at')->label(__('prospects.fields.next_follow_up_at'))
-                        ->timezone($timezone)->after('occurred_at'),
-                    Select::make('confidentiality_level')->label(__('prospects.fields.confidentiality_level'))->required()
-                        ->options(self::options(Confidentiality::cases()))->default(Confidentiality::Normal->value),
+                    Section::make()->columnSpanFull()->schema([
+                        Fieldset::make(__('forms.details'))->columns(2)->schema([
+                            Select::make('follow_up_type')->label(__('prospects.fields.follow_up_type'))->required()
+                                ->options(self::options(FollowUpType::cases())),
+                            Select::make('contact_method')->label(__('prospects.fields.contact_method'))->required()
+                                ->options(self::options(ContactMethod::cases())),
+                            DateTimePicker::make('occurred_at')->label(__('prospects.fields.occurred_at'))->required()
+                                ->timezone($timezone)->default(now())->maxDate(now()->addMinutes(5)),
+                            TextInput::make('duration_minutes')->label(__('prospects.fields.duration_minutes'))->integer()->minValue(1)->maxValue(1440),
+                            TextInput::make('location')->label(__('prospects.fields.location'))->maxLength(255),
+                            Select::make('confidentiality_level')->label(__('prospects.fields.confidentiality_level'))->required()
+                                ->options(self::options(Confidentiality::cases()))->default(Confidentiality::Normal->value),
+                        ]),
+                        Fieldset::make(__('forms.result'))->columns(2)->schema([
+                            Textarea::make('summary')->label(__('prospects.fields.summary'))->required()->maxLength(5000),
+                            Textarea::make('questions_raised')->label(__('prospects.fields.questions_raised'))->maxLength(5000),
+                            TextInput::make('outcome')->label(__('prospects.fields.outcome'))->maxLength(255),
+                            TextInput::make('next_action')->label(__('prospects.fields.next_action'))->maxLength(255),
+                            DateTimePicker::make('next_follow_up_at')->label(__('prospects.fields.next_follow_up_at'))
+                                ->timezone($timezone)->after('occurred_at'),
+                        ]),
+                    ]),
                 ])
                 ->action($this->run(fn (array $data) => app(RecordProspectFollowUp::class)
                     ->handle($this->record, FollowUpData::fromForm($data), $this->actor()), 'prospects.notifications.follow_up_recorded')),

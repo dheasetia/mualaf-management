@@ -21,6 +21,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -69,17 +71,27 @@ final class FollowUpStatusesRelationManager extends RelationManager
                 Action::make('recordStatus')->label(__('followup.actions.record_status'))
                     ->visible(fn (): bool => $convert instanceof Convert && (auth()->user()?->can('recordFollowUp', $convert) ?? false))
                     ->schema([
-                        Select::make('status')->label(__('followup.fields.status'))->required()->options(collect(FollowUpState::cases())->mapWithKeys(fn (FollowUpState $case): array => [$case->value => $case->label()])->all()),
-                        Select::make('follow_up_priority')->label(__('followup.fields.priority'))->required()->default(Priority::Normal->value)->options(collect(Priority::cases())->mapWithKeys(fn (Priority $case): array => [$case->value => $case->label()])->all()),
-                        DateTimePicker::make('last_contact_at')->label(__('followup.fields.last_contact_at'))->seconds(false),
-                        TextInput::make('last_contact_method')->label(__('followup.fields.last_contact_method'))->maxLength(30),
-                        Select::make('last_known_country_id')->label(__('followup.fields.last_known_country'))->searchable()
-                            ->options(fn (): array => LocalizedName::options(Country::query())),
-                        TextInput::make('last_known_city')->label(__('followup.fields.last_known_city'))->maxLength(255),
-                        Select::make('islamic_activity_status')->label(__('followup.fields.islamic_activity_status'))->options(collect(ActivityLevel::cases())->mapWithKeys(fn (ActivityLevel $case): array => [$case->value => $case->label()])->all()),
-                        Select::make('community_connection_status')->label(__('followup.fields.community_connection_status'))->options(collect(CommunityConnection::cases())->mapWithKeys(fn (CommunityConnection $case): array => [$case->value => $case->label()])->all()),
-                        DateTimePicker::make('next_follow_up_at')->label(__('followup.fields.next_follow_up_at'))->seconds(false),
-                        Textarea::make('notes')->label(__('followup.fields.notes'))->maxLength(2000),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.status'))->columns(2)->schema([
+                                Select::make('status')->label(__('followup.fields.status'))->required()->options(collect(FollowUpState::cases())->mapWithKeys(fn (FollowUpState $case): array => [$case->value => $case->label()])->all()),
+                                Select::make('follow_up_priority')->label(__('followup.fields.priority'))->required()->default(Priority::Normal->value)->options(collect(Priority::cases())->mapWithKeys(fn (Priority $case): array => [$case->value => $case->label()])->all()),
+                                Select::make('islamic_activity_status')->label(__('followup.fields.islamic_activity_status'))->options(collect(ActivityLevel::cases())->mapWithKeys(fn (ActivityLevel $case): array => [$case->value => $case->label()])->all()),
+                                Select::make('community_connection_status')->label(__('followup.fields.community_connection_status'))->options(collect(CommunityConnection::cases())->mapWithKeys(fn (CommunityConnection $case): array => [$case->value => $case->label()])->all()),
+                            ]),
+                            Fieldset::make(__('forms.contact'))->columns(2)->schema([
+                                DateTimePicker::make('last_contact_at')->label(__('followup.fields.last_contact_at'))->seconds(false),
+                                TextInput::make('last_contact_method')->label(__('followup.fields.last_contact_method'))->maxLength(30),
+                                DateTimePicker::make('next_follow_up_at')->label(__('followup.fields.next_follow_up_at'))->seconds(false),
+                            ]),
+                            Fieldset::make(__('forms.location'))->columns(2)->schema([
+                                Select::make('last_known_country_id')->label(__('followup.fields.last_known_country'))->searchable()
+                                    ->options(fn (): array => LocalizedName::options(Country::query())),
+                                TextInput::make('last_known_city')->label(__('followup.fields.last_known_city'))->maxLength(255),
+                            ]),
+                            Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                                Textarea::make('notes')->label(__('followup.fields.notes'))->maxLength(2000),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $record, array $data, User $user) => app(RecordFollowUpStatus::class)
                         ->handle($convert instanceof Convert ? $convert : abort(404), $data, $user), 'followup.notifications.saved')),

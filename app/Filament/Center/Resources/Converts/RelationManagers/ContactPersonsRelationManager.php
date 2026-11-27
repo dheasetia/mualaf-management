@@ -18,6 +18,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -40,23 +42,33 @@ final class ContactPersonsRelationManager extends LocationRelationManager
 
     public function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('name')->label(__('converts.locations.name'))->required()->maxLength(255),
-            TextInput::make('position')->label(__('converts.locations.position'))->maxLength(255),
-            Select::make('contact_role')->label(__('converts.locations.contact_role'))->required()
-                ->options(collect(ContactRole::cases())->mapWithKeys(fn (ContactRole $case): array => [$case->value => $case->label()])->all()),
-            Select::make('company_id')->label(__('converts.locations.company'))->searchable()
-                ->options(fn (): array => LocalizedName::options(Company::query())),
-            TextInput::make('phone_encrypted')->label(__('converts.locations.phone'))->tel()->maxLength(30),
-            TextInput::make('alternate_phone_encrypted')->label(__('converts.locations.alternate_phone'))->tel()->maxLength(30),
-            TextInput::make('email')->label(__('converts.locations.email'))->email()->maxLength(255),
-            Select::make('preferred_language_id')->label(__('converts.locations.preferred_language'))->searchable()
-                ->options(fn (): array => LocalizedName::options(Language::query())),
-            Toggle::make('permission_to_contact')->label(__('converts.locations.permission_to_contact')),
-            Select::make('disclosure_scope')->label(__('converts.locations.disclosure_scope'))->required()
-                ->options(collect(DisclosureScope::cases())->mapWithKeys(fn (DisclosureScope $case): array => [$case->value => $case->label()])->all())->default(DisclosureScope::None->value),
-            Toggle::make('is_primary')->label(__('converts.locations.is_primary')),
-            Textarea::make('notes')->label(__('converts.locations.notes'))->maxLength(2000)->columnSpanFull(),
+        return $schema->components([
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('name')->label(__('converts.locations.name'))->required()->maxLength(255),
+                    TextInput::make('position')->label(__('converts.locations.position'))->maxLength(255),
+                    Select::make('contact_role')->label(__('converts.locations.contact_role'))->required()
+                        ->options(collect(ContactRole::cases())->mapWithKeys(fn (ContactRole $case): array => [$case->value => $case->label()])->all()),
+                    Select::make('company_id')->label(__('converts.locations.company'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(Company::query())),
+                ]),
+                Fieldset::make(__('forms.contact'))->columns(2)->schema([
+                    TextInput::make('phone_encrypted')->label(__('converts.locations.phone'))->tel()->maxLength(30),
+                    TextInput::make('alternate_phone_encrypted')->label(__('converts.locations.alternate_phone'))->tel()->maxLength(30),
+                    TextInput::make('email')->label(__('converts.locations.email'))->email()->maxLength(255),
+                    Select::make('preferred_language_id')->label(__('converts.locations.preferred_language'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(Language::query())),
+                ]),
+                Fieldset::make(__('forms.consent'))->columns(2)->schema([
+                    Toggle::make('permission_to_contact')->label(__('converts.locations.permission_to_contact')),
+                    Select::make('disclosure_scope')->label(__('converts.locations.disclosure_scope'))->required()
+                        ->options(collect(DisclosureScope::cases())->mapWithKeys(fn (DisclosureScope $case): array => [$case->value => $case->label()])->all())->default(DisclosureScope::None->value),
+                    Toggle::make('is_primary')->label(__('converts.locations.is_primary')),
+                ]),
+                Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                    Textarea::make('notes')->label(__('converts.locations.notes'))->maxLength(2000)->columnSpanFull(),
+                ]),
+            ]),
         ]);
     }
 

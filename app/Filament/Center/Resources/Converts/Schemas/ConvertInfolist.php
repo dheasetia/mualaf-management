@@ -24,6 +24,7 @@ use App\Support\Localization\LocalizedName;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -38,18 +39,20 @@ final class ConvertInfolist
         $timezone = (string) config('app.display_timezone');
 
         return $schema->columns(2)->components([
-            Section::make(__('converts.sections.profile'))->columns(2)->columnSpanFull()->schema([
-                TextEntry::make('display_name')->label(__('converts.fields.display_name'))
-                    ->state(fn (Convert $record): string => self::access()?->displayName(self::user(), $record) ?? $record->alias()),
-                TextEntry::make('status')->label(__('converts.fields.status'))->badge()
-                    ->formatStateUsing(fn (ConvertStatus $state): string => $state->label())
-                    ->color(fn (ConvertStatus $state): string => $state->color()),
-                TextEntry::make('disclosure_risk_level')->label(__('converts.fields.disclosure_risk_level'))->badge()
-                    ->formatStateUsing(fn (DisclosureLevel $state): string => $state->label())
-                    ->color(fn (DisclosureLevel $state): string => $state->color()),
-                TextEntry::make('primary_dai_id')->label(__('converts.fields.primary_dai'))
-                    ->formatStateUsing(fn (int $state): string => app(DaiDirectory::class)->names([$state])[$state] ?? '—'),
-                ...array_map(fn ($entry) => $entry->visible(fn (Convert $record): bool => self::full($record)), [
+            Section::make(__('converts.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.status'))->columns(2)->schema([
+                    TextEntry::make('display_name')->label(__('converts.fields.display_name'))
+                        ->state(fn (Convert $record): string => self::access()?->displayName(self::user(), $record) ?? $record->alias()),
+                    TextEntry::make('status')->label(__('converts.fields.status'))->badge()
+                        ->formatStateUsing(fn (ConvertStatus $state): string => $state->label())
+                        ->color(fn (ConvertStatus $state): string => $state->color()),
+                    TextEntry::make('disclosure_risk_level')->label(__('converts.fields.disclosure_risk_level'))->badge()
+                        ->formatStateUsing(fn (DisclosureLevel $state): string => $state->label())
+                        ->color(fn (DisclosureLevel $state): string => $state->color()),
+                    TextEntry::make('primary_dai_id')->label(__('converts.fields.primary_dai'))
+                        ->formatStateUsing(fn (int $state): string => app(DaiDirectory::class)->names([$state])[$state] ?? '—'),
+                ]),
+                Fieldset::make(__('converts.sections.profile'))->columns(2)->visible(fn (Convert $record): bool => self::full($record))->schema([
                     TextEntry::make('name_ar')->label(__('converts.fields.name_ar'))->placeholder('—'),
                     TextEntry::make('islamic_name')->label(__('converts.fields.islamic_name'))->placeholder('—'),
                     TextEntry::make('previous_name')->label(__('converts.fields.previous_name'))->placeholder('—'),
@@ -59,41 +62,41 @@ final class ConvertInfolist
                     TextEntry::make('nationality.'.LocalizedName::column())->label(__('converts.fields.nationality')),
                     TextEntry::make('nativeLanguage.'.LocalizedName::column())->label(__('converts.fields.native_language'))->placeholder('—'),
                 ]),
+                Fieldset::make(__('converts.sections.sensitive'))->columns(2)
+                    ->visible(fn (Convert $record): bool => self::access()?->canSeeSensitive(self::user(), $record) ?? false)
+                    ->schema([
+                        TextEntry::make('previousReligion.'.LocalizedName::column())->label(__('converts.fields.previous_religion'))->placeholder('—'),
+                        TextEntry::make('previous_religion_other')->label(__('converts.fields.previous_religion_other'))->placeholder('—'),
+                    ]),
+                Fieldset::make(__('converts.sections.identifiers'))->columns(1)
+                    ->visible(fn (Convert $record): bool => self::full($record))
+                    ->schema([
+                        RepeatableEntry::make('identifiers_list')->hiddenLabel()->columns(4)
+                            ->state(fn (Convert $record): array => $record->identifiers()->whereNull('replaced_at')->with('issuingCountry')->get()->all())
+                            ->schema([
+                                TextEntry::make('identity_type')->label(__('converts.fields.identity_type'))
+                                    ->formatStateUsing(fn (IdentityType $state): string => $state->label()),
+                                TextEntry::make('masked')->label(__('converts.fields.identity_number'))
+                                    ->state(fn (ConvertIdentifier $record): string => $record->masked())->fontFamily('mono'),
+                                TextEntry::make('issuingCountry.'.LocalizedName::column())->label(__('converts.fields.issuing_country')),
+                                IconEntry::make('is_primary')->label(__('converts.fields.is_primary'))->boolean(),
+                            ]),
+                    ]),
+                Fieldset::make(__('converts.sections.contacts'))->columns(1)
+                    ->visible(fn (Convert $record): bool => self::user()->can('viewContacts', $record))
+                    ->schema([
+                        RepeatableEntry::make('contacts_list')->hiddenLabel()->columns(3)
+                            ->state(fn (Convert $record): array => $record->contacts()->where('active', true)->get()->all())
+                            ->schema([
+                                TextEntry::make('contact_type')->label(__('converts.fields.contact_type'))
+                                    ->formatStateUsing(fn (ContactType $state): string => $state->label()),
+                                TextEntry::make('value')->label(__('converts.fields.value'))
+                                    ->state(fn (ConvertContact $record): string => $record->value_encrypted)
+                                    ->extraAttributes(['dir' => 'ltr']),
+                                IconEntry::make('is_primary')->label(__('converts.fields.is_primary'))->boolean(),
+                            ]),
+                    ]),
             ]),
-            Section::make(__('converts.sections.sensitive'))->columns(2)->columnSpanFull()
-                ->visible(fn (Convert $record): bool => self::access()?->canSeeSensitive(self::user(), $record) ?? false)
-                ->schema([
-                    TextEntry::make('previousReligion.'.LocalizedName::column())->label(__('converts.fields.previous_religion'))->placeholder('—'),
-                    TextEntry::make('previous_religion_other')->label(__('converts.fields.previous_religion_other'))->placeholder('—'),
-                ]),
-            Section::make(__('converts.sections.identifiers'))->columnSpanFull()
-                ->visible(fn (Convert $record): bool => self::full($record))
-                ->schema([
-                    RepeatableEntry::make('identifiers_list')->hiddenLabel()->columns(4)
-                        ->state(fn (Convert $record): array => $record->identifiers()->whereNull('replaced_at')->with('issuingCountry')->get()->all())
-                        ->schema([
-                            TextEntry::make('identity_type')->label(__('converts.fields.identity_type'))
-                                ->formatStateUsing(fn (IdentityType $state): string => $state->label()),
-                            TextEntry::make('masked')->label(__('converts.fields.identity_number'))
-                                ->state(fn (ConvertIdentifier $record): string => $record->masked())->fontFamily('mono'),
-                            TextEntry::make('issuingCountry.'.LocalizedName::column())->label(__('converts.fields.issuing_country')),
-                            IconEntry::make('is_primary')->label(__('converts.fields.is_primary'))->boolean(),
-                        ]),
-                ]),
-            Section::make(__('converts.sections.contacts'))->columnSpanFull()
-                ->visible(fn (Convert $record): bool => self::user()->can('viewContacts', $record))
-                ->schema([
-                    RepeatableEntry::make('contacts_list')->hiddenLabel()->columns(3)
-                        ->state(fn (Convert $record): array => $record->contacts()->where('active', true)->get()->all())
-                        ->schema([
-                            TextEntry::make('contact_type')->label(__('converts.fields.contact_type'))
-                                ->formatStateUsing(fn (ContactType $state): string => $state->label()),
-                            TextEntry::make('value')->label(__('converts.fields.value'))
-                                ->state(fn (ConvertContact $record): string => $record->value_encrypted)
-                                ->extraAttributes(['dir' => 'ltr']),
-                            IconEntry::make('is_primary')->label(__('converts.fields.is_primary'))->boolean(),
-                        ]),
-                ]),
             Section::make(__('prospects.sections.follow_ups'))->columnSpanFull()
                 ->visible(fn (Convert $record): bool => self::user()->can('viewFollowUps', $record))
                 ->schema([

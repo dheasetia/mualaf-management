@@ -24,6 +24,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -60,21 +62,31 @@ final class LongTermFollowUpsRelationManager extends RelationManager
     public static function contactForm(): array
     {
         return [
-            DateTimePicker::make('follow_up_at')->label(__('followup.fields.follow_up_at'))->seconds(false)->default(now()),
-            Select::make('contact_method')->label(__('followup.fields.contact_method'))->required()->options(collect(ContactMethod::cases())->mapWithKeys(fn (ContactMethod $case): array => [$case->value => $case->label()])->all()),
-            Select::make('contacted_person_type')->label(__('followup.fields.contacted_person_type'))->required()->default(ContactedPerson::Convert->value)->options(collect(ContactedPerson::cases())->mapWithKeys(fn (ContactedPerson $case): array => [$case->value => $case->label()])->all()),
-            Select::make('contact_result')->label(__('followup.fields.contact_result'))->required()->options(collect(ContactResult::cases())->mapWithKeys(fn (ContactResult $case): array => [$case->value => $case->label()])->all()),
-            Select::make('current_country_id')->label(__('followup.fields.current_country'))->searchable()
-                ->options(fn (): array => LocalizedName::options(Country::query())),
-            TextInput::make('current_city')->label(__('followup.fields.current_city'))->maxLength(255),
-            TextInput::make('mosque_or_center_name')->label(__('followup.fields.mosque_or_center_name'))->maxLength(255),
-            TextInput::make('local_dai_name')->label(__('followup.fields.local_dai_name'))->maxLength(255),
-            Textarea::make('support_needed')->label(__('followup.fields.support_needed'))->maxLength(2000),
-            Textarea::make('next_action')->label(__('followup.fields.next_action'))->maxLength(2000),
-            DateTimePicker::make('next_follow_up_at')->label(__('followup.fields.next_follow_up_at'))->seconds(false)->after('now'),
-            Select::make('confidentiality_level')->label(__('followup.fields.confidentiality_level'))->required()->default(Confidentiality::Normal->value)
-                ->options(collect(Confidentiality::cases())->mapWithKeys(fn (Confidentiality $case): array => [$case->value => $case->label()])->all()),
-            Textarea::make('notes')->label(__('followup.fields.notes'))->maxLength(5000),
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.details'))->columns(2)->schema([
+                    DateTimePicker::make('follow_up_at')->label(__('followup.fields.follow_up_at'))->seconds(false)->default(now()),
+                    Select::make('contact_method')->label(__('followup.fields.contact_method'))->required()->options(collect(ContactMethod::cases())->mapWithKeys(fn (ContactMethod $case): array => [$case->value => $case->label()])->all()),
+                    Select::make('contacted_person_type')->label(__('followup.fields.contacted_person_type'))->required()->default(ContactedPerson::Convert->value)->options(collect(ContactedPerson::cases())->mapWithKeys(fn (ContactedPerson $case): array => [$case->value => $case->label()])->all()),
+                    Select::make('contact_result')->label(__('followup.fields.contact_result'))->required()->options(collect(ContactResult::cases())->mapWithKeys(fn (ContactResult $case): array => [$case->value => $case->label()])->all()),
+                    Select::make('confidentiality_level')->label(__('followup.fields.confidentiality_level'))->required()->default(Confidentiality::Normal->value)
+                        ->options(collect(Confidentiality::cases())->mapWithKeys(fn (Confidentiality $case): array => [$case->value => $case->label()])->all()),
+                ]),
+                Fieldset::make(__('forms.location'))->columns(2)->schema([
+                    Select::make('current_country_id')->label(__('followup.fields.current_country'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(Country::query())),
+                    TextInput::make('current_city')->label(__('followup.fields.current_city'))->maxLength(255),
+                    TextInput::make('mosque_or_center_name')->label(__('followup.fields.mosque_or_center_name'))->maxLength(255),
+                    TextInput::make('local_dai_name')->label(__('followup.fields.local_dai_name'))->maxLength(255),
+                ]),
+                Fieldset::make(__('forms.result'))->columns(2)->schema([
+                    Textarea::make('support_needed')->label(__('followup.fields.support_needed'))->maxLength(2000),
+                    Textarea::make('next_action')->label(__('followup.fields.next_action'))->maxLength(2000),
+                    DateTimePicker::make('next_follow_up_at')->label(__('followup.fields.next_follow_up_at'))->seconds(false)->after('now'),
+                ]),
+                Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                    Textarea::make('notes')->label(__('followup.fields.notes'))->maxLength(5000),
+                ]),
+            ]),
         ];
     }
 

@@ -23,6 +23,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -84,23 +86,31 @@ final class PickupResource extends Resource
             ->headerActions([
                 Action::make('requestPickup')->label(__('transport.actions.request_pickup'))->visible(fn (): bool => $can('transport.request'))
                     ->schema([
-                        Select::make('convert_id')->label(__('transport.fields.convert'))->required()->searchable()->live()
-                            ->options(fn (): array => ($u = $user()) === null ? [] : app(ConvertAccess::class)->visible(Convert::query(), $u)->orderBy('full_name')->limit(500)->get()
-                                ->mapWithKeys(fn (Convert $convert): array => [$convert->id => app(ConvertAccess::class)->displayName($u, $convert)])->all()),
-                        Select::make('pickup_location_type')->label(__('transport.fields.pickup_location_type'))->required()->live()->options(collect(PickupLocationType::cases())->mapWithKeys(fn (PickupLocationType $case): array => [$case->value => $case->label()])->all()),
-                        Select::make('residence_id')->label(__('transport.fields.residence'))->required()
-                            ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Residence->value)
-                            ->options(fn (Get $get): array => blank($get('convert_id')) ? [] : app(PickupDirectory::class)->residenceOptions((int) $get('convert_id'))),
-                        TextInput::make('pickup_address')->label(__('transport.fields.pickup_address'))->maxLength(500)
-                            ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Custom->value),
-                        TextInput::make('latitude')->label(__('transport.fields.latitude'))->numeric()->minValue(-90)->maxValue(90)
-                            ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Custom->value),
-                        TextInput::make('longitude')->label(__('transport.fields.longitude'))->numeric()->minValue(-180)->maxValue(180)
-                            ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Custom->value),
-                        Select::make('contact_person_id')->label(__('transport.fields.contact_person'))
-                            ->options(fn (Get $get): array => blank($get('convert_id')) ? [] : app(PickupDirectory::class)->contactOptions((int) $get('convert_id'))),
-                        DateTimePicker::make('pickup_at')->label(__('transport.fields.pickup_at'))->required()->seconds(false),
-                        TextInput::make('notes')->label(__('transport.fields.notes'))->maxLength(1000),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                                Select::make('convert_id')->label(__('transport.fields.convert'))->required()->searchable()->live()
+                                    ->options(fn (): array => ($u = $user()) === null ? [] : app(ConvertAccess::class)->visible(Convert::query(), $u)->orderBy('full_name')->limit(500)->get()
+                                        ->mapWithKeys(fn (Convert $convert): array => [$convert->id => app(ConvertAccess::class)->displayName($u, $convert)])->all()),
+                                Select::make('contact_person_id')->label(__('transport.fields.contact_person'))
+                                    ->options(fn (Get $get): array => blank($get('convert_id')) ? [] : app(PickupDirectory::class)->contactOptions((int) $get('convert_id'))),
+                                DateTimePicker::make('pickup_at')->label(__('transport.fields.pickup_at'))->required()->seconds(false),
+                            ]),
+                            Fieldset::make(__('forms.location'))->columns(2)->schema([
+                                Select::make('pickup_location_type')->label(__('transport.fields.pickup_location_type'))->required()->live()->options(collect(PickupLocationType::cases())->mapWithKeys(fn (PickupLocationType $case): array => [$case->value => $case->label()])->all()),
+                                Select::make('residence_id')->label(__('transport.fields.residence'))->required()
+                                    ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Residence->value)
+                                    ->options(fn (Get $get): array => blank($get('convert_id')) ? [] : app(PickupDirectory::class)->residenceOptions((int) $get('convert_id'))),
+                                TextInput::make('pickup_address')->label(__('transport.fields.pickup_address'))->maxLength(500)
+                                    ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Custom->value),
+                                TextInput::make('latitude')->label(__('transport.fields.latitude'))->numeric()->minValue(-90)->maxValue(90)
+                                    ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Custom->value),
+                                TextInput::make('longitude')->label(__('transport.fields.longitude'))->numeric()->minValue(-180)->maxValue(180)
+                                    ->visible(fn (Get $get): bool => $get('pickup_location_type') === PickupLocationType::Custom->value),
+                            ]),
+                            Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                                TextInput::make('notes')->label(__('transport.fields.notes'))->maxLength(1000),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $record, array $data, User $actor) => $pickups()->request(Convert::query()->findOrFail((int) $data['convert_id']), $data, $actor), 'transport.notifications.saved')),
             ])

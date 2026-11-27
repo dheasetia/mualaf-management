@@ -18,6 +18,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -63,16 +65,22 @@ final class DocumentTemplateResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('template_code')->label(__('documents.fields.template_code'))->required()->maxLength(40),
-            TextInput::make('name_ar')->label(__('documents.fields.name'))->required()->maxLength(255),
-            Select::make('document_type')->label(__('documents.fields.type'))->required()
-                ->options(collect(LetterType::cases())->mapWithKeys(fn (LetterType $type): array => [$type->value => $type->label()])->all()),
-            Select::make('orientation')->label(__('documents.fields.orientation'))->required()->default('portrait')
-                ->options(['portrait' => 'Portrait', 'landscape' => 'Landscape']),
-            TextInput::make('description')->label(__('documents.fields.description'))->maxLength(255)->columnSpanFull(),
-            Textarea::make('html_template')->label(__('documents.fields.html_template'))->required()->rows(20)
-                ->helperText(__('documents.help.html_template'))->columnSpanFull()->extraInputAttributes(['dir' => 'ltr', 'style' => 'font-family: monospace']),
+        return $schema->components([
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('template_code')->label(__('documents.fields.template_code'))->required()->maxLength(40),
+                    TextInput::make('name_ar')->label(__('documents.fields.name'))->required()->maxLength(255),
+                    Select::make('document_type')->label(__('documents.fields.type'))->required()
+                        ->options(collect(LetterType::cases())->mapWithKeys(fn (LetterType $type): array => [$type->value => $type->label()])->all()),
+                    Select::make('orientation')->label(__('documents.fields.orientation'))->required()->default('portrait')
+                        ->options(['portrait' => 'Portrait', 'landscape' => 'Landscape']),
+                    TextInput::make('description')->label(__('documents.fields.description'))->maxLength(255)->columnSpanFull(),
+                ]),
+                Fieldset::make(__('forms.content'))->columns(1)->schema([
+                    Textarea::make('html_template')->label(__('documents.fields.html_template'))->required()->rows(20)
+                        ->helperText(__('documents.help.html_template'))->columnSpanFull()->extraInputAttributes(['dir' => 'ltr', 'style' => 'font-family: monospace']),
+                ]),
+            ]),
         ]);
     }
 

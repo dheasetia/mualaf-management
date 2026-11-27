@@ -22,6 +22,7 @@ use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -72,32 +73,34 @@ final class DuplicateReviewCaseResource extends Resource
     {
         $other = fn (DuplicateReviewCase $record): array => app(DuplicateReview::class)->possibleConvert($record);
 
-        return $schema->columns(2)->components([
-            Section::make(__('duplicates.fields.candidate_name'))->schema([
-                TextEntry::make('candidate_name')->label(__('duplicates.fields.candidate_name'))
-                    ->state(fn (DuplicateReviewCase $record): string => (string) ($record->match_details['candidate_name'] ?? '—')),
-                TextEntry::make('candidate_dob')->label(__('duplicates.fields.candidate_date_of_birth'))
-                    ->state(fn (DuplicateReviewCase $record): string => (string) ($record->match_details['candidate_date_of_birth'] ?? '—')),
-                TextEntry::make('match_reason')->label(__('duplicates.fields.match_reason'))
-                    ->formatStateUsing(fn (MatchReason $state): string => $state->label()),
-                TextEntry::make('match_score')->label(__('duplicates.fields.match_score')),
+        return $schema->components([
+            Section::make(__('duplicates.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('duplicates.fields.candidate_name'))->schema([
+                    TextEntry::make('candidate_name')->label(__('duplicates.fields.candidate_name'))
+                        ->state(fn (DuplicateReviewCase $record): string => (string) ($record->match_details['candidate_name'] ?? '—')),
+                    TextEntry::make('candidate_dob')->label(__('duplicates.fields.candidate_date_of_birth'))
+                        ->state(fn (DuplicateReviewCase $record): string => (string) ($record->match_details['candidate_date_of_birth'] ?? '—')),
+                    TextEntry::make('match_reason')->label(__('duplicates.fields.match_reason'))
+                        ->formatStateUsing(fn (MatchReason $state): string => $state->label()),
+                    TextEntry::make('match_score')->label(__('duplicates.fields.match_score')),
+                ]),
+                Fieldset::make(__('duplicates.fields.possible_convert'))->schema([
+                    TextEntry::make('other_office')->label(__('duplicates.fields.office'))->state(fn (DuplicateReviewCase $record): string => $other($record)['office']),
+                    TextEntry::make('other_name')->label(__('duplicates.fields.name'))->state(fn (DuplicateReviewCase $record): string => $other($record)['name']),
+                    TextEntry::make('other_dob')->label(__('duplicates.fields.date_of_birth'))->state(fn (DuplicateReviewCase $record): string => $other($record)['date_of_birth'] ?? '—'),
+                    TextEntry::make('other_nationality')->label(__('duplicates.fields.nationality'))->state(fn (DuplicateReviewCase $record): string => $other($record)['nationality'] ?? '—'),
+                ]),
+                KeyValueEntry::make('details')->label(__('duplicates.fields.details'))->columnSpanFull()
+                    ->state(fn (DuplicateReviewCase $record): array => collect($record->match_details)
+                        ->except(['candidate_name', 'candidate_date_of_birth'])
+                        ->map(fn (mixed $value): string => match (true) {
+                            $value === true => '✓',
+                            $value === false => '✗',
+                            $value === null => '—',
+                            default => (string) $value,
+                        })->all()),
+                TextEntry::make('notes')->label(__('duplicates.fields.notes'))->placeholder('—')->columnSpanFull(),
             ]),
-            Section::make(__('duplicates.fields.possible_convert'))->schema([
-                TextEntry::make('other_office')->label(__('duplicates.fields.office'))->state(fn (DuplicateReviewCase $record): string => $other($record)['office']),
-                TextEntry::make('other_name')->label(__('duplicates.fields.name'))->state(fn (DuplicateReviewCase $record): string => $other($record)['name']),
-                TextEntry::make('other_dob')->label(__('duplicates.fields.date_of_birth'))->state(fn (DuplicateReviewCase $record): string => $other($record)['date_of_birth'] ?? '—'),
-                TextEntry::make('other_nationality')->label(__('duplicates.fields.nationality'))->state(fn (DuplicateReviewCase $record): string => $other($record)['nationality'] ?? '—'),
-            ]),
-            KeyValueEntry::make('details')->label(__('duplicates.fields.details'))->columnSpanFull()
-                ->state(fn (DuplicateReviewCase $record): array => collect($record->match_details)
-                    ->except(['candidate_name', 'candidate_date_of_birth'])
-                    ->map(fn (mixed $value): string => match (true) {
-                        $value === true => '✓',
-                        $value === false => '✗',
-                        $value === null => '—',
-                        default => (string) $value,
-                    })->all()),
-            TextEntry::make('notes')->label(__('duplicates.fields.notes'))->placeholder('—')->columnSpanFull(),
         ]);
     }
 

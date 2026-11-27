@@ -15,6 +15,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -37,26 +39,36 @@ final class ResidencesRelationManager extends LocationRelationManager
 
     public function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            Select::make('residence_type')->label(__('converts.locations.residence_type'))->required()
-                ->options(collect(ResidenceType::cases())->mapWithKeys(fn (ResidenceType $case): array => [$case->value => $case->label()])->all()),
-            TextInput::make('name')->label(__('converts.locations.name'))->maxLength(255),
-            Select::make('city_id')->label(__('converts.locations.city'))->searchable()
-                ->options(fn (): array => LocalizedName::options(City::query())),
-            TextInput::make('district')->label(__('converts.locations.district'))->maxLength(255),
-            TextInput::make('address')->label(__('converts.locations.address'))->maxLength(255),
-            TextInput::make('building_no')->label(__('converts.locations.building_no'))->maxLength(20),
-            TextInput::make('room_no')->label(__('converts.locations.room_no'))->maxLength(20),
-            TextInput::make('google_maps_url')->label(__('converts.locations.google_maps_url'))->url()->maxLength(500)
-                ->helperText(__('companies.help.google_maps_url'))->columnSpanFull(),
-            TextInput::make('latitude')->label(__('converts.locations.latitude'))->numeric()->minValue(-90)->maxValue(90),
-            TextInput::make('longitude')->label(__('converts.locations.longitude'))->numeric()->minValue(-180)->maxValue(180),
-            Toggle::make('is_pickup_point')->label(__('converts.locations.is_pickup_point')),
-            TextInput::make('pickup_instructions')->label(__('converts.locations.pickup_instructions'))->maxLength(500),
-            Toggle::make('is_current')->label(__('converts.locations.is_current'))->default(true),
-            DatePicker::make('started_at')->label(__('converts.locations.started_at')),
-            DatePicker::make('ended_at')->label(__('converts.locations.ended_at'))->afterOrEqual('started_at'),
-            Textarea::make('notes')->label(__('converts.locations.notes'))->maxLength(2000)->columnSpanFull(),
+        return $schema->components([
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    Select::make('residence_type')->label(__('converts.locations.residence_type'))->required()
+                        ->options(collect(ResidenceType::cases())->mapWithKeys(fn (ResidenceType $case): array => [$case->value => $case->label()])->all()),
+                    TextInput::make('name')->label(__('converts.locations.name'))->maxLength(255),
+                    Toggle::make('is_current')->label(__('converts.locations.is_current'))->default(true),
+                    DatePicker::make('started_at')->label(__('converts.locations.started_at')),
+                    DatePicker::make('ended_at')->label(__('converts.locations.ended_at'))->afterOrEqual('started_at'),
+                ]),
+                Fieldset::make(__('forms.location'))->columns(2)->schema([
+                    Select::make('city_id')->label(__('converts.locations.city'))->searchable()
+                        ->options(fn (): array => LocalizedName::options(City::query())),
+                    TextInput::make('district')->label(__('converts.locations.district'))->maxLength(255),
+                    TextInput::make('address')->label(__('converts.locations.address'))->maxLength(255),
+                    TextInput::make('building_no')->label(__('converts.locations.building_no'))->maxLength(20),
+                    TextInput::make('room_no')->label(__('converts.locations.room_no'))->maxLength(20),
+                    TextInput::make('google_maps_url')->label(__('converts.locations.google_maps_url'))->url()->maxLength(500)
+                        ->helperText(__('companies.help.google_maps_url'))->columnSpanFull(),
+                    TextInput::make('latitude')->label(__('converts.locations.latitude'))->numeric()->minValue(-90)->maxValue(90),
+                    TextInput::make('longitude')->label(__('converts.locations.longitude'))->numeric()->minValue(-180)->maxValue(180),
+                ]),
+                Fieldset::make(__('forms.details'))->columns(2)->schema([
+                    Toggle::make('is_pickup_point')->label(__('converts.locations.is_pickup_point')),
+                    TextInput::make('pickup_instructions')->label(__('converts.locations.pickup_instructions'))->maxLength(500),
+                ]),
+                Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                    Textarea::make('notes')->label(__('converts.locations.notes'))->maxLength(2000)->columnSpanFull(),
+                ]),
+            ]),
         ]);
     }
 

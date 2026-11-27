@@ -21,6 +21,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -71,16 +73,24 @@ final class ActivityTransportRequestResource extends Resource
             ->headerActions([
                 Action::make('request')->label(__('transport.actions.request'))->visible(fn (): bool => $can('transport.request'))
                     ->schema([
-                        Select::make('activity_plan_id')->label(__('transport.fields.plan'))->required()->searchable()
-                            ->options(fn (): array => DawahActivityPlan::query()->whereIn('status', [PlanStatus::Draft, PlanStatus::Submitted, PlanStatus::SupervisorReview, PlanStatus::NeedsRevision, PlanStatus::Approved, PlanStatus::Scheduled])
-                                ->orderBy('planned_date')->pluck('title', 'id')->all()),
-                        Select::make('transport_type')->label(__('transport.fields.transport_type'))->required()->options(collect(TransportType::cases())->mapWithKeys(fn (TransportType $case): array => [$case->value => $case->label()])->all()),
-                        TextInput::make('passenger_count')->label(__('transport.fields.passenger_count'))->required()->integer()->minValue(1),
-                        TextInput::make('vehicle_count')->label(__('transport.fields.vehicle_count'))->integer()->minValue(1)->default(1),
-                        DateTimePicker::make('departure_at')->label(__('transport.fields.departure_at'))->required()->seconds(false),
-                        DateTimePicker::make('return_at')->label(__('transport.fields.return_at'))->seconds(false),
-                        Toggle::make('pickup_required')->label(__('transport.fields.pickup_required')),
-                        Textarea::make('notes')->label(__('transport.fields.notes'))->maxLength(1000),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                                Select::make('activity_plan_id')->label(__('transport.fields.plan'))->required()->searchable()
+                                    ->options(fn (): array => DawahActivityPlan::query()->whereIn('status', [PlanStatus::Draft, PlanStatus::Submitted, PlanStatus::SupervisorReview, PlanStatus::NeedsRevision, PlanStatus::Approved, PlanStatus::Scheduled])
+                                        ->orderBy('planned_date')->pluck('title', 'id')->all()),
+                                Select::make('transport_type')->label(__('transport.fields.transport_type'))->required()->options(collect(TransportType::cases())->mapWithKeys(fn (TransportType $case): array => [$case->value => $case->label()])->all()),
+                                TextInput::make('passenger_count')->label(__('transport.fields.passenger_count'))->required()->integer()->minValue(1),
+                                TextInput::make('vehicle_count')->label(__('transport.fields.vehicle_count'))->integer()->minValue(1)->default(1),
+                            ]),
+                            Fieldset::make(__('forms.schedule'))->columns(2)->schema([
+                                DateTimePicker::make('departure_at')->label(__('transport.fields.departure_at'))->required()->seconds(false),
+                                DateTimePicker::make('return_at')->label(__('transport.fields.return_at'))->seconds(false),
+                                Toggle::make('pickup_required')->label(__('transport.fields.pickup_required')),
+                            ]),
+                            Fieldset::make(__('forms.notes'))->columns(1)->schema([
+                                Textarea::make('notes')->label(__('transport.fields.notes'))->maxLength(1000),
+                            ]),
+                        ]),
                     ])
                     ->action(self::domainAction(fn (mixed $record, array $data, User $user) => $workflow()->request(
                         DawahActivityPlan::query()->findOrFail((int) $data['activity_plan_id']), $data, $user,

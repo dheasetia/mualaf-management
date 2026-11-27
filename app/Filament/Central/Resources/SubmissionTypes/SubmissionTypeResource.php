@@ -19,6 +19,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -57,24 +59,32 @@ final class SubmissionTypeResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('code')->label(__('submissions.fields.code'))->required()->maxLength(40)
-                ->disabled(fn (?SubmissionType $record): bool => $record !== null && app(ManageSubmissionTypes::class)->isInUse($record))->dehydrated(),
-            TextInput::make('name_ar')->label(__('submissions.fields.name_ar'))->required()->maxLength(255),
-            TextInput::make('name_en')->label(__('submissions.fields.name_en'))->maxLength(255),
-            Select::make('generates_document_template_code')->label(__('submissions.fields.letter_type'))
-                ->options(collect(LetterWorkflow::CONVERT_LETTERS)->mapWithKeys(fn (LetterType $type): array => [$type->value => $type->label()])->all()),
-            TextInput::make('approval_stages')->label(__('submissions.fields.approval_stages'))->required()->integer()->minValue(1)->maxValue(5)->default(1),
-            TextInput::make('sla_days')->label(__('submissions.fields.sla_days'))->integer()->minValue(1)->maxValue(365),
-            Toggle::make('active')->label(__('submissions.fields.active'))->default(true),
-            Textarea::make('description')->label(__('submissions.fields.description'))->maxLength(255)->columnSpanFull(),
-            Repeater::make('required_documents')->label(__('submissions.fields.required_documents'))->columns(4)->columnSpanFull()->defaultItems(1)
-                ->schema([
-                    TextInput::make('code')->label(__('submissions.fields.code'))->required()->maxLength(40),
+        return $schema->components([
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('code')->label(__('submissions.fields.code'))->required()->maxLength(40)
+                        ->disabled(fn (?SubmissionType $record): bool => $record !== null && app(ManageSubmissionTypes::class)->isInUse($record))->dehydrated(),
                     TextInput::make('name_ar')->label(__('submissions.fields.name_ar'))->required()->maxLength(255),
                     TextInput::make('name_en')->label(__('submissions.fields.name_en'))->maxLength(255),
-                    Toggle::make('required')->label(__('submissions.fields.required'))->default(true),
+                    Toggle::make('active')->label(__('submissions.fields.active'))->default(true),
+                    Textarea::make('description')->label(__('submissions.fields.description'))->maxLength(255)->columnSpanFull(),
                 ]),
+                Fieldset::make(__('forms.settings'))->columns(3)->schema([
+                    Select::make('generates_document_template_code')->label(__('submissions.fields.letter_type'))
+                        ->options(collect(LetterWorkflow::CONVERT_LETTERS)->mapWithKeys(fn (LetterType $type): array => [$type->value => $type->label()])->all()),
+                    TextInput::make('approval_stages')->label(__('submissions.fields.approval_stages'))->required()->integer()->minValue(1)->maxValue(5)->default(1),
+                    TextInput::make('sla_days')->label(__('submissions.fields.sla_days'))->integer()->minValue(1)->maxValue(365),
+                ]),
+                Fieldset::make(__('forms.attachments'))->columns(1)->schema([
+                    Repeater::make('required_documents')->label(__('submissions.fields.required_documents'))->columns(4)->columnSpanFull()->defaultItems(1)
+                        ->schema([
+                            TextInput::make('code')->label(__('submissions.fields.code'))->required()->maxLength(40),
+                            TextInput::make('name_ar')->label(__('submissions.fields.name_ar'))->required()->maxLength(255),
+                            TextInput::make('name_en')->label(__('submissions.fields.name_en'))->maxLength(255),
+                            Toggle::make('required')->label(__('submissions.fields.required'))->default(true),
+                        ]),
+                ]),
+            ]),
         ]);
     }
 

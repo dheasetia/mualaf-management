@@ -15,6 +15,8 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -63,10 +65,14 @@ final class ChecklistResource extends Resource
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->columns(3)->components([
-            TextEntry::make('convert')->label(__('international.fields.convert'))->state(fn (PreDepartureChecklist $record): string => self::convertName($record->convert_id)),
-            TextEntry::make('status')->label(__('international.fields.status'))->badge()->formatStateUsing(fn (ChecklistStatus $state): string => $state->label()),
-            TextEntry::make('expected_departure_on')->label(__('international.fields.expected_departure_on'))->date('Y-m-d')->placeholder('—'),
+        return $schema->components([
+            Section::make(__('international.checklists.model'))->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(3)->schema([
+                    TextEntry::make('convert')->label(__('international.fields.convert'))->state(fn (PreDepartureChecklist $record): string => self::convertName($record->convert_id)),
+                    TextEntry::make('status')->label(__('international.fields.status'))->badge()->formatStateUsing(fn (ChecklistStatus $state): string => $state->label()),
+                    TextEntry::make('expected_departure_on')->label(__('international.fields.expected_departure_on'))->date('Y-m-d')->placeholder('—'),
+                ]),
+            ]),
         ]);
     }
 
