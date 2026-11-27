@@ -146,3 +146,10 @@ it('counts work in progress in this office only', function (): void {
 
     expect((string) $stats[0]->getValue())->toBe('2');
 });
+
+it('does not show the account widget on the center home page', function (): void {
+    $this->actingAs(grantRole(memberOf($this->tenant), 'dai', $this->tenant))
+        ->get('/center/DMM')
+        ->assertOk()
+        ->assertDontSee('fi-account-widget', false);
+});
