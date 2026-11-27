@@ -16,6 +16,7 @@ use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -34,6 +35,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property int $id
  * @property string $uuid
+ * @property string|null $avatar_path profile photo on the private disk
  * @property string $name
  * @property string $email
  * @property bool $is_active
@@ -46,7 +48,7 @@ use Illuminate\Notifications\Notifiable;
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token', 'phone_encrypted', 'app_authentication_secret', 'app_authentication_recovery_codes'])]
-class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasTenants
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasAvatar, HasTenants
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasUuids, Notifiable;
@@ -74,6 +76,12 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             'central' => app(Authorizer::class)->hasAnyPlatformRole($this),
             default => false,
         };
+    }
+
+    /** The profile photo through ShowProfilePhotoController; the file name changes with each upload. */
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->avatar_path === null ? null : route('users.photo', ['uuid' => $this->uuid, 'v' => substr(md5($this->avatar_path), 0, 8)]);
     }
 
     /** @return Collection<int, Tenant> */

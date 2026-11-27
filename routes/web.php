@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ShowProfilePhotoController;
 use App\Http\Controllers\SwitchLocaleController;
 use App\Http\Controllers\VerifyCertificateController;
 use App\Support\Localization\Locales;
@@ -16,6 +17,11 @@ Route::get('/verify/{uuid}', VerifyCertificateController::class)
     ->whereUuid('uuid')
     ->middleware('throttle:certificate-verification')
     ->name('certificates.verify');
+
+// Profile photos: signed-in users only, by user UUID.
+Route::get('/profile-photos/{uuid}', ShowProfilePhotoController::class)
+    ->whereUuid('uuid')
+    ->name('users.photo');
 
 // Interface language (Arabic / English); saved on the account when signed in.
 Route::post('/locale/{locale}', SwitchLocaleController::class)
