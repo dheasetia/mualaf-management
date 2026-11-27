@@ -27,6 +27,7 @@ use App\Filament\Center\Widgets\ShahadahTrendChart;
 use App\Filament\Center\Widgets\YearSummaryWidget;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
@@ -152,4 +153,10 @@ it('does not show the account widget on the center home page', function (): void
         ->get('/center/DMM')
         ->assertOk()
         ->assertDontSee('fi-account-widget', false);
+});
+
+it('does not show the account widget on the central home page', function (): void {
+    Filament\Facades\Filament::setCurrentPanel(Filament\Facades\Filament::getPanel('central'));
+
+    expect(Filament\Facades\Filament::getPanel('central')->getWidgets())->not->toContain(AccountWidget::class);
 });
