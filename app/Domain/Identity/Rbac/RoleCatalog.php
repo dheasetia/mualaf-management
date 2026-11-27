@@ -131,6 +131,28 @@ final class RoleCatalog
         ];
     }
 
+    /**
+     * Permissions a custom role of this scope may hold: those some system role of
+     * the same scope holds, so an office role never carries a platform-only power.
+     *
+     * @return list<string>
+     */
+    public static function assignablePermissions(RoleScope $scope): array
+    {
+        $permissions = [];
+
+        foreach (self::roles() as $definition) {
+            if ($definition['scope'] === $scope) {
+                $permissions = [...$permissions, ...$definition['permissions']];
+            }
+        }
+
+        $permissions = array_values(array_unique($permissions));
+        sort($permissions);
+
+        return $permissions;
+    }
+
     /** @param  list<string>  $permissions */
     public static function requiresMfa(RoleScope $scope, array $permissions): bool
     {

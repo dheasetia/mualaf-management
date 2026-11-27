@@ -46,6 +46,9 @@ use App\Domain\Guidance\Policies\GuidancePolicies;
 use App\Domain\Guidance\Services\GuidanceTeacherRoster;
 use App\Domain\Identity\Listeners\RecordFailedLogin;
 use App\Domain\Identity\Listeners\RecordSuccessfulLogin;
+use App\Domain\Identity\Models\Role;
+use App\Domain\Identity\Policies\RolePolicy;
+use App\Domain\Identity\Policies\UserPolicy;
 use App\Domain\Identity\Rbac\Authorizer;
 use App\Domain\Identity\Rbac\PermissionCatalog;
 use App\Domain\International\Events\ConsentWithdrawn;
@@ -143,6 +146,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             'user' => User::class,
             'tenant' => Tenant::class,
+            'role' => Role::class,
             'dai' => Dai::class,
             'prospect' => Prospect::class,
             'convert' => Convert::class,
@@ -193,6 +197,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::policy(AuditLog::class, AuditLogPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Dai::class, DaiPolicy::class);
         Gate::policy(Prospect::class, ProspectPolicy::class);
         Gate::policy(Convert::class, ConvertPolicy::class);
