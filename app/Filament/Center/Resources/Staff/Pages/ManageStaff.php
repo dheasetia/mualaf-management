@@ -18,6 +18,8 @@ use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -32,10 +34,18 @@ final class ManageStaff extends ManageRecords
             CreateAction::make()
                 ->label(__('users.actions.create'))
                 ->schema([
-                    TextInput::make('name')->label(__('users.fields.name'))->required()->maxLength(255),
-                    TextInput::make('email')->label(__('users.fields.email'))->email()->required()->maxLength(255),
-                    ...UserManagement::passwordFields(required: true),
-                    $this->rolesField(),
+                    Section::make()->columnSpanFull()->schema([
+                        Fieldset::make(__('forms.account'))->columns(2)->schema([
+                            TextInput::make('name')->label(__('users.fields.name'))->required()->maxLength(255),
+                            TextInput::make('email')->label(__('users.fields.email'))->email()->required()->maxLength(255),
+                        ]),
+                        Fieldset::make(__('forms.security'))->columns(2)->schema([
+                            ...UserManagement::passwordFields(required: true),
+                        ]),
+                        Fieldset::make(__('users.fields.office_roles'))->columns(1)->schema([
+                            $this->rolesField(),
+                        ]),
+                    ]),
                 ])
                 ->using(fn (array $data): User => UserManagement::run(fn (): User => DB::transaction(function () use ($data): User {
                     $actor = UserManagement::actor();

@@ -28,6 +28,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
@@ -102,9 +104,15 @@ final class UserResource extends Resource
                 EditAction::make()
                     ->authorize(fn (User $record): bool => UserManagement::actor()->can('update', $record))
                     ->schema([
-                        TextInput::make('name')->label(__('users.fields.name'))->required()->maxLength(255),
-                        TextInput::make('email')->label(__('users.fields.email'))->email()->required()->maxLength(255),
-                        ...UserManagement::passwordFields(required: false),
+                        Section::make()->columnSpanFull()->schema([
+                            Fieldset::make(__('forms.account'))->columns(2)->schema([
+                                TextInput::make('name')->label(__('users.fields.name'))->required()->maxLength(255),
+                                TextInput::make('email')->label(__('users.fields.email'))->email()->required()->maxLength(255),
+                            ]),
+                            Fieldset::make(__('forms.security'))->columns(2)->schema([
+                                ...UserManagement::passwordFields(required: false),
+                            ]),
+                        ]),
                     ])
                     ->fillForm(fn (User $record): array => ['name' => $record->name, 'email' => $record->email])
                     ->using(fn (User $record, array $data): User => UserManagement::run(fn (): User => app(UpdateUser::class)->handle($record, $data, UserManagement::actor()))),

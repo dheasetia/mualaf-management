@@ -20,6 +20,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -58,26 +60,32 @@ final class RoleResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('name_ar')->label(__('roles.fields.name_ar'))->required()->maxLength(255),
-            TextInput::make('name_en')->label(__('roles.fields.name_en'))->required()->maxLength(255),
-            Select::make('scope_type')
-                ->label(__('roles.fields.scope'))
-                ->helperText(__('roles.fields.scope_help'))
-                ->required()
-                ->live()
-                ->options(collect(RoleScope::cases())->mapWithKeys(fn (RoleScope $scope): array => [$scope->value => __('roles.scopes.'.$scope->value)])->all())
-                ->disabledOn('edit'),
-            Textarea::make('description')->label(__('roles.fields.description'))->maxLength(500),
-            CheckboxList::make('permissions')
-                ->label(__('roles.fields.permissions'))
-                ->helperText(__('roles.fields.permissions_help'))
-                ->required()
-                ->options(fn (Get $get): array => RoleTable::permissionOptions(self::scopeOf($get('scope_type'))))
-                ->searchable()
-                ->bulkToggleable()
-                ->columns(3)
-                ->columnSpanFull(),
+        return $schema->components([
+            Section::make()->columnSpanFull()->schema([
+                Fieldset::make(__('forms.basic'))->columns(2)->schema([
+                    TextInput::make('name_ar')->label(__('roles.fields.name_ar'))->required()->maxLength(255),
+                    TextInput::make('name_en')->label(__('roles.fields.name_en'))->required()->maxLength(255),
+                    Select::make('scope_type')
+                        ->label(__('roles.fields.scope'))
+                        ->helperText(__('roles.fields.scope_help'))
+                        ->required()
+                        ->live()
+                        ->options(collect(RoleScope::cases())->mapWithKeys(fn (RoleScope $scope): array => [$scope->value => __('roles.scopes.'.$scope->value)])->all())
+                        ->disabledOn('edit'),
+                    Textarea::make('description')->label(__('roles.fields.description'))->maxLength(500),
+                ]),
+                Fieldset::make(__('roles.fields.permissions'))->columns(1)->schema([
+                    CheckboxList::make('permissions')
+                        ->label(__('roles.fields.permissions'))
+                        ->helperText(__('roles.fields.permissions_help'))
+                        ->required()
+                        ->options(fn (Get $get): array => RoleTable::permissionOptions(self::scopeOf($get('scope_type'))))
+                        ->searchable()
+                        ->bulkToggleable()
+                        ->columns(3)
+                        ->columnSpanFull(),
+                ]),
+            ]),
         ]);
     }
 

@@ -15,6 +15,8 @@ use Filament\Actions\CreateAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Illuminate\Support\Facades\DB;
 
 final class ManageUsers extends ManageRecords
@@ -27,14 +29,22 @@ final class ManageUsers extends ManageRecords
             CreateAction::make()
                 ->label(__('users.actions.create'))
                 ->schema([
-                    TextInput::make('name')->label(__('users.fields.name'))->required()->maxLength(255),
-                    TextInput::make('email')->label(__('users.fields.email'))->email()->required()->maxLength(255),
-                    ...UserManagement::passwordFields(required: true),
-                    CheckboxList::make('roles')
-                        ->label(__('users.fields.platform_roles'))
-                        ->options(UserManagement::roleOptions(RoleScope::Platform))
-                        ->columns(2)
-                        ->visible(fn (): bool => UserManagement::actor()->hasPermission('users.assign_roles')),
+                    Section::make()->columnSpanFull()->schema([
+                        Fieldset::make(__('forms.account'))->columns(2)->schema([
+                            TextInput::make('name')->label(__('users.fields.name'))->required()->maxLength(255),
+                            TextInput::make('email')->label(__('users.fields.email'))->email()->required()->maxLength(255),
+                        ]),
+                        Fieldset::make(__('forms.security'))->columns(2)->schema([
+                            ...UserManagement::passwordFields(required: true),
+                        ]),
+                        Fieldset::make(__('users.fields.platform_roles'))->columns(1)->schema([
+                            CheckboxList::make('roles')
+                                ->label(__('users.fields.platform_roles'))
+                                ->options(UserManagement::roleOptions(RoleScope::Platform))
+                                ->columns(2)
+                                ->visible(fn (): bool => UserManagement::actor()->hasPermission('users.assign_roles')),
+                        ]),
+                    ]),
                 ])
                 ->using(fn (array $data): User => UserManagement::run(fn (): User => DB::transaction(function () use ($data): User {
                     $actor = UserManagement::actor();
