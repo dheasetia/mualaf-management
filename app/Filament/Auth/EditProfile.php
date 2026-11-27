@@ -14,6 +14,8 @@ use Filament\Auth\Pages\EditProfile as BaseEditProfile;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -34,21 +36,31 @@ final class EditProfile extends BaseEditProfile
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            FileUpload::make('photo')->label(__('identity.profile.photo'))->helperText(__('identity.profile.photo_help'))
-                ->image()->imagePreviewHeight('120')->storeFiles(false)
-                ->maxSize(ProfilePhotos::MAX_BYTES / 1024)->acceptedFileTypes(ProfilePhotos::MIME_TYPES),
-            Toggle::make('remove_photo')->label(__('identity.profile.remove_photo'))
-                ->visible(fn (): bool => ($user = $this->getUser()) instanceof User && $user->avatar_path !== null),
-            $this->getNameFormComponent(),
-            $this->getEmailFormComponent(),
-            TextInput::make('phone')->label(__('identity.profile.phone'))->tel()->maxLength(30)
-                ->extraInputAttributes(['dir' => 'ltr'])
-                ->required(fn (Get $get): bool => (bool) $get('whatsapp_opt_in')),
-            Toggle::make('whatsapp_opt_in')->label(__('identity.profile.whatsapp_opt_in'))->live()
-                ->helperText(__('identity.profile.whatsapp_help')),
-            $this->getPasswordFormComponent(),
-            $this->getPasswordConfirmationFormComponent(),
-            $this->getCurrentPasswordFormComponent(),
+            Section::make(__('filament-panels::auth/pages/edit-profile.label'))->columnSpanFull()->schema([
+                Fieldset::make(__('identity.profile.photo'))->columns(1)->schema([
+                    FileUpload::make('photo')->hiddenLabel()->helperText(__('identity.profile.photo_help'))
+                        ->image()->imagePreviewHeight('120')->storeFiles(false)
+                        ->maxSize(ProfilePhotos::MAX_BYTES / 1024)->acceptedFileTypes(ProfilePhotos::MIME_TYPES),
+                    Toggle::make('remove_photo')->label(__('identity.profile.remove_photo'))
+                        ->visible(fn (): bool => ($user = $this->getUser()) instanceof User && $user->avatar_path !== null),
+                ]),
+                Fieldset::make(__('forms.account'))->columns(2)->schema([
+                    $this->getNameFormComponent(),
+                    $this->getEmailFormComponent(),
+                ]),
+                Fieldset::make(__('forms.notifications'))->columns(1)->schema([
+                    TextInput::make('phone')->label(__('identity.profile.phone'))->tel()->maxLength(30)
+                        ->extraInputAttributes(['dir' => 'ltr'])
+                        ->required(fn (Get $get): bool => (bool) $get('whatsapp_opt_in')),
+                    Toggle::make('whatsapp_opt_in')->label(__('identity.profile.whatsapp_opt_in'))->live()
+                        ->helperText(__('identity.profile.whatsapp_help')),
+                ]),
+                Fieldset::make(__('forms.security'))->columns(1)->schema([
+                    $this->getPasswordFormComponent(),
+                    $this->getPasswordConfirmationFormComponent(),
+                    $this->getCurrentPasswordFormComponent(),
+                ]),
+            ]),
         ]);
     }
 
